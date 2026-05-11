@@ -1,4 +1,4 @@
-# Magazz Top
+# Magazin
 
 Static mobile-first menu app for GitHub Pages.  
 Works fully client-side with `HTML + CSS + JavaScript + LocalStorage`.
@@ -9,11 +9,12 @@ Works fully client-side with `HTML + CSS + JavaScript + LocalStorage`.
 
 ### Что это
 
-`Magazz Top` — молодежная витрина с акцентом на:
-- меню пельменей и сопутствующих позиций;
+`Magazin` — молодежная витрина с акцентом на:
+- полное меню по категориям;
 - кнопку **"Добавить в мои закладки"**;
 - сохранение закладок на устройстве без регистрации;
-- QR для быстрого входа на сайт.
+- QR для быстрого входа на сайт;
+- локальные фото товаров из проекта.
 
 ### Технологии
 
@@ -40,16 +41,13 @@ magazz-top/
 ### Как добавить новый товар
 
 1. Открой `assets/data/products.json`.
-2. Добавь объект в массив:
+2. Добавь объект в массив (без цены и состава):
 
 ```json
 {
   "id": "unique-id",
   "name": "Пельмени с сыром",
-  "category": "Пельмени",
-  "price": 239,
-  "image": "https://images.unsplash.com/...",
-  "description": "Короткое описание"
+  "category": "Пельмени"
 }
 ```
 
@@ -85,11 +83,12 @@ python3 -m http.server 8080
 
 ### Overview
 
-`Magazz Top` is a youth-focused static menu web app with:
-- product menu cards;
+`Magazin` is a youth-focused static menu web app with:
+- full category-based menu cards;
 - **"Add to my bookmarks"** flow instead of checkout;
 - persistent bookmarks via LocalStorage;
-- QR entry point for offline-to-online traffic.
+- QR entry point for offline-to-online traffic;
+- local product photos from the repository.
 
 ### Stack
 
@@ -106,10 +105,7 @@ Edit `assets/data/products.json` and append a new object:
 {
   "id": "unique-id",
   "name": "Cheese Dumplings",
-  "category": "Dumplings",
-  "price": 239,
-  "image": "https://images.unsplash.com/...",
-  "description": "Short product description"
+  "category": "Dumplings"
 }
 ```
 
