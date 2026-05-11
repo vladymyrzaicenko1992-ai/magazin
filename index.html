@@ -3,29 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Все в морозилке — Меню</title>
-  <meta name="description" content="Свежезаморожённые продукты у Киевского вокзала. Выбери и приди за заказом.">
-  <meta name="theme-color" content="#0a1628">
+  <title>Все в морозилке — Домашние замороженные продукты · Киев, возле вокзала</title>
+  <meta name="description" content="Домашние замороженные продукты у Киевского вокзала, напротив АТБ. Вареники, пельмени, котлеты, хинкали и многое другое. Приходите — расскажем всё!">
+  <meta name="theme-color" content="#080f1e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ice: #d6f0ff;
-      --ice2: #a8dcf5;
-      --deep: #0a1628;
-      --navy: #0f2040;
-      --mid: #1a3355;
-      --accent: #00c8f0;
-      --accent2: #00e4b0;
-      --warm: #ff6b35;
-      --card-bg: rgba(255,255,255,0.04);
-      --card-border: rgba(255,255,255,0.09);
-      --text: #e8f4fc;
-      --text2: #8ab3cc;
-      --r: 16px;
+      --deep: #080f1e;
+      --acc:  #00c8f0;
+      --acc2: #00e4b0;
+      --warm: #ff7043;
+      --cb:   rgba(255,255,255,0.05);
+      --cbh:  rgba(255,255,255,0.09);
+      --bdr:  rgba(255,255,255,0.08);
+      --txt:  #e4f0fa;
+      --txt2: #7aa8c4;
+      --r:    14px;
     }
 
     html { scroll-behavior: smooth; }
@@ -33,1280 +30,430 @@
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--deep);
-      color: var(--text);
+      color: var(--txt);
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* ── ANIMATED BG ── */
     body::before {
       content: '';
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0; z-index: -1;
       background:
-        radial-gradient(ellipse 70% 50% at 20% 10%, rgba(0,200,240,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,228,176,0.06) 0%, transparent 50%),
-        linear-gradient(160deg, #0a1628 0%, #0d1f3a 50%, #081220 100%);
-      z-index: -1;
+        radial-gradient(ellipse 80% 40% at 5% 0%,   rgba(0,200,240,.10) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 95% 100%, rgba(0,228,176,.07) 0%, transparent 55%),
+        var(--deep);
     }
 
-    /* ── HEADER ── */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(10,22,40,0.85);
+    /* TOPBAR */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(8,15,30,.9);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--card-border);
-      padding: 0 20px;
+      border-bottom: 1px solid var(--bdr);
+      padding: 0 18px;
     }
-
-    .header-inner {
-      max-width: 640px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      height: 60px;
+    .topbar-in {
+      max-width: 680px; margin: 0 auto;
+      display: flex; align-items: center; gap: 11px;
+      height: 56px;
     }
-
-    .logo-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
+    .logo-box {
+      width: 34px; height: 34px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--acc), var(--acc2));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px;
     }
-
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-
-    .logo-text {
+    .logo-txt {
       font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 15px;
-      line-height: 1.15;
-      color: var(--text);
+      font-size: 14px; font-weight: 800;
+      color: #fff; line-height: 1.15;
     }
-
-    .logo-text span {
+    .logo-txt small {
       display: block;
-      font-size: 10px;
-      font-weight: 400;
-      color: var(--text2);
-      letter-spacing: 0.05em;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px; font-weight: 400;
+      color: var(--txt2); letter-spacing: .05em;
       text-transform: uppercase;
     }
-
-    /* cart button */
-    .cart-btn {
-      position: relative;
-      background: rgba(0,200,240,0.12);
-      border: 1px solid rgba(0,200,240,0.3);
-      color: var(--accent);
-      border-radius: 12px;
-      padding: 8px 16px 8px 12px;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .cart-btn:hover { background: rgba(0,200,240,0.2); }
-
-    .cart-count {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      background: var(--warm);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      display: none;
-    }
-
-    .cart-count.visible { display: flex; }
-
-    /* ── HERO ── */
-    .hero {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 32px 20px 24px;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(0,200,240,0.1);
-      border: 1px solid rgba(0,200,240,0.25);
+    .open-badge {
+      margin-left: auto; flex-shrink: 0;
+      background: rgba(0,228,176,.1);
+      border: 1px solid rgba(0,228,176,.28);
       border-radius: 100px;
-      padding: 5px 14px;
-      font-size: 12px;
-      color: var(--accent);
-      margin-bottom: 16px;
-      animation: fadeUp 0.6s both;
+      padding: 4px 11px;
+      font-size: 12px; font-weight: 500;
+      color: var(--acc2);
+      display: flex; align-items: center; gap: 5px;
     }
-
-    .hero-badge::before {
+    .open-badge::before {
       content: '';
       width: 6px; height: 6px;
-      background: var(--accent);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
+      background: var(--acc2); border-radius: 50%;
+      animation: blink 2s infinite;
     }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
 
-    @keyframes pulse {
-      0%,100%{ opacity:1; transform:scale(1); }
-      50%{ opacity:0.4; transform:scale(0.7); }
+    /* HERO */
+    .hero {
+      max-width: 680px; margin: 0 auto;
+      padding: 36px 18px 0;
     }
-
+    .hero-kicker {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--acc); margin-bottom: 13px;
+    }
     .hero h1 {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(28px, 7vw, 38px);
-      font-weight: 800;
-      line-height: 1.1;
+      font-size: clamp(30px, 9vw, 48px);
+      font-weight: 800; line-height: 1.06;
       color: #fff;
-      animation: fadeUp 0.6s 0.1s both;
     }
-
     .hero h1 em {
       font-style: normal;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      background: linear-gradient(95deg, var(--acc) 0%, var(--acc2) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
-    .hero-sub {
-      margin-top: 10px;
-      font-size: 15px;
-      color: var(--text2);
-      line-height: 1.5;
-      animation: fadeUp 0.6s 0.2s both;
-    }
-
-    .hero-location {
+    .hero-lead {
       margin-top: 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: var(--text2);
-      animation: fadeUp 0.6s 0.3s both;
+      font-size: 15px; line-height: 1.7;
+      color: var(--txt2); max-width: 500px;
     }
+    .hero-lead strong { color: var(--txt); font-weight: 500; }
 
-    .hero-location svg { color: var(--warm); flex-shrink: 0; }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
+    /* LOCATION */
+    .loc-card {
+      margin-top: 20px;
+      background: rgba(255,112,67,.07);
+      border: 1px solid rgba(255,112,67,.2);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      display: flex; gap: 12px;
     }
-
-    /* ── SEARCH & CATS ── */
-    .controls {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 0 20px 16px;
+    .loc-pin { font-size: 22px; flex-shrink: 0; }
+    .loc-body { font-size: 14px; line-height: 1.65; color: var(--txt); }
+    .loc-body strong { color: var(--warm); }
+    .loc-body a {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 6px;
+      font-size: 13px; color: var(--acc);
+      text-decoration: none;
     }
+    .loc-body a:hover { text-decoration: underline; }
 
-    .search-wrap {
-      position: relative;
-      margin-bottom: 14px;
+    /* NOTICE */
+    .notice-wrap {
+      max-width: 680px; margin: 18px auto 0;
+      padding: 0 18px;
     }
+    .notice-box {
+      background: rgba(0,200,240,.05);
+      border: 1px solid rgba(0,200,240,.15);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      font-size: 14px; line-height: 1.7;
+      color: var(--txt2);
+    }
+    .notice-box strong { color: var(--acc); }
 
+    /* CONTROLS */
+    .ctrl-wrap {
+      max-width: 680px; margin: 22px auto 0;
+      padding: 0 18px;
+    }
+    .search-wrap { position: relative; margin-bottom: 11px; }
     .search-wrap svg {
-      position: absolute;
-      left: 14px;
-      top: 50%;
+      position: absolute; left: 13px; top: 50%;
       transform: translateY(-50%);
-      color: var(--text2);
-      pointer-events: none;
+      color: var(--txt2); pointer-events: none;
     }
-
     .search-input {
       width: 100%;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background: var(--cb);
+      border: 1px solid var(--bdr);
       border-radius: 12px;
-      padding: 12px 14px 12px 42px;
-      color: var(--text);
+      padding: 11px 14px 11px 40px;
+      color: var(--txt);
       font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.2s;
+      font-size: 15px; outline: none;
+      transition: border-color .2s;
     }
+    .search-input::placeholder { color: var(--txt2); }
+    .search-input:focus { border-color: rgba(0,200,240,.45); }
 
-    .search-input::placeholder { color: var(--text2); }
-    .search-input:focus { border-color: rgba(0,200,240,0.5); }
-
-    .categories {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 4px;
+    .cats {
+      display: flex; gap: 7px;
+      overflow-x: auto; scrollbar-width: none;
     }
-
-    .categories::-webkit-scrollbar { display: none; }
-
+    .cats::-webkit-scrollbar { display: none; }
     .cat-btn {
       flex-shrink: 0;
-      padding: 7px 16px;
+      padding: 6px 14px;
       border-radius: 100px;
-      border: 1px solid var(--card-border);
-      background: var(--card-bg);
-      color: var(--text2);
+      border: 1px solid var(--bdr);
+      background: transparent;
+      color: var(--txt2);
       font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
+      font-size: 13px; cursor: pointer;
+      transition: all .15s; white-space: nowrap;
     }
-
-    .cat-btn:hover { border-color: rgba(0,200,240,0.3); color: var(--text); }
-
+    .cat-btn:hover { border-color: rgba(0,200,240,.3); color: var(--txt); }
     .cat-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: var(--deep);
-      font-weight: 500;
+      background: var(--acc); border-color: var(--acc);
+      color: #080f1e; font-weight: 500;
     }
 
-    /* ── GRID ── */
+    /* GRID */
     .grid-wrap {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 0 20px 120px;
+      max-width: 680px; margin: 18px auto 0;
+      padding: 0 18px 56px;
     }
-
-    .section-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text2);
-      margin-bottom: 12px;
-      padding-top: 4px;
+    .sec-lbl {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: .09em; text-transform: uppercase;
+      color: var(--txt2); margin-bottom: 11px;
     }
-
-    .products-grid {
+    .pgrid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 9px;
     }
+    @media(min-width:440px){ .pgrid{ grid-template-columns: repeat(3,1fr); } }
+    @media(min-width:600px){ .pgrid{ grid-template-columns: repeat(4,1fr); } }
 
-    .product-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+    .pcard {
+      background: var(--cb);
+      border: 1px solid var(--bdr);
       border-radius: var(--r);
       overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-      animation: fadeUp 0.4s both;
+      transition: transform .18s, border-color .18s, background .18s;
+      animation: fadeup .32s both;
     }
-
-    .product-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(0,200,240,0.25);
-      box-shadow: 0 8px 32px rgba(0,200,240,0.08);
+    .pcard:hover {
+      transform: translateY(-3px);
+      border-color: rgba(0,200,240,.24);
+      background: var(--cbh);
     }
+    @keyframes fadeup { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
-    .product-card.in-cart {
-      border-color: rgba(0,228,176,0.4);
-      background: rgba(0,228,176,0.05);
-    }
-
-    .product-img {
-      width: 100%;
-      aspect-ratio: 1;
-      background: rgba(255,255,255,0.03);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .pcard-img {
+      width: 100%; aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
       font-size: 48px;
+      background: rgba(255,255,255,.025);
       position: relative;
       overflow: hidden;
     }
-
-    .product-img img {
-      width: 100%;
-      height: 100%;
+    .pcard-img img {
+      width: 100%; height: 100%;
       object-fit: cover;
-    }
-
-    .product-img .emoji-placeholder {
-      font-size: 52px;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-    }
-
-    .product-img .add-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,200,240,0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .product-card:hover .add-overlay { opacity: 1; }
-
-    .add-overlay-icon {
-      width: 44px; height: 44px;
-      background: var(--accent);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      color: var(--deep);
-      font-weight: 700;
-    }
-
-    .product-info {
-      padding: 10px 12px 12px;
-    }
-
-    .product-name {
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.3;
-      margin-bottom: 6px;
-    }
-
-    .product-cat-tag {
-      font-size: 11px;
-      color: var(--text2);
-    }
-
-    .product-add-btn {
-      margin-top: 8px;
-      width: 100%;
-      padding: 7px;
-      border-radius: 8px;
-      border: 1px solid rgba(0,200,240,0.25);
-      background: rgba(0,200,240,0.08);
-      color: var(--accent);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    .product-add-btn:hover { background: rgba(0,200,240,0.18); }
-
-    .product-add-btn.added {
-      border-color: rgba(0,228,176,0.4);
-      background: rgba(0,228,176,0.1);
-      color: var(--accent2);
-    }
-
-    .qty-control {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 8px;
-    }
-
-    .qty-control.visible { display: flex; }
-
-    .qty-btn {
-      width: 28px; height: 28px;
-      border-radius: 8px;
-      border: 1px solid var(--card-border);
-      background: rgba(255,255,255,0.05);
-      color: var(--text);
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s;
-    }
-
-    .qty-btn:hover { background: rgba(255,255,255,0.12); }
-    .qty-num { font-size: 14px; font-weight: 600; color: var(--text); }
-
-    .empty-state {
-      grid-column: 1/-1;
-      text-align: center;
-      padding: 48px 0;
-      color: var(--text2);
-    }
-
-    .empty-state p { font-size: 15px; margin-top: 8px; }
-
-    /* ── CART SHEET ── */
-    .cart-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      z-index: 200;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-
-    .cart-overlay.open { opacity: 1; pointer-events: all; }
-
-    .cart-sheet {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      max-width: 640px;
-      margin: 0 auto;
-      background: #0f1e35;
-      border-top: 1px solid var(--card-border);
-      border-radius: 20px 20px 0 0;
-      z-index: 201;
-      padding: 0 0 env(safe-area-inset-bottom, 20px);
-      transform: translateY(100%);
-      transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .cart-sheet.open { transform: translateY(0); }
-
-    .sheet-handle {
-      width: 40px; height: 4px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 2px;
-      margin: 12px auto 0;
-      flex-shrink: 0;
-    }
-
-    .sheet-header {
-      padding: 16px 20px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .sheet-header h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .sheet-close {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      border: 1px solid var(--card-border);
-      background: transparent;
-      color: var(--text2);
-      cursor: pointer;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-    .sheet-close:hover { background: rgba(255,255,255,0.08); color: var(--text); }
-
-    .cart-items {
-      overflow-y: auto;
-      flex: 1;
-      padding: 12px 20px;
-    }
-
-    .cart-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .cart-item:last-child { border-bottom: none; }
-
-    .ci-thumb { width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
-
-    .ci-name {
-      flex: 1;
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 1.3;
-    }
-
-    .ci-qty {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .ci-q-btn {
-      width: 26px; height: 26px;
-      border-radius: 6px;
-      border: 1px solid var(--card-border);
-      background: rgba(255,255,255,0.05);
-      color: var(--text);
-      font-size: 15px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .ci-q-btn:hover { background: rgba(255,255,255,0.1); }
-    .ci-q-num { font-size: 14px; font-weight: 600; min-width: 20px; text-align: center; }
-
-    .cart-empty-msg {
-      text-align: center;
-      padding: 40px 0;
-      color: var(--text2);
-      font-size: 15px;
-    }
-
-    .cart-footer {
-      padding: 16px 20px;
-      border-top: 1px solid var(--card-border);
-      flex-shrink: 0;
-    }
-
-    .cart-total {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .cart-total-label { font-size: 14px; color: var(--text2); }
-    .cart-total-num { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); }
-
-    .show-order-btn {
-      width: 100%;
-      padding: 15px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: var(--deep);
-      font-family: 'Syne', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-    .show-order-btn:hover { opacity: 0.9; transform: scale(0.99); }
-    .show-order-btn:active { transform: scale(0.97); }
-
-    /* ── ORDER SUMMARY VIEW ── */
-    .order-view {
-      display: none;
-      flex-direction: column;
-      position: fixed;
-      inset: 0;
-      max-width: 640px;
-      margin: 0 auto;
-      background: #0a1628;
-      z-index: 300;
-      overflow-y: auto;
-      padding: 0 0 40px;
-    }
-
-    .order-view.open { display: flex; }
-
-    .order-header {
-      padding: 20px 20px 16px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border-bottom: 1px solid var(--card-border);
-      position: sticky;
-      top: 0;
-      background: #0a1628;
-      z-index: 1;
-    }
-
-    .back-btn {
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      border: 1px solid var(--card-border);
-      background: transparent;
-      color: var(--text);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s;
-    }
-    .back-btn:hover { background: rgba(255,255,255,0.08); }
-
-    .order-header h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .order-body {
-      padding: 24px 20px;
-      flex: 1;
-    }
-
-    .order-intro {
-      background: rgba(0,200,240,0.07);
-      border: 1px solid rgba(0,200,240,0.2);
-      border-radius: var(--r);
-      padding: 16px;
-      margin-bottom: 24px;
-    }
-
-    .order-intro p {
-      font-size: 14px;
-      color: var(--text2);
-      line-height: 1.6;
-    }
-
-    .order-intro p strong {
-      color: var(--accent);
-    }
-
-    .order-list-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text2);
-      margin-bottom: 14px;
-    }
-
-    .order-list-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .order-list-item:last-child { border-bottom: none; }
-
-    .oli-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
-    .oli-info { flex: 1; }
-    .oli-name { font-size: 15px; font-weight: 500; }
-    .oli-qty { font-size: 13px; color: var(--accent2); margin-top: 2px; }
-
-    .order-qr-section {
-      margin-top: 28px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--r);
-      padding: 20px;
-      text-align: center;
-    }
-
-    .order-qr-section h3 {
-      font-family: 'Syne', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .order-qr-section p {
-      font-size: 13px;
-      color: var(--text2);
-      margin-bottom: 16px;
-    }
-
-    #qr-wrap img, #qr-wrap canvas {
-      border-radius: 10px;
-      max-width: 160px;
-    }
-
-    .map-section {
-      margin-top: 24px;
-      border-radius: var(--r);
-      overflow: hidden;
-      border: 1px solid var(--card-border);
-    }
-
-    .map-section iframe {
-      width: 100%;
-      height: 180px;
-      border: none;
       display: block;
     }
-
-    .map-label {
-      background: var(--card-bg);
-      border-top: 1px solid var(--card-border);
-      padding: 10px 14px;
-      font-size: 13px;
-      color: var(--text2);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .clear-cart-btn {
-      margin-top: 24px;
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,80,80,0.3);
-      background: rgba(255,80,80,0.06);
-      color: #ff6b6b;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .clear-cart-btn:hover { background: rgba(255,80,80,0.12); }
-
-    /* ── FLOATING CART BAR ── */
-    .float-cart {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      max-width: 600px;
-      margin: 0 auto;
-      background: linear-gradient(135deg, rgba(0,200,240,0.15), rgba(0,228,176,0.1));
-      border: 1px solid rgba(0,200,240,0.35);
-      border-radius: 16px;
-      backdrop-filter: blur(20px);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 150;
-      transform: translateY(100px);
-      opacity: 0;
-      transition: transform 0.35s cubic-bezier(0.32,0.72,0,1), opacity 0.3s;
-      cursor: pointer;
-    }
-
-    .float-cart.visible {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    .float-cart-left { display: flex; align-items: center; gap: 10px; }
-
-    .float-cart-count {
-      width: 32px; height: 32px;
-      background: var(--accent);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .pcard-body { padding: 8px 11px 12px; }
+    .pcard-name {
       font-family: 'Syne', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--deep);
+      font-size: 12px; font-weight: 700;
+      color: var(--txt); line-height: 1.35;
+    }
+    .pcard-cat {
+      margin-top: 3px;
+      font-size: 11px; color: var(--txt2);
     }
 
-    .float-cart-text {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    .float-cart-arrow {
-      font-size: 20px;
-      color: var(--accent);
-    }
-
-    /* no-results */
-    .no-results {
+    .no-res {
       grid-column: 1/-1;
+      text-align: center; padding: 60px 0;
+      color: var(--txt2); font-size: 15px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--bdr);
+      padding: 30px 18px 44px;
+    }
+    footer .fin {
+      max-width: 680px; margin: 0 auto;
       text-align: center;
-      padding: 60px 20px;
+      color: var(--txt2); font-size: 13px; line-height: 1.9;
     }
-
-    .no-results .emoji { font-size: 48px; margin-bottom: 12px; }
-    .no-results p { color: var(--text2); font-size: 15px; }
-
-    /* ── RESPONSIVE ── */
-    @media (min-width: 480px) {
-      .products-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-
-    @media (min-width: 640px) {
-      body::before {
-        background:
-          radial-gradient(ellipse 50% 60% at 15% 15%, rgba(0,200,240,0.1) 0%, transparent 50%),
-          radial-gradient(ellipse 50% 60% at 85% 75%, rgba(0,228,176,0.07) 0%, transparent 50%),
-          linear-gradient(160deg, #0a1628 0%, #0d1f3a 50%, #081220 100%);
-      }
-    }
+    footer .fin strong { color: var(--txt); font-weight: 500; }
+    footer .fin a { color: var(--acc); text-decoration: none; }
+    footer .fin a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="header-inner">
-    <div class="logo-wrap">
-      <div class="logo-icon">❄️</div>
-      <div class="logo-text">
-        Все в морозилке
-        <span>у Київського вокзалу</span>
-      </div>
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="logo-box">❄️</div>
+    <div class="logo-txt">
+      Все в морозилке
+      <small>домашние замороженные продукты</small>
     </div>
-    <button class="cart-btn" id="cartBtn" aria-label="Открыть корзину">
-      🧺 Список
-      <span class="cart-count" id="cartCount">0</span>
-    </button>
+    <div class="open-badge">Открыто</div>
   </div>
 </header>
 
-<!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">🟢 Відкрито зараз</div>
-  <h1>Заморожені<br><em>продукти</em><br>у вашому місті</h1>
-  <p class="hero-sub">Оберіть товари, сформуйте список — і просто приходьте забирати. Швидко, зручно, без черг.</p>
-  <a class="hero-location" href="https://maps.google.com/?q=50.43462504418194,30.64699041302942" target="_blank" rel="noopener">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-    вул. поряд з Київським вокзалом · 10 хв пішки від платформи
-  </a>
+  <div class="hero-kicker">Киев · у Киевского вокзала</div>
+  <h1>Домашние<br><em>замороженные</em><br>продукты</h1>
+  <p class="hero-lead">
+    Вареники, пельмени, котлеты, хинкали, блинчики и многое другое —
+    <strong>всё домашнее, всё вкусное.</strong>
+    Просто приходите и выбирайте.
+  </p>
+
+  <div class="loc-card">
+    <div class="loc-pin">📍</div>
+    <div class="loc-body">
+      <strong>Возле Киевского вокзала, напротив АТБ</strong><br>
+      Все знают, где АТБ — мы рядышком, буквально 2 шага от него.
+      Прямо с платформы — пешком и вы у нас.
+      <br>
+      <a href="https://maps.google.com/?q=50.43462504418194,30.64699041302942" target="_blank" rel="noopener">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+        Показать на карте →
+      </a>
+    </div>
+  </div>
 </section>
 
-<!-- CONTROLS -->
-<div class="controls">
+<div class="notice-wrap">
+  <div class="notice-box">
+    💬 <strong>Ассортимент всегда обновляется</strong> — лучше спросите у продавца, он всё расскажет и объяснит.
+    Есть пожелание? Скажите нам — добавим нужный товар. Чем вас больше, тем лучше становится магазин. Мы работаем ради вас!
+  </div>
+</div>
+
+<div class="ctrl-wrap">
   <div class="search-wrap">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input class="search-input" id="searchInput" type="search" placeholder="Пошук товару..." autocomplete="off">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input class="search-input" id="searchInput" type="search" placeholder="Найти товар..." autocomplete="off">
   </div>
-  <div class="categories" id="categories"></div>
+  <div class="cats" id="cats"></div>
 </div>
 
-<!-- GRID -->
 <div class="grid-wrap">
-  <div class="section-title" id="sectionTitle">Всі товари</div>
-  <div class="products-grid" id="productsGrid"></div>
+  <div class="sec-lbl" id="secLbl">Все товары</div>
+  <div class="pgrid" id="pgrid"></div>
 </div>
 
-<!-- FLOATING CART BAR -->
-<div class="float-cart" id="floatCart" role="button" tabindex="0">
-  <div class="float-cart-left">
-    <div class="float-cart-count" id="floatCount">0</div>
-    <span class="float-cart-text">товарів у списку</span>
+<footer>
+  <div class="fin">
+    <strong>Все в морозилке</strong><br>
+    Киев · возле Киевского вокзала, напротив АТБ<br>
+    <a href="https://maps.google.com/?q=50.43462504418194,30.64699041302942" target="_blank" rel="noopener">Открыть на карте Google</a>
   </div>
-  <span class="float-cart-arrow">→</span>
-</div>
-
-<!-- CART SHEET OVERLAY -->
-<div class="cart-overlay" id="cartOverlay"></div>
-
-<!-- CART SHEET -->
-<div class="cart-sheet" id="cartSheet" role="dialog" aria-label="Список замовлення">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <h2>🧺 Мій список</h2>
-    <button class="sheet-close" id="sheetClose">✕</button>
-  </div>
-  <div class="cart-items" id="cartItemsList"></div>
-  <div class="cart-footer">
-    <div class="cart-total">
-      <span class="cart-total-label">Разом позицій:</span>
-      <span class="cart-total-num" id="cartTotalItems">0</span>
-    </div>
-    <button class="show-order-btn" id="showOrderBtn">Показати замовлення продавцю →</button>
-  </div>
-</div>
-
-<!-- ORDER SUMMARY VIEW -->
-<div class="order-view" id="orderView">
-  <div class="order-header">
-    <button class="back-btn" id="backBtn">←</button>
-    <h2>Ваше замовлення</h2>
-  </div>
-  <div class="order-body">
-    <div class="order-intro">
-      <p>Покажіть цей екран продавцю. Ваші товари буде підготовлено <strong>відразу</strong>. Не потрібна реєстрація — просто прийдіть і заберіть!</p>
-    </div>
-    <div class="order-list-title">Позиції замовлення</div>
-    <div id="orderListItems"></div>
-
-    <div class="order-qr-section">
-      <h3>QR-код для збереження</h3>
-      <p>Скануйте, щоб зберегти список на телефон або поділитись</p>
-      <div id="qr-wrap" style="display:flex;justify-content:center;"></div>
-    </div>
-
-    <div class="map-section">
-      <iframe
-        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&q=50.43462504418194,30.64699041302942&zoom=16&maptype=roadmap"
-        loading="lazy"
-        allowfullscreen
-        title="Де знайти нас"
-      ></iframe>
-      <div class="map-label">
-        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-        поряд з Київським вокзалом · Київ
-      </div>
-    </div>
-
-    <button class="clear-cart-btn" id="clearCartBtn">🗑 Очистити список і почати заново</button>
-  </div>
-</div>
+</footer>
 
 <script>
-const PRODUCTS = [
-  { id:'var-kartoshka', name:'Вареники с картошкой', cat:'Вареники', img:'assets/img/products/vareniki/Вареники з картоплею.png' },
-  { id:'var-kapusta', name:'Вареники с капустой', cat:'Вареники', img:'assets/img/products/vareniki/Вареники з капустою.png' },
-  { id:'var-serdce-pechen', name:'Вареники сердце-печень', cat:'Вареники', img:'assets/img/products/vareniki/Вареники з серцем-печінкою.png' },
-  { id:'var-myaso-chesnok', name:'Вареники с мясом и чесноком', cat:'Вареники', img:'assets/img/products/vareniki/Вареники з м\'ясом та часником.png' },
-  { id:'var-tvorog-sladkiy', name:'Вареники с творогом сладкие', cat:'Вареники', img:'assets/img/products/vareniki/Вареники з солодким творогом.png' },
-  { id:'bl-myaso-dom', name:'Блинчики домашние с мясом', cat:'Блинчики', img:'assets/img/products/bliny/Блинчики (з м\'ясом, творогом).png' },
-  { id:'bl-tvorog-dom', name:'Блинчики домашние с творогом', cat:'Блинчики', img:'assets/img/products/bliny/Блинчики (з м\'ясом, творогом).png' },
-  { id:'bend-myaso', name:'Бендерики с мясом', cat:'Блинчики', img:'assets/img/products/bliny/Бендерки (м\'ясо, капуста свіжа та тушкована).png' },
-  { id:'bend-kapusta', name:'Бендерики с капустой', cat:'Блинчики', img:'assets/img/products/bliny/Бендерки (м\'ясо, капуста свіжа та тушкована).png' },
-  { id:'cheb-myaso-syr', name:'Чебуреки с мясом и сыром', cat:'Блинчики', img:'assets/img/products/bliny/Чебуреки (з м\'ясом та сиром).png' },
-  { id:'syrniki-zhar', name:'Сырники жареные', cat:'Блинчики', img:'assets/img/products/bliny/Сирники смажені.png' },
-  { id:'zrazy-myas-kap', name:'Зразы жареные', cat:'Блинчики', img:'assets/img/products/vareniki/Зрази смажені (з м\'ясом , капустою).png' },
-  { id:'sosiska-v-teste', name:'Сосиска в тесте', cat:'Блинчики', img:'assets/img/products/bliny/Сосиска в тісті.png' },
-  { id:'gnizdechka-myaso', name:'Гнездышки с мясом', cat:'Блинчики', img:'assets/img/products/bliny/Гніздечка з м\'ясом.png' },
-  { id:'ovoshi-zamorozh', name:'Замороженные овощи', cat:'Дополнительно', img:'assets/img/products/bliny/Заморожені овочі, Картопля фрі.png' },
-  { id:'kartoplya-fri', name:'Картошка фри', cat:'Дополнительно', img:'assets/img/products/bliny/Заморожені овочі, Картопля фрі.png' },
-  { id:'kot-babush', name:'Котлеты Бабушкины', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети «Бабусині» (свинина + яловичина).png' },
-  { id:'kot-yozhik', name:'Котлеты Ежик', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети «Їжачок» (курка).png' },
-  { id:'kot-syr', name:'Котлеты с сыром', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети «З сиром» (яловичина + сир).png' },
-  { id:'kot-po-kiev-farsh', name:'Котлеты по-киевски', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети «По-київськи» (курячий фарш + масло + зелень).png' },
-  { id:'kot-sviny', name:'Котлеты из свинины', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети зі свинини.png' },
-  { id:'kot-shkoln', name:'Котлеты Школьные', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети «Шкільні» (курка).png' },
-  { id:'naggets', name:'Нагетсы', cat:'Котлеты', img:'assets/img/products/cutlets/Нагетси курячі.png' },
-  { id:'grechaniki', name:'Гречаники', cat:'Котлеты', img:'assets/img/products/cutlets/Гречаники домашні (свинина + яловичина + гречка).png' },
-  { id:'kot-kiev-file', name:'Киевские', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети «Київські» (філе + масло + зелень).png' },
-  { id:'kordon-blu', name:'Кордон-блю', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети «Кордон-Блю» (філе + шинка + сир).png' },
-  { id:'kot-sokovit', name:'Котлеты Соковитые', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети «Соковиті» (яловичина + курка).png' },
-  { id:'kot-dom-maslo', name:'Котлеты Домашние', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети «Домашні» (свинина + яловичина + масло).png' },
-  { id:'shnic-dom', name:'Шницель домашний', cat:'Котлеты', img:'assets/img/products/cutlets/Шніцель домашній (яловичина).png' },
-  { id:'kot-burger', name:'Котлеты Бургерные', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети для бургерів (яловичина).png' },
-  { id:'kot-rublen', name:'Котлеты Рубленые', cat:'Котлеты', img:'assets/img/products/cutlets/Котлети рублені (свинина + яловичина + курка).png' },
-  { id:'golubcy', name:'Голубцы', cat:'Котлеты', img:'assets/img/products/cutlets/Голубці (свинина + яловичина).png' },
-  { id:'perec-farsh', name:'Перец фаршированный', cat:'Котлеты', img:'assets/img/products/cutlets/Перець фарширований (свинина + яловичина).png' },
-  { id:'pel-bogatyr', name:'Пельмени Богатырские', cat:'Пельмени', img:'assets/img/products/dumplings/Богатирські (Яловичина + курка).png' },
-  { id:'pel-bulmeni', name:'Бульмени', cat:'Пельмени', img:'assets/img/products/dumplings/Бульмені (Яловичина + бульйон).png' },
-  { id:'pel-dom', name:'Пельмени Домашние', cat:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Домашні» (свинина).jpg' },
-  { id:'pel-kozackie', name:'Пельмени Козацкие', cat:'Пельмени', img:'assets/img/products/dumplings/Козацькі (Свинина + яловичина).png' },
-  { id:'pel-kurinye', name:'Пельмени Куриные', cat:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Курячі».jpg' },
-  { id:'pel-malyshki', name:'Пельмени Малышки', cat:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Малюки» .png' },
-  { id:'pel-babush', name:'Пельмени Бабушкины', cat:'Пельмени', img:'assets/img/products/dumplings/Бабусині (Свинина + яловичина + курка).png' },
-  { id:'pel-vershk', name:'Пельмени Вершковые', cat:'Пельмени', img:'assets/img/products/dumplings/Вершкові (Свинина + яловичина + вершкове масло).png' },
-  { id:'ravioli', name:'Равиоли', cat:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Равіолі» .png' },
-  { id:'hink-dom', name:'Хинкали Домашние', cat:'Хинкали', img:'assets/img/products/dumplings/Хінкалі «Домашні» .png' },
-  { id:'hink-kavkaz', name:'Хинкали Кавказские', cat:'Хинкали', img:'assets/img/products/dumplings/Хінкалі «Кавказькі» (яловичина + курка + зелень + паприка + базилік).png' },
-  { id:'hink-shah', name:'Хинкали Шах', cat:'Хинкали', img:'assets/img/products/dumplings/Хінкалі «Шах» (свинина + яловичина + зелень).png' },
-  { id:'smetana', name:'Сметана фермерская', cat:'Молочка', img:'assets/img/products/molochka/Сметана фермерська.png' },
-  { id:'tvorog', name:'Творог домашний', cat:'Молочка', img:'assets/img/products/molochka/Творог домашній .png' },
-  { id:'sirna-masa', name:'Сырная масса с изюмом', cat:'Молочка', img:'assets/img/products/molochka/Сирна маса з родзинками .png' },
-  { id:'yaitsa', name:'Яйца фермерские', cat:'Дополнительно', img:'assets/img/products/qw/яйця.jpg' }
+const P = [
+  {id:'var-kartoshka', n:'Вареники с картошкой', c:'Вареники', img:'assets/img/products/vareniki/Вареники з картоплею.png'},
+  {id:'var-kapusta', n:'Вареники с капустой', c:'Вареники', img:'assets/img/products/vareniki/Вареники з капустою.png'},
+  {id:'var-serdce-pechen', n:'Вареники сердце-печень', c:'Вареники', img:'assets/img/products/vareniki/Вареники з серцем-печінкою.png'},
+  {id:'var-myaso-chesnok', n:'Вареники с мясом и чесноком', c:'Вареники', img:'assets/img/products/vareniki/Вареники з м\'ясом та часником.png'},
+  {id:'var-tvorog-sladkiy', n:'Вареники с творогом сладкие', c:'Вареники', img:'assets/img/products/vareniki/Вареники з солодким творогом.png'},
+  {id:'bl-myaso-dom', n:'Блинчики домашние с мясом', c:'Блинчики', img:'assets/img/products/bliny/Блинчики (з м\'ясом, творогом).png'},
+  {id:'bl-tvorog-dom', n:'Блинчики домашние с творогом', c:'Блинчики', img:'assets/img/products/bliny/Блинчики (з м\'ясом, творогом).png'},
+  {id:'bend-myaso', n:'Бендерики с мясом', c:'Блинчики', img:'assets/img/products/bliny/Бендерки (м\'ясо, капуста свіжа та тушкована).png'},
+  {id:'bend-kapusta', n:'Бендерики с капустой', c:'Блинчики', img:'assets/img/products/bliny/Бендерки (м\'ясо, капуста свіжа та тушкована).png'},
+  {id:'cheb-myaso-syr', n:'Чебуреки с мясом и сыром', c:'Блинчики', img:'assets/img/products/bliny/Чебуреки (з м\'ясом та сиром).png'},
+  {id:'syrniki-zhar', n:'Сырники жареные', c:'Блинчики', img:'assets/img/products/bliny/Сирники смажені.png'},
+  {id:'zrazy-myas-kap', n:'Зразы жареные', c:'Блинчики', img:'assets/img/products/vareniki/Зрази смажені (з м\'ясом , капустою).png'},
+  {id:'sosiska-v-teste', n:'Сосиска в тесте', c:'Блинчики', img:'assets/img/products/bliny/Сосиска в тісті.png'},
+  {id:'gnizdechka-myaso', n:'Гнездышки с мясом', c:'Блинчики', img:'assets/img/products/bliny/Гніздечка з м\'ясом.png'},
+  {id:'ovoshi-zamorozh', n:'Замороженные овощи', c:'Дополнительно', img:'assets/img/products/bliny/Заморожені овочі, Картопля фрі.png'},
+  {id:'kartoplya-fri', n:'Картошка фри', c:'Дополнительно', img:'assets/img/products/bliny/Заморожені овочі, Картопля фрі.png'},
+  {id:'kot-babush', n:'Котлеты Бабушкины', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Бабусині» (свинина + яловичина).png'},
+  {id:'kot-yozhik', n:'Котлеты Ежик', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Їжачок» (курка).png'},
+  {id:'kot-syr', n:'Котлеты с сыром', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «З сиром» (яловичина + сир).png'},
+  {id:'kot-po-kiev-farsh', n:'Котлеты по-киевски', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «По-київськи» (курячий фарш + масло + зелень).png'},
+  {id:'kot-sviny', n:'Котлеты из свинины', c:'Котлеты', img:'assets/img/products/cutlets/Котлети зі свинини.png'},
+  {id:'kot-shkoln', n:'Котлеты Школьные', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Шкільні» (курка).png'},
+  {id:'naggets', n:'Нагетсы', c:'Котлеты', img:'assets/img/products/cutlets/Нагетси курячі.png'},
+  {id:'grechaniki', n:'Гречаники', c:'Котлеты', img:'assets/img/products/cutlets/Гречаники домашні (свинина + яловичина + гречка).png'},
+  {id:'kot-kiev-file', n:'Киевские', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Київські» (філе + масло + зелень).png'},
+  {id:'kordon-blu', n:'Кордон-блю', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Кордон-Блю» (філе + шинка + сир).png'},
+  {id:'kot-sokovit', n:'Котлеты Соковитые', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Соковиті» (яловичина + курка).png'},
+  {id:'kot-dom-maslo', n:'Котлеты Домашние', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Домашні» (свинина + яловичина + масло).png'},
+  {id:'shnic-dom', n:'Шницель домашний', c:'Котлеты', img:'assets/img/products/cutlets/Шніцель домашній (яловичина).png'},
+  {id:'kot-burger', n:'Котлеты Бургерные', c:'Котлеты', img:'assets/img/products/cutlets/Котлети для бургерів (яловичина).png'},
+  {id:'kot-rublen', n:'Котлеты Рубленые', c:'Котлеты', img:'assets/img/products/cutlets/Котлети рублені (свинина + яловичина + курка).png'},
+  {id:'golubcy', n:'Голубцы', c:'Котлеты', img:'assets/img/products/cutlets/Голубці (свинина + яловичина).png'},
+  {id:'perec-farsh', n:'Перец фаршированный', c:'Котлеты', img:'assets/img/products/cutlets/Перець фарширований (свинина + яловичина).png'},
+  {id:'pel-bogatyr', n:'Пельмени Богатырские', c:'Пельмени', img:'assets/img/products/dumplings/Богатирські (Яловичина + курка).png'},
+  {id:'pel-bulmeni', n:'Бульмени', c:'Пельмени', img:'assets/img/products/dumplings/Бульмені (Яловичина + бульйон).png'},
+  {id:'pel-dom', n:'Пельмени Домашние', c:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Домашні» (свинина).jpg'},
+  {id:'pel-kozackie', n:'Пельмени Козацкие', c:'Пельмени', img:'assets/img/products/dumplings/Козацькі (Свинина + яловичина).png'},
+  {id:'pel-kurinye', n:'Пельмени Куриные', c:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Курячі».jpg'},
+  {id:'pel-malyshki', n:'Пельмени Малышки', c:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Малюки» .png'},
+  {id:'pel-babush', n:'Пельмени Бабушкины', c:'Пельмени', img:'assets/img/products/dumplings/Бабусині (Свинина + яловичина + курка).png'},
+  {id:'pel-vershk', n:'Пельмени Вершковые', c:'Пельмени', img:'assets/img/products/dumplings/Вершкові (Свинина + яловичина + вершкове масло).png'},
+  {id:'ravioli', n:'Равиоли', c:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Равіолі» .png'},
+  {id:'hink-dom', n:'Хинкали Домашние', c:'Хинкали', img:'assets/img/products/dumplings/Хінкалі «Домашні» .png'},
+  {id:'hink-kavkaz', n:'Хинкали Кавказские', c:'Хинкали', img:'assets/img/products/dumplings/Хінкалі «Кавказькі» (яловичина + курка + зелень + паприка + базилік).png'},
+  {id:'hink-shah', n:'Хинкали Шах', c:'Хинкали', img:'assets/img/products/dumplings/Хінкалі «Шах» (свинина + яловичина + зелень).png'},
+  {id:'smetana', n:'Сметана фермерская', c:'Молочка', img:'assets/img/products/molochka/Сметана фермерська.png'},
+  {id:'tvorog', n:'Творог домашний', c:'Молочка', img:'assets/img/products/molochka/Творог домашній .png'},
+  {id:'sirna-masa', n:'Сырная масса с изюмом', c:'Молочка', img:'assets/img/products/molochka/Сирна маса з родзинками .png'},
+  {id:'yaitsa', n:'Яйца фермерские', c:'Дополнительно', img:'assets/img/products/qw/яйця.jpg'}
 ];
 
-let cart = {};
-let activeCategory = 'Всі';
-let searchQuery = '';
+const cats   = ['Все', ...new Set(P.map(x => x.c))];
+const catsEl = document.getElementById('cats');
+const grid   = document.getElementById('pgrid');
+const search = document.getElementById('searchInput');
+const lbl    = document.getElementById('secLbl');
 
-const categories = ['Всі', ...new Set(PRODUCTS.map(p => p.cat))];
+let activeCat = 'Все', q = '';
 
-// ── DOM refs ──
-const catsEl     = document.getElementById('categories');
-const gridEl     = document.getElementById('productsGrid');
-const searchEl   = document.getElementById('searchInput');
-const titleEl    = document.getElementById('sectionTitle');
-const cartBtn    = document.getElementById('cartBtn');
-const cartCount  = document.getElementById('cartCount');
-const floatCart  = document.getElementById('floatCart');
-const floatCount = document.getElementById('floatCount');
-const overlay    = document.getElementById('cartOverlay');
-const sheet      = document.getElementById('cartSheet');
-const sheetClose = document.getElementById('sheetClose');
-const itemsList  = document.getElementById('cartItemsList');
-const totalEl    = document.getElementById('cartTotalItems');
-const showOrder  = document.getElementById('showOrderBtn');
-const orderView  = document.getElementById('orderView');
-const orderItems = document.getElementById('orderListItems');
-const backBtn    = document.getElementById('backBtn');
-const clearBtn   = document.getElementById('clearCartBtn');
-
-// ── Build categories ──
-categories.forEach(cat => {
+cats.forEach(cat => {
   const b = document.createElement('button');
-  b.className = 'cat-btn' + (cat === 'Всі' ? ' active' : '');
+  b.className = 'cat-btn' + (cat === 'Все' ? ' active' : '');
   b.textContent = cat;
-  b.addEventListener('click', () => {
-    activeCategory = cat;
+  b.onclick = () => {
+    activeCat = cat;
     document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
-    titleEl.textContent = cat === 'Всі' ? 'Всі товари' : cat;
-    renderGrid();
-  });
+    lbl.textContent = cat === 'Все' ? 'Все товары' : cat;
+    render();
+  };
   catsEl.appendChild(b);
 });
 
-// ── Render grid ──
-function renderGrid() {
-  const q = searchQuery.toLowerCase().trim();
-  const filtered = PRODUCTS.filter(p => {
-    const matchCat = activeCategory === 'Всі' || p.cat === activeCategory;
-    const matchSearch = !q || p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q);
-    return matchCat && matchSearch;
-  });
+search.addEventListener('input', e => { q = e.target.value; render(); });
 
-  gridEl.innerHTML = '';
-
-  if (filtered.length === 0) {
-    gridEl.innerHTML = `<div class="no-results"><div class="emoji">🔍</div><p>Нічого не знайдено</p></div>`;
+function render() {
+  const lq = q.toLowerCase().trim();
+  const list = P.filter(p =>
+    (activeCat === 'Все' || p.c === activeCat) &&
+    (!lq || p.n.toLowerCase().includes(lq) || p.c.toLowerCase().includes(lq))
+  );
+  grid.innerHTML = '';
+  if (!list.length) {
+    grid.innerHTML = '<div class="no-res">🔍 Ничего не найдено</div>';
     return;
   }
-
-  filtered.forEach((p, i) => {
-    const qty = cart[p.id] || 0;
-    const inCart = qty > 0;
-    const card = document.createElement('div');
-    card.className = 'product-card' + (inCart ? ' in-cart' : '');
-    card.style.animationDelay = (i * 0.04) + 's';
-    card.dataset.id = p.id;
-    card.innerHTML = `
-      <div class="product-img">
-        <img src="${encodeURI(p.img)}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'; this.parentElement.querySelector('.emoji-placeholder').style.display='block';">
-        <span class="emoji-placeholder" style="display:none">🍽️</span>
-        <div class="add-overlay"><div class="add-overlay-icon">+</div></div>
-      </div>
-      <div class="product-info">
-        <div class="product-name">${p.name}</div>
-        <div class="product-cat-tag">${p.cat}</div>
-        <button class="product-add-btn ${inCart ? 'added' : ''}" data-id="${p.id}">
-          ${inCart ? '✓ Додано' : '+ Додати'}
-        </button>
-        <div class="qty-control ${inCart ? 'visible' : ''}" id="qc-${p.id}">
-          <button class="qty-btn" data-id="${p.id}" data-action="dec">−</button>
-          <span class="qty-num" id="qn-${p.id}">${qty}</span>
-          <button class="qty-btn" data-id="${p.id}" data-action="inc">+</button>
-        </div>
+  list.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'pcard';
+    d.style.animationDelay = (i * 0.028) + 's';
+    d.innerHTML = `<div class="pcard-img"><img src="${encodeURI(p.img)}" alt="${p.n.replace(/"/g, '&quot;')}" loading="lazy"></div>
+      <div class="pcard-body">
+        <div class="pcard-name">${p.n}</div>
+        <div class="pcard-cat">${p.c}</div>
       </div>`;
-    gridEl.appendChild(card);
+    grid.appendChild(d);
   });
 }
 
-// ── Grid events ──
-gridEl.addEventListener('click', e => {
-  const addBtn = e.target.closest('.product-add-btn');
-  const qBtn   = e.target.closest('.qty-btn');
-  const card   = e.target.closest('.product-card');
-
-  if (addBtn) {
-    const id = addBtn.dataset.id;
-    if (!cart[id]) {
-      cart[id] = 1;
-      updateCard(id);
-      updateCartUI();
-      bumpCart();
-    }
-    return;
-  }
-
-  if (qBtn) {
-    const id     = qBtn.dataset.id;
-    const action = qBtn.dataset.action;
-    if (action === 'inc') {
-      cart[id] = (cart[id] || 0) + 1;
-    } else {
-      cart[id] = Math.max(0, (cart[id] || 0) - 1);
-      if (cart[id] === 0) delete cart[id];
-    }
-    updateCard(id);
-    updateCartUI();
-    return;
-  }
-});
-
-function updateCard(id) {
-  const qty    = cart[id] || 0;
-  const inCart = qty > 0;
-  const card   = gridEl.querySelector(`[data-id="${id}"]`);
-  if (!card) return;
-  card.classList.toggle('in-cart', inCart);
-  const btn = card.querySelector('.product-add-btn');
-  const qc  = card.querySelector('.qty-control');
-  const qn  = card.querySelector('.qty-num');
-  if (btn) { btn.textContent = inCart ? '✓ Додано' : '+ Додати'; btn.classList.toggle('added', inCart); }
-  if (qc)  qc.classList.toggle('visible', inCart);
-  if (qn)  qn.textContent = qty;
-}
-
-function getTotalItems() {
-  return Object.values(cart).reduce((s, n) => s + n, 0);
-}
-
-function updateCartUI() {
-  const total = getTotalItems();
-  cartCount.textContent = total;
-  cartCount.classList.toggle('visible', total > 0);
-  floatCount.textContent = total;
-  floatCart.classList.toggle('visible', total > 0);
-}
-
-function bumpCart() {
-  floatCart.style.transform = 'translateY(0) scale(1.04)';
-  setTimeout(() => { floatCart.style.transform = 'translateY(0) scale(1)'; }, 180);
-}
-
-// ── Search ──
-searchEl.addEventListener('input', e => {
-  searchQuery = e.target.value;
-  renderGrid();
-});
-
-// ── Cart sheet ──
-function openCart() {
-  renderCartSheet();
-  sheet.classList.add('open');
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeCart() {
-  sheet.classList.remove('open');
-  overlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-cartBtn.addEventListener('click', openCart);
-floatCart.addEventListener('click', openCart);
-floatCart.addEventListener('keydown', e => e.key === 'Enter' && openCart());
-overlay.addEventListener('click', closeCart);
-sheetClose.addEventListener('click', closeCart);
-
-function renderCartSheet() {
-  const items = Object.entries(cart);
-  if (items.length === 0) {
-    itemsList.innerHTML = `<div class="cart-empty-msg">🧺 Список порожній.<br>Додайте товари з меню.</div>`;
-    totalEl.textContent = '0';
-    return;
-  }
-  itemsList.innerHTML = items.map(([id, qty]) => {
-    const p = PRODUCTS.find(x => x.id === id);
-    if (!p) return '';
-    return `<div class="cart-item">
-      <img class="ci-thumb" src="${encodeURI(p.img)}" alt="${p.name}" loading="lazy">
-      <span class="ci-name">${p.name}</span>
-      <div class="ci-qty">
-        <button class="ci-q-btn" data-id="${id}" data-action="dec">−</button>
-        <span class="ci-q-num">${qty}</span>
-        <button class="ci-q-btn" data-id="${id}" data-action="inc">+</button>
-      </div>
-    </div>`;
-  }).join('');
-  totalEl.textContent = getTotalItems();
-}
-
-itemsList.addEventListener('click', e => {
-  const b = e.target.closest('.ci-q-btn');
-  if (!b) return;
-  const id = b.dataset.id;
-  const action = b.dataset.action;
-  if (action === 'inc') {
-    cart[id] = (cart[id] || 0) + 1;
-  } else {
-    cart[id] = Math.max(0, (cart[id] || 0) - 1);
-    if (cart[id] === 0) delete cart[id];
-  }
-  updateCard(id);
-  updateCartUI();
-  renderCartSheet();
-});
-
-// ── Order view ──
-showOrder.addEventListener('click', () => {
-  renderOrderView();
-  orderView.classList.add('open');
-  closeCart();
-});
-
-backBtn.addEventListener('click', () => {
-  orderView.classList.remove('open');
-  openCart();
-});
-
-clearBtn.addEventListener('click', () => {
-  cart = {};
-  renderGrid();
-  updateCartUI();
-  orderView.classList.remove('open');
-});
-
-function renderOrderView() {
-  const items = Object.entries(cart);
-  orderItems.innerHTML = items.map(([id, qty]) => {
-    const p = PRODUCTS.find(x => x.id === id);
-    if (!p) return '';
-    return `<div class="order-list-item">
-      <img class="oli-thumb" src="${encodeURI(p.img)}" alt="${p.name}" loading="lazy">
-      <div class="oli-info">
-        <div class="oli-name">${p.name}</div>
-        <div class="oli-qty">${qty} шт.</div>
-      </div>
-    </div>`;
-  }).join('');
-  generateQR();
-}
-
-// ── QR code using qrcodejs ──
-let qrInstance = null;
-function generateQR() {
-  const items = Object.entries(cart);
-  const text  = 'vse-v-morozilke.shop | ' + items.map(([id, qty]) => {
-    const p = PRODUCTS.find(x => x.id === id);
-    return p ? `${p.name} x${qty}` : '';
-  }).filter(Boolean).join(', ');
-
-  const wrap = document.getElementById('qr-wrap');
-  wrap.innerHTML = '';
-  if (typeof QRCode !== 'undefined') {
-    new QRCode(wrap, {
-      text,
-      width: 160,
-      height: 160,
-      colorDark: '#0a1628',
-      colorLight: '#d6f0ff',
-      correctLevel: QRCode.CorrectLevel.M
-    });
-    wrap.querySelector('canvas,img').style.cssText = 'border-radius:10px;max-width:160px;';
-  }
-}
-
-renderGrid();
+render();
 </script>
-
-<!-- QR library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
 </body>
 </html>
