@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Magazz Top - Pelmeni Spot</title>
-  <meta name="description" content="Молодежное меню пельменей и закладок. Работает на GitHub Pages без сервера.">
+  <title>Magazz Top - Меню без цен</title>
+  <meta name="description" content="Красивое меню и закладки. Полный список товаров без цен.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -15,14 +15,14 @@
     <header class="topbar">
       <div>
         <p class="kicker">MAGAZZ TOP</p>
-        <h1>Pelmeni vibe only</h1>
+        <h1>Полное меню</h1>
       </div>
-      <button class="ghost-btn" id="themeToggle" aria-label="Toggle theme">Neon</button>
+      <button class="ghost-btn" id="themeToggle" aria-label="Toggle theme">Стиль</button>
     </header>
 
     <main>
       <section class="hero">
-        <p>Сканируй QR -> добавляй в закладки -> возвращайся когда удобно.</p>
+        <p>Выбирай товары, добавляй в закладки и возвращайся в любое время.</p>
         <div class="hero-actions">
           <a href="#menu" class="chip">Открыть меню</a>
           <button class="chip" id="showQrBtn">Мой QR</button>
@@ -32,7 +32,7 @@
       <section class="tab-pane active" id="menuPane">
         <div class="section-head" id="menu">
           <h2>Меню</h2>
-          <input id="searchInput" type="search" placeholder="Поиск: пельмени, соус, напиток">
+          <input id="searchInput" type="search" placeholder="Поиск: пельмени, котлеты, вареники...">
         </div>
         <div id="categoryFilter" class="category-row"></div>
         <div id="productsGrid" class="products-grid"></div>

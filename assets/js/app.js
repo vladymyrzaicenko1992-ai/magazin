@@ -1,4 +1,14 @@
 const STORAGE_KEY = "magazz_bookmarks_v1";
+const FALLBACK_IMAGE = "assets/img/products/dumplings/Богатирські (Яловичина + курка).png";
+const CATEGORY_IMAGES = {
+  "Вареники": "assets/img/products/vareniki/Вареники з картоплею.png",
+  "Блинчики": "assets/img/products/bliny/Блинчики (з м'ясом, творогом).png",
+  "Котлеты": "assets/img/products/cutlets/Котлети «Бабусині» (свинина + яловичина).png",
+  "Пельмени": "assets/img/products/dumplings/Богатирські (Яловичина + курка).png",
+  "Хинкали": "assets/img/products/dumplings/Хінкалі «Домашні» .png",
+  "Молочка": "assets/img/products/molochka/Сметана фермерська.png",
+  "Дополнительно": "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png"
+};
 
 const state = {
   products: [],
@@ -87,7 +97,7 @@ function renderProducts() {
 
   const filtered = state.products.filter((item) => {
     const byCategory = state.category === "Все" || item.category === state.category;
-    const byQuery = `${item.name} ${item.description}`.toLowerCase().includes(state.query);
+    const byQuery = item.name.toLowerCase().includes(state.query);
     return byCategory && byQuery;
   });
 
@@ -103,13 +113,11 @@ function renderProducts() {
 
       return `
         <article class="product-card">
-          <img src="${item.image}" alt="${item.name}" loading="lazy">
+          <img src="${encodeURI(getImageForProduct(item))}" alt="${item.name}" loading="lazy" onerror="this.src='${encodeURI(FALLBACK_IMAGE)}'">
           <div class="product-body">
             <h3>${item.name}</h3>
-            <p class="muted">${item.description}</p>
             <div class="product-meta">
               <span>${item.category}</span>
-              <span class="price">${item.price} грн</span>
             </div>
             <button class="bookmark-btn" data-id="${item.id}">${buttonLabel}</button>
           </div>
@@ -151,7 +159,7 @@ function renderBookmarks() {
         <div class="bookmark-item">
           <div>
             <strong>${item.name}</strong>
-            <p class="muted">${item.price} грн</p>
+            <p class="muted">${item.category}</p>
           </div>
           <button class="remove-btn" data-id="${item.id}">Удалить</button>
         </div>
@@ -182,4 +190,8 @@ function openQrDialog() {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
   elements.qrImage.src = qrUrl;
   elements.qrDialog.showModal();
+}
+
+function getImageForProduct(item) {
+  return item.image || CATEGORY_IMAGES[item.category] || FALLBACK_IMAGE;
 }

@@ -1,74 +1,247 @@
 [
   {
-    "id": "pelmeni-bogatyr",
-    "name": "Пельмени Богатырские",
-    "category": "Пельмени",
-    "price": 245,
-    "image": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=1200&q=80",
-    "description": "Сытные, с мясным миксом, топ под сметану."
-  },
-  {
-    "id": "pelmeni-dom",
-    "name": "Пельмени Домашние",
-    "category": "Пельмени",
-    "price": 210,
-    "image": "https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=1200&q=80",
-    "description": "Классика на каждый день."
-  },
-  {
-    "id": "hinkali",
-    "name": "Хинкали Домашние",
-    "category": "Пельмени",
-    "price": 260,
-    "image": "https://images.unsplash.com/photo-1615937657715-bc7b4b7962a6?auto=format&fit=crop&w=1200&q=80",
-    "description": "Большой формат, сочная начинка."
-  },
-  {
-    "id": "vareniki-potato",
+    "id": "var-kartoshka",
     "name": "Вареники с картошкой",
-    "category": "Вареники",
-    "price": 110,
-    "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
-    "description": "Мягкие и уютные, как дома."
+    "category": "Вареники"
   },
   {
-    "id": "syrnyky",
+    "id": "var-kapusta",
+    "name": "Вареники с капустой",
+    "category": "Вареники"
+  },
+  {
+    "id": "var-serdce-pechen",
+    "name": "Вареники сердце-печень",
+    "category": "Вареники"
+  },
+  {
+    "id": "var-myaso-chesnok",
+    "name": "Вареники с мясом и чесноком",
+    "category": "Вареники"
+  },
+  {
+    "id": "var-tvorog-sladkiy",
+    "name": "Вареники с творогом сладкие",
+    "category": "Вареники"
+  },
+  {
+    "id": "bl-myaso-dom",
+    "name": "Блинчики домашние с мясом",
+    "category": "Блинчики"
+  },
+  {
+    "id": "bl-tvorog-dom",
+    "name": "Блинчики домашние с творогом",
+    "category": "Блинчики"
+  },
+  {
+    "id": "bend-myaso",
+    "name": "Бендерики с мясом",
+    "category": "Блинчики"
+  },
+  {
+    "id": "bend-kapusta",
+    "name": "Бендерики с капустой",
+    "category": "Блинчики"
+  },
+  {
+    "id": "cheb-myaso-syr",
+    "name": "Чебуреки с мясом и сыром",
+    "category": "Блинчики"
+  },
+  {
+    "id": "syrniki-zhar",
     "name": "Сырники жареные",
-    "category": "Завтрак",
-    "price": 210,
-    "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1200&q=80",
-    "description": "Быстрый сладкий завтрак."
+    "category": "Блинчики"
   },
   {
-    "id": "sauce-cheese",
-    "name": "Соус сырный",
-    "category": "Соусы",
-    "price": 59,
-    "image": "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?auto=format&fit=crop&w=1200&q=80",
-    "description": "Лучший друг пельмешек."
+    "id": "zrazy-myas-kap",
+    "name": "Зразы жареные",
+    "category": "Блинчики"
   },
   {
-    "id": "sauce-spicy",
-    "name": "Соус острый",
-    "category": "Соусы",
-    "price": 49,
-    "image": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&fit=crop&w=1200&q=80",
-    "description": "Для тех, кто любит fire."
+    "id": "sosiska-v-teste",
+    "name": "Сосиска в тесте",
+    "category": "Блинчики"
   },
   {
-    "id": "cola",
-    "name": "Cola Zero",
-    "category": "Напитки",
-    "price": 45,
-    "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=1200&q=80",
-    "description": "Ледяная банка под комбо."
+    "id": "gnizdechka-myaso",
+    "name": "Гнездышки с мясом",
+    "category": "Блинчики"
   },
   {
-    "id": "mors",
-    "name": "Ягодный морс",
-    "category": "Напитки",
-    "price": 65,
-    "image": "https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=1200&q=80",
-    "description": "Домашний вкус, chill эффект."
+    "id": "ovoshi-zamorozh",
+    "name": "Замороженные овощи",
+    "category": "Дополнительно"
+  },
+  {
+    "id": "kartoplya-fri",
+    "name": "Картошка фри",
+    "category": "Дополнительно"
+  },
+  {
+    "id": "kot-babush",
+    "name": "Котлеты Бабушкины",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-yozhik",
+    "name": "Котлеты Ежик",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-syr",
+    "name": "Котлеты с сыром",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-po-kiev-farsh",
+    "name": "Котлеты по-киевски",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-sviny",
+    "name": "Котлеты из свинины",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-shkoln",
+    "name": "Котлеты Школьные",
+    "category": "Котлеты"
+  },
+  {
+    "id": "naggets",
+    "name": "Нагетсы",
+    "category": "Котлеты"
+  },
+  {
+    "id": "grechaniki",
+    "name": "Гречаники",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-kiev-file",
+    "name": "Киевские",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kordon-blu",
+    "name": "Кордон-блю",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-sokovit",
+    "name": "Котлеты Соковитые",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-dom-maslo",
+    "name": "Котлеты Домашние",
+    "category": "Котлеты"
+  },
+  {
+    "id": "shnic-dom",
+    "name": "Шницель домашний",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-burger",
+    "name": "Котлеты Бургерные",
+    "category": "Котлеты"
+  },
+  {
+    "id": "kot-rublen",
+    "name": "Котлеты Рубленые",
+    "category": "Котлеты"
+  },
+  {
+    "id": "golubcy",
+    "name": "Голубцы",
+    "category": "Котлеты"
+  },
+  {
+    "id": "perec-farsh",
+    "name": "Перец фаршированный",
+    "category": "Котлеты"
+  },
+  {
+    "id": "pel-bogatyr",
+    "name": "Пельмени Богатырские",
+    "category": "Пельмени"
+  },
+  {
+    "id": "pel-bulmeni",
+    "name": "Бульмени",
+    "category": "Пельмени"
+  },
+  {
+    "id": "pel-dom",
+    "name": "Пельмени Домашние",
+    "category": "Пельмени"
+  },
+  {
+    "id": "pel-kozackie",
+    "name": "Пельмени Козацкие",
+    "category": "Пельмени"
+  },
+  {
+    "id": "pel-kurinye",
+    "name": "Пельмени Куриные",
+    "category": "Пельмени"
+  },
+  {
+    "id": "pel-malyshki",
+    "name": "Пельмени Малышки",
+    "category": "Пельмени"
+  },
+  {
+    "id": "pel-babush",
+    "name": "Пельмени Бабушкины",
+    "category": "Пельмени"
+  },
+  {
+    "id": "pel-vershk",
+    "name": "Пельмени Вершковые",
+    "category": "Пельмени"
+  },
+  {
+    "id": "ravioli",
+    "name": "Равиоли",
+    "category": "Пельмени"
+  },
+  {
+    "id": "hink-dom",
+    "name": "Хинкали Домашние",
+    "category": "Хинкали"
+  },
+  {
+    "id": "hink-kavkaz",
+    "name": "Хинкали Кавказские",
+    "category": "Хинкали"
+  },
+  {
+    "id": "hink-shah",
+    "name": "Хинкали Шах",
+    "category": "Хинкали"
+  },
+  {
+    "id": "smetana",
+    "name": "Сметана фермерская",
+    "category": "Молочка"
+  },
+  {
+    "id": "tvorog",
+    "name": "Творог домашний",
+    "category": "Молочка"
+  },
+  {
+    "id": "sirna-masa",
+    "name": "Сырная масса с изюмом",
+    "category": "Молочка"
+  },
+  {
+    "id": "yaitsa",
+    "name": "Яйца фермерские",
+    "category": "Дополнительно"
   }
 ]
