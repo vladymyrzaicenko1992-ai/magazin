@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magazz Top - Pelmeni Spot</title>
+  <meta name="description" content="Молодежное меню пельменей и закладок. Работает на GitHub Pages без сервера.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="kicker">MAGAZZ TOP</p>
+        <h1>Pelmeni vibe only</h1>
+      </div>
+      <button class="ghost-btn" id="themeToggle" aria-label="Toggle theme">Neon</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p>Сканируй QR -> добавляй в закладки -> возвращайся когда удобно.</p>
+        <div class="hero-actions">
+          <a href="#menu" class="chip">Открыть меню</a>
+          <button class="chip" id="showQrBtn">Мой QR</button>
+        </div>
+      </section>
+
+      <section class="tab-pane active" id="menuPane">
+        <div class="section-head" id="menu">
+          <h2>Меню</h2>
+          <input id="searchInput" type="search" placeholder="Поиск: пельмени, соус, напиток">
+        </div>
+        <div id="categoryFilter" class="category-row"></div>
+        <div id="productsGrid" class="products-grid"></div>
+      </section>
+
+      <section class="tab-pane" id="bookmarksPane">
+        <div class="section-head">
+          <h2>Мои закладки</h2>
+          <button id="clearBookmarksBtn" class="ghost-btn">Очистить</button>
+        </div>
+        <p class="muted">Сохраняется на этом устройстве через LocalStorage.</p>
+        <div id="bookmarksList" class="bookmark-list"></div>
+      </section>
+
+      <section class="tab-pane" id="contactsPane">
+        <div class="section-head">
+          <h2>Где мы?</h2>
+        </div>
+        <div class="contact-card">
+          <p><strong>Адрес:</strong> ул. Алматинская, 2/1, Киев</p>
+          <p><strong>Время:</strong> Пн-Сб 10:00-19:00</p>
+          <p><strong>Телефон:</strong> +380 50 123 45 67</p>
+          <a class="chip" href="https://maps.google.com/?q=50.424836,30.673424" target="_blank" rel="noreferrer">Открыть карту</a>
+        </div>
+        <div class="map-wrap">
+          <iframe title="map" src="https://www.openstreetmap.org/export/embed.html?bbox=30.663424%2C50.419836%2C30.683424%2C50.429836&layer=mapnik&marker=50.424836%2C30.673424"></iframe>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button class="tab-btn active" data-tab="menuPane">Меню</button>
+      <button class="tab-btn" data-tab="bookmarksPane">Закладки <span id="bookmarkCount">0</span></button>
+      <button class="tab-btn" data-tab="contactsPane">Контакты</button>
+    </nav>
+  </div>
+
+  <dialog id="qrDialog">
+    <div class="dialog-head">
+      <h3>QR на этот сайт</h3>
+      <button id="closeQrBtn" class="ghost-btn">Закрыть</button>
+    </div>
+    <img id="qrImage" alt="QR code">
+    <p class="muted">Повесь у точки выдачи, чтобы гости сохраняли заказы в закладки.</p>
+  </dialog>
+
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

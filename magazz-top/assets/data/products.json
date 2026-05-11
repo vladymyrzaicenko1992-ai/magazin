@@ -1,0 +1,74 @@
+[
+  {
+    "id": "pelmeni-bogatyr",
+    "name": "Пельмени Богатырские",
+    "category": "Пельмени",
+    "price": 245,
+    "image": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=1200&q=80",
+    "description": "Сытные, с мясным миксом, топ под сметану."
+  },
+  {
+    "id": "pelmeni-dom",
+    "name": "Пельмени Домашние",
+    "category": "Пельмени",
+    "price": 210,
+    "image": "https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=1200&q=80",
+    "description": "Классика на каждый день."
+  },
+  {
+    "id": "hinkali",
+    "name": "Хинкали Домашние",
+    "category": "Пельмени",
+    "price": 260,
+    "image": "https://images.unsplash.com/photo-1615937657715-bc7b4b7962a6?auto=format&fit=crop&w=1200&q=80",
+    "description": "Большой формат, сочная начинка."
+  },
+  {
+    "id": "vareniki-potato",
+    "name": "Вареники с картошкой",
+    "category": "Вареники",
+    "price": 110,
+    "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
+    "description": "Мягкие и уютные, как дома."
+  },
+  {
+    "id": "syrnyky",
+    "name": "Сырники жареные",
+    "category": "Завтрак",
+    "price": 210,
+    "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1200&q=80",
+    "description": "Быстрый сладкий завтрак."
+  },
+  {
+    "id": "sauce-cheese",
+    "name": "Соус сырный",
+    "category": "Соусы",
+    "price": 59,
+    "image": "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?auto=format&fit=crop&w=1200&q=80",
+    "description": "Лучший друг пельмешек."
+  },
+  {
+    "id": "sauce-spicy",
+    "name": "Соус острый",
+    "category": "Соусы",
+    "price": 49,
+    "image": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&fit=crop&w=1200&q=80",
+    "description": "Для тех, кто любит fire."
+  },
+  {
+    "id": "cola",
+    "name": "Cola Zero",
+    "category": "Напитки",
+    "price": 45,
+    "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=1200&q=80",
+    "description": "Ледяная банка под комбо."
+  },
+  {
+    "id": "mors",
+    "name": "Ягодный морс",
+    "category": "Напитки",
+    "price": 65,
+    "image": "https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=1200&q=80",
+    "description": "Домашний вкус, chill эффект."
+  }
+]
