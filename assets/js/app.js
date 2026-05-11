@@ -60,19 +60,17 @@ const PRODUCT_IMAGES = {
   "yaitsa": "assets/img/products/qw/яйця.jpg"
 };
 
-const state = { products: [], category: "Все", query: "" };
+const state = { products: [], query: "" };
 
 const elements = {
   grid: document.getElementById("productsGrid"),
-  searchInput: document.getElementById("searchInput"),
-  categoryFilter: document.getElementById("categoryFilter")
+  searchInput: document.getElementById("searchInput")
 };
 
 init();
 
 async function init() {
   await loadProducts();
-  renderCategories();
   renderProducts();
   bindEvents();
 }
@@ -89,30 +87,10 @@ function bindEvents() {
   });
 }
 
-function renderCategories() {
-  const categories = ["Все", ...new Set(state.products.map((item) => item.category))];
-
-  elements.categoryFilter.innerHTML = categories
-    .map((category) => {
-      const activeClass = category === state.category ? "active" : "";
-      return `<button class="category-btn ${activeClass}" data-category="${category}">${category}</button>`;
-    })
-    .join("");
-
-  elements.categoryFilter.querySelectorAll(".category-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.category = button.dataset.category;
-      renderCategories();
-      renderProducts();
-    });
-  });
-}
-
 function renderProducts() {
   const filtered = state.products.filter((item) => {
-    const byCategory = state.category === "Все" || item.category === state.category;
     const byQuery = item.name.toLowerCase().includes(state.query);
-    return byCategory && byQuery;
+    return byQuery;
   });
 
   if (filtered.length === 0) {
@@ -152,10 +130,6 @@ function getImageForProduct(item) {
 }
 
 function groupByCategory(items) {
-  if (state.category !== "Все") {
-    return [{ category: state.category, items }];
-  }
-
   const order = ["Пельмени", "Хинкали", "Вареники", "Блинчики", "Котлеты", "Молочка", "Дополнительно"];
   return order
     .filter((category) => items.some((item) => item.category === category))

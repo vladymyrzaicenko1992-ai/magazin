@@ -1,11 +1,9 @@
 :root {
-  --bg: #0a0b14;
-  --card: #15182b;
-  --text: #f4f6ff;
-  --muted: #99a0c2;
-  --accent: #72f9ff;
-  --accent-2: #ca74ff;
-  --danger: #ff5577;
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #1f2430;
+  --muted: #6c7385;
+  --accent: #2364e6;
 }
 
 * {
@@ -15,17 +13,8 @@
 body {
   margin: 0;
   font-family: Inter, sans-serif;
-  background: radial-gradient(circle at top right, #25153d 0%, var(--bg) 45%);
+  background: var(--bg);
   color: var(--text);
-}
-
-body.alt-theme {
-  --bg: #080f08;
-  --card: #101f14;
-  --text: #f3fff4;
-  --muted: #9bc6a2;
-  --accent: #7dff9c;
-  --accent-2: #7dffea;
 }
 
 .app-shell {
@@ -55,15 +44,9 @@ h1 {
 .hero {
   margin: 16px 0;
   padding: 16px;
-  border: 1px solid #2a3155;
+  border: 1px solid #dde3f1;
   border-radius: 18px;
-  background: linear-gradient(130deg, #131b33, #1e1632);
-  box-shadow: 0 10px 30px #00000030;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 10px;
+  background: #fff;
 }
 
 .section-head {
@@ -80,32 +63,11 @@ h1 {
 input[type="search"] {
   width: 100%;
   max-width: 360px;
-  background: #0f1428;
-  border: 1px solid #2d355c;
+  background: #fff;
+  border: 1px solid #d7deef;
   color: var(--text);
   border-radius: 12px;
   padding: 10px 12px;
-}
-
-.category-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 8px 0 16px;
-}
-
-.category-btn {
-  border: 1px solid #39457e;
-  background: #101937;
-  color: var(--text);
-  border-radius: 999px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.category-btn.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 18px #67f1ff50;
 }
 
 .products-grid {
@@ -120,18 +82,17 @@ input[type="search"] {
 
 .category-title {
   margin: 2px 2px 10px;
-  font-size: 20px;
+  font-size: 22px;
   color: var(--accent);
-  text-shadow: 0 0 12px #66f4ff33;
 }
 
 .product-card {
   background: var(--card);
-  border: 1px solid #283055;
+  border: 1px solid #dde3f1;
   border-radius: 16px;
   overflow: hidden;
   animation: fadeUp 0.45s ease both;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .product-card img {
@@ -143,8 +104,7 @@ input[type="search"] {
 
 .product-card:hover {
   transform: translateY(-2px);
-  border-color: #4f67bf;
-  box-shadow: 0 10px 24px #00000040;
+  box-shadow: 0 8px 22px #24315d1a;
 }
 
 .product-body {
@@ -165,11 +125,6 @@ input[type="search"] {
   margin-top: 8px;
   font-size: 13px;
   color: var(--muted);
-}
-
-.price {
-  color: var(--accent);
-  font-weight: 800;
 }
 
 @keyframes fadeUp {
