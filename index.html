@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Усе в морозильці — домашні заморожені продукти · Київ, біля вокзалу Дарниця</title>
   <meta name="description" content="Домашні заморожені продукти біля вокзалу Дарниця в Києві, навпроти АТБ. Вареники, пельмені, котлети, хінкалі, млинці та інше. Завітайте — розповімо усе!">
+  <link rel="canonical" href="https://vse-v-morozilke.shop/">
+  <meta property="og:url" content="https://vse-v-morozilke.shop/">
+  <meta property="og:image" content="https://vse-v-morozilke.shop/assets/img/marketing/promo-banner.png">
   <meta name="theme-color" content="#080f1e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -178,6 +181,69 @@
     }
     .notice-box strong { color: var(--acc); }
 
+    /* MARKETING: banner + QR */
+    .marketing-wrap {
+      max-width: 680px; margin: 20px auto 0;
+      padding: 0 18px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .promo-card {
+      border-radius: var(--r);
+      overflow: hidden;
+      border: 1px solid var(--bdr);
+      background: var(--cb);
+      line-height: 0;
+    }
+    .promo-banner {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .qr-card {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      padding: 20px 18px 22px;
+      border-radius: var(--r);
+      border: 1px solid var(--bdr);
+      background: rgba(255,255,255,.04);
+    }
+    .qr-label {
+      font-size: 12px; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--acc2); margin-bottom: 12px;
+    }
+    .qr-link {
+      display: inline-block;
+      padding: 12px;
+      background: #fff;
+      border-radius: 12px;
+      line-height: 0;
+      text-decoration: none;
+      box-shadow: 0 8px 28px rgba(0,0,0,.25);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .qr-link:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,200,240,.2); }
+    .qr-mount { display: inline-block; }
+    .qr-mount img { display: block; }
+    .qr-url {
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--txt);
+    }
+    .qr-url code {
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      color: var(--acc);
+      background: rgba(0,200,240,.08);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .qr-ref {
+      margin-top: 14px; font-size: 12px; line-height: 1.5;
+      color: var(--txt2); max-width: 320px;
+    }
+    .qr-ref a { color: var(--acc); }
+
     /* CONTROLS */
     .ctrl-wrap {
       max-width: 680px; margin: 22px auto 0;
@@ -349,6 +415,20 @@
   </div>
 </div>
 
+<section class="marketing-wrap" aria-label="Банер і QR меню">
+  <div class="promo-card">
+    <img class="promo-banner" src="assets/img/marketing/promo-banner.png" width="683" height="1024" alt="Друкований банер: скануй меню — Усе в морозильці" loading="lazy">
+  </div>
+  <div class="qr-card">
+    <div class="qr-label">Живе меню — скануй телефоном</div>
+    <a id="qrMenuLink" class="qr-link" href="https://vse-v-morozilke.shop/" rel="noopener" title="Відкрити меню">
+      <div id="siteQr" class="qr-mount" role="img" aria-label="QR-код на https://vse-v-morozilke.shop/"></div>
+    </a>
+    <p class="qr-url"><code>https://vse-v-morozilke.shop/</code></p>
+    <p class="qr-ref">Експорт з QRCode Monkey збережено у репозиторії: <a href="assets/img/marketing/qr-export-qrcode-monkey.png" download>qr-export-qrcode-monkey.png</a></p>
+  </div>
+</section>
+
 <div class="ctrl-wrap">
   <div class="search-wrap">
     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -368,10 +448,27 @@
   <div class="fin">
     <strong>Усе в морозильці</strong><br>
     Київ · вокзал Дарниця, навпроти АТБ<br>
-    <a href="https://maps.google.com/?q=50.43462504418194,30.64699041302942" target="_blank" rel="noopener">Відкрити на карті Google</a>
+    <a href="https://maps.google.com/?q=50.43462504418194,30.64699041302942" target="_blank" rel="noopener">Відкрити на карті Google</a><br>
+    <a href="https://vse-v-morozilke.shop/" rel="noopener">vse-v-morozilke.shop</a>
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+(function () {
+  var SITE = 'https://vse-v-morozilke.shop/';
+  var el = document.getElementById('siteQr');
+  if (!el || typeof QRCode === 'undefined') return;
+  new QRCode(el, {
+    text: SITE,
+    width: 216,
+    height: 216,
+    colorDark: '#080f1e',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+})();
+</script>
 <script>
 const P = [
   {id:'var-kartoshka', n:'Вареники з картоплею', c:'Вареники', img:'assets/img/products/vareniki/Вареники з картоплею.png'},
