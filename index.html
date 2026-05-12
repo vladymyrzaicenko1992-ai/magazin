@@ -47,13 +47,18 @@
         var(--deep);
     }
 
-    /* TOPBAR */
-    .topbar {
-      position: sticky; top: 0; z-index: 50;
-      background: rgba(8,15,30,.9);
+    /* STICKY: шапка + категорії */
+    .site-head {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(8,15,30,.97);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--bdr);
+    }
+    .topbar {
+      position: relative;
       padding: 0 18px;
     }
     .topbar-in {
@@ -181,75 +186,12 @@
     }
     .notice-box strong { color: var(--acc); }
 
-    /* MARKETING: banner + QR */
-    .marketing-wrap {
-      max-width: 680px; margin: 20px auto 0;
-      padding: 0 18px;
-      display: flex; flex-direction: column; gap: 16px;
-    }
-    .promo-card {
-      border-radius: var(--r);
-      overflow: hidden;
-      border: 1px solid var(--bdr);
-      background: var(--cb);
-      line-height: 0;
-    }
-    .promo-banner {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-    .qr-card {
-      display: flex; flex-direction: column; align-items: center;
-      text-align: center;
-      padding: 20px 18px 22px;
-      border-radius: var(--r);
-      border: 1px solid var(--bdr);
-      background: rgba(255,255,255,.04);
-    }
-    .qr-label {
-      font-size: 12px; font-weight: 600;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: var(--acc2); margin-bottom: 12px;
-    }
-    .qr-link {
-      display: inline-block;
-      padding: 12px;
-      background: #fff;
-      border-radius: 12px;
-      line-height: 0;
-      text-decoration: none;
-      box-shadow: 0 8px 28px rgba(0,0,0,.25);
-      transition: transform .15s, box-shadow .15s;
-    }
-    .qr-link:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,200,240,.2); }
-    .qr-mount { display: inline-block; }
-    .qr-mount img { display: block; }
-    .qr-url {
-      margin-top: 12px;
-      font-size: 14px;
-      color: var(--txt);
-    }
-    .qr-url code {
-      font-family: ui-monospace, monospace;
-      font-size: 13px;
-      color: var(--acc);
-      background: rgba(0,200,240,.08);
-      padding: 3px 8px;
-      border-radius: 6px;
-    }
-    .qr-ref {
-      margin-top: 14px; font-size: 12px; line-height: 1.5;
-      color: var(--txt2); max-width: 320px;
-    }
-    .qr-ref a { color: var(--acc); }
-
-    /* CONTROLS */
+    /* Пошук (не в закріпі) */
     .ctrl-wrap {
       max-width: 680px; margin: 22px auto 0;
       padding: 0 18px;
     }
-    .search-wrap { position: relative; margin-bottom: 11px; }
+    .search-wrap { position: relative; margin-bottom: 0; }
     .search-wrap svg {
       position: absolute; left: 13px; top: 50%;
       transform: translateY(-50%);
@@ -269,14 +211,19 @@
     .search-input::placeholder { color: var(--txt2); }
     .search-input:focus { border-color: rgba(0,200,240,.45); }
 
+    .nav-strip {
+      padding: 0 18px 10px;
+      border-top: 1px solid rgba(255,255,255,.04);
+    }
+    .nav-strip-in {
+      max-width: 680px; margin: 0 auto;
+    }
+
     .cats {
       display: flex; gap: 7px;
       overflow-x: auto; scrollbar-width: none;
-      position: sticky;
-      top: 56px;
-      z-index: 49;
-      background: var(--deep);
-      padding: 8px 0;
+      padding: 4px 0 2px;
+      -webkit-overflow-scrolling: touch;
     }
     .cats::-webkit-scrollbar { display: none; }
     .cat-btn {
@@ -372,10 +319,43 @@
     footer .fin strong { color: var(--txt); font-weight: 500; }
     footer .fin a { color: var(--acc); text-decoration: none; }
     footer .fin a:hover { text-decoration: underline; }
+
+    /* QR унизу сторінки */
+    .qr-foot {
+      max-width: 680px; margin: 0 auto;
+      padding: 20px 18px 36px;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .qr-foot-lbl {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--txt2); margin-bottom: 10px;
+    }
+    .qr-foot-link {
+      display: inline-block;
+      padding: 6px;
+      background: #fff;
+      border-radius: 8px;
+      line-height: 0;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    }
+    .qr-foot-link:hover { box-shadow: 0 6px 20px rgba(0,200,240,.15); }
+    .qr-mount { display: inline-block; }
+    .qr-mount img { display: block; }
+    .qr-foot-url {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--txt2);
+    }
+    .qr-foot-url a { color: var(--acc); text-decoration: none; }
+    .qr-foot-url a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
+<div class="site-head">
 <header class="topbar">
   <div class="topbar-in">
     <div class="logo-box">❄️</div>
@@ -386,6 +366,12 @@
     <div class="open-badge">Відкрито</div>
   </div>
 </header>
+<div class="nav-strip">
+  <div class="nav-strip-in">
+    <div class="cats" id="cats"></div>
+  </div>
+</div>
+</div>
 
 <section class="hero">
   <div class="hero-copy">
@@ -415,20 +401,6 @@
   </div>
 </div>
 
-<section class="marketing-wrap" aria-label="Банер і QR меню">
-  <div class="promo-card">
-    <img class="promo-banner" src="assets/img/marketing/promo-banner.png" width="683" height="1024" alt="Друкований банер: скануй меню — Усе в морозильці" loading="lazy">
-  </div>
-  <div class="qr-card">
-    <div class="qr-label">Живе меню — скануй телефоном</div>
-    <a id="qrMenuLink" class="qr-link" href="https://vse-v-morozilke.shop/" rel="noopener" title="Відкрити меню">
-      <div id="siteQr" class="qr-mount" role="img" aria-label="QR-код на https://vse-v-morozilke.shop/"></div>
-    </a>
-    <p class="qr-url"><code>https://vse-v-morozilke.shop/</code></p>
-    <p class="qr-ref">Експорт з QRCode Monkey збережено у репозиторії: <a href="assets/img/marketing/qr-export-qrcode-monkey.png" download>qr-export-qrcode-monkey.png</a></p>
-  </div>
-</section>
-
 <div class="ctrl-wrap">
   <div class="search-wrap">
     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -436,7 +408,6 @@
     </svg>
     <input class="search-input" id="searchInput" type="search" placeholder="Знайти товар..." autocomplete="off">
   </div>
-  <div class="cats" id="cats"></div>
 </div>
 
 <div class="grid-wrap">
@@ -453,6 +424,14 @@
   </div>
 </footer>
 
+<div class="qr-foot">
+  <p class="qr-foot-lbl">Меню онлайн</p>
+  <a class="qr-foot-link" href="https://vse-v-morozilke.shop/" rel="noopener" title="Відкрити меню">
+    <div id="siteQr" class="qr-mount" role="img" aria-label="QR на vse-v-morozilke.shop"></div>
+  </a>
+  <p class="qr-foot-url"><a href="https://vse-v-morozilke.shop/">vse-v-morozilke.shop</a></p>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 (function () {
@@ -461,8 +440,8 @@
   if (!el || typeof QRCode === 'undefined') return;
   new QRCode(el, {
     text: SITE,
-    width: 216,
-    height: 216,
+    width: 112,
+    height: 112,
     colorDark: '#080f1e',
     colorLight: '#ffffff',
     correctLevel: QRCode.CorrectLevel.M
@@ -522,7 +501,9 @@ const P = [
   {id:'yaitsa', n:'Яйця фермерські', c:'Додатково', img:'assets/img/products/qw/яйця.jpg'}
 ];
 
-const cats   = ['Усі', ...new Set(P.map(x => x.c))];
+const CAT_ORDER = ['Усі', 'Вареники', 'Млинці', 'Додатково', 'Котлети', 'Пельмені', 'Хінкалі', 'Молочка'];
+const presentCats = new Set(P.map(x => x.c));
+const cats = CAT_ORDER.filter(c => c === 'Усі' || presentCats.has(c));
 const catsEl = document.getElementById('cats');
 const grid   = document.getElementById('pgrid');
 const search = document.getElementById('searchInput');
