@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ru">
+<html lang="uk">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Все в морозилке — Домашние замороженные продукты · Киев, возле вокзала</title>
-  <meta name="description" content="Домашние замороженные продукты у Киевского вокзала, напротив АТБ. Вареники, пельмени, котлеты, хинкали и многое другое. Приходите — расскажем всё!">
+  <title>Усе в морозильці — домашні заморожені продукти · Київ, біля вокзалу Дарниця</title>
+  <meta name="description" content="Домашні заморожені продукти біля вокзалу Дарниця в Києві, навпроти АТБ. Вареники, пельмені, котлети, хінкалі, млинці та інше. Завітайте — розповімо усе!">
   <meta name="theme-color" content="#080f1e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -296,10 +296,10 @@
   <div class="topbar-in">
     <div class="logo-box">❄️</div>
     <div class="logo-txt">
-      Все в морозилке
-      <small>домашние замороженные продукты</small>
+      Усе в морозильці
+      <small>домашні заморожені продукти</small>
     </div>
-    <div class="open-badge">Открыто</div>
+    <div class="open-badge">Відкрито</div>
   </div>
 </header>
 
@@ -334,94 +334,94 @@
     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
     </svg>
-    <input class="search-input" id="searchInput" type="search" placeholder="Найти товар..." autocomplete="off">
+    <input class="search-input" id="searchInput" type="search" placeholder="Знайти товар..." autocomplete="off">
   </div>
   <div class="cats" id="cats"></div>
 </div>
 
 <div class="grid-wrap">
-  <div class="sec-lbl" id="secLbl">Все товары</div>
+  <div class="sec-lbl" id="secLbl">Усі товари</div>
   <div class="pgrid" id="pgrid"></div>
 </div>
 
 <footer>
   <div class="fin">
-    <strong>Все в морозилке</strong><br>
-    Киев · возле Киевского вокзала, напротив АТБ<br>
-    <a href="https://maps.google.com/?q=50.43462504418194,30.64699041302942" target="_blank" rel="noopener">Открыть на карте Google</a>
+    <strong>Усе в морозильці</strong><br>
+    Київ · вокзал Дарниця, навпроти АТБ<br>
+    <a href="https://maps.google.com/?q=50.43462504418194,30.64699041302942" target="_blank" rel="noopener">Відкрити на карті Google</a>
   </div>
 </footer>
 
 <script>
 const P = [
-  {id:'var-kartoshka', n:'Вареники с картошкой', c:'Вареники', img:'assets/img/products/vareniki/Вареники з картоплею.png'},
-  {id:'var-kapusta', n:'Вареники с капустой', c:'Вареники', img:'assets/img/products/vareniki/Вареники з капустою.png'},
-  {id:'var-serdce-pechen', n:'Вареники сердце-печень', c:'Вареники', img:'assets/img/products/vareniki/Вареники з серцем-печінкою.png'},
-  {id:'var-myaso-chesnok', n:'Вареники с мясом и чесноком', c:'Вареники', img:'assets/img/products/vareniki/Вареники з м\'ясом та часником.png'},
-  {id:'var-tvorog-sladkiy', n:'Вареники с творогом сладкие', c:'Вареники', img:'assets/img/products/vareniki/Вареники з солодким творогом.png'},
-  {id:'bl-myaso-dom', n:'Блинчики домашние с мясом', c:'Блинчики', img:'assets/img/products/bliny/Блинчики (з м\'ясом, творогом).png'},
-  {id:'bl-tvorog-dom', n:'Блинчики домашние с творогом', c:'Блинчики', img:'assets/img/products/bliny/Блинчики (з м\'ясом, творогом).png'},
-  {id:'bend-myaso', n:'Бендерики с мясом', c:'Блинчики', img:'assets/img/products/bliny/Бендерки (м\'ясо, капуста свіжа та тушкована).png'},
-  {id:'bend-kapusta', n:'Бендерики с капустой', c:'Блинчики', img:'assets/img/products/bliny/Бендерки (м\'ясо, капуста свіжа та тушкована).png'},
-  {id:'cheb-myaso-syr', n:'Чебуреки с мясом и сыром', c:'Блинчики', img:'assets/img/products/bliny/Чебуреки (з м\'ясом та сиром).png'},
-  {id:'syrniki-zhar', n:'Сырники жареные', c:'Блинчики', img:'assets/img/products/bliny/Сирники смажені.png'},
-  {id:'zrazy-myas-kap', n:'Зразы жареные', c:'Блинчики', img:'assets/img/products/vareniki/Зрази смажені (з м\'ясом , капустою).png'},
-  {id:'sosiska-v-teste', n:'Сосиска в тесте', c:'Блинчики', img:'assets/img/products/bliny/Сосиска в тісті.png'},
-  {id:'gnizdechka-myaso', n:'Гнездышки с мясом', c:'Блинчики', img:'assets/img/products/bliny/Гніздечка з м\'ясом.png'},
-  {id:'ovoshi-zamorozh', n:'Замороженные овощи', c:'Дополнительно', img:'assets/img/products/bliny/Заморожені овочі, Картопля фрі.png'},
-  {id:'kartoplya-fri', n:'Картошка фри', c:'Дополнительно', img:'assets/img/products/bliny/Заморожені овочі, Картопля фрі.png'},
-  {id:'kot-babush', n:'Котлеты Бабушкины', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Бабусині» (свинина + яловичина).png'},
-  {id:'kot-yozhik', n:'Котлеты Ежик', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Їжачок» (курка).png'},
-  {id:'kot-syr', n:'Котлеты с сыром', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «З сиром» (яловичина + сир).png'},
-  {id:'kot-po-kiev-farsh', n:'Котлеты по-киевски', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «По-київськи» (курячий фарш + масло + зелень).png'},
-  {id:'kot-sviny', n:'Котлеты из свинины', c:'Котлеты', img:'assets/img/products/cutlets/Котлети зі свинини.png'},
-  {id:'kot-shkoln', n:'Котлеты Школьные', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Шкільні» (курка).png'},
-  {id:'naggets', n:'Нагетсы', c:'Котлеты', img:'assets/img/products/cutlets/Нагетси курячі.png'},
-  {id:'grechaniki', n:'Гречаники', c:'Котлеты', img:'assets/img/products/cutlets/Гречаники домашні (свинина + яловичина + гречка).png'},
-  {id:'kot-kiev-file', n:'Киевские', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Київські» (філе + масло + зелень).png'},
-  {id:'kordon-blu', n:'Кордон-блю', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Кордон-Блю» (філе + шинка + сир).png'},
-  {id:'kot-sokovit', n:'Котлеты Соковитые', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Соковиті» (яловичина + курка).png'},
-  {id:'kot-dom-maslo', n:'Котлеты Домашние', c:'Котлеты', img:'assets/img/products/cutlets/Котлети «Домашні» (свинина + яловичина + масло).png'},
-  {id:'shnic-dom', n:'Шницель домашний', c:'Котлеты', img:'assets/img/products/cutlets/Шніцель домашній (яловичина).png'},
-  {id:'kot-burger', n:'Котлеты Бургерные', c:'Котлеты', img:'assets/img/products/cutlets/Котлети для бургерів (яловичина).png'},
-  {id:'kot-rublen', n:'Котлеты Рубленые', c:'Котлеты', img:'assets/img/products/cutlets/Котлети рублені (свинина + яловичина + курка).png'},
-  {id:'golubcy', n:'Голубцы', c:'Котлеты', img:'assets/img/products/cutlets/Голубці (свинина + яловичина).png'},
-  {id:'perec-farsh', n:'Перец фаршированный', c:'Котлеты', img:'assets/img/products/cutlets/Перець фарширований (свинина + яловичина).png'},
-  {id:'pel-bogatyr', n:'Пельмени Богатырские', c:'Пельмени', img:'assets/img/products/dumplings/Богатирські (Яловичина + курка).png'},
-  {id:'pel-bulmeni', n:'Бульмени', c:'Пельмени', img:'assets/img/products/dumplings/Бульмені (Яловичина + бульйон).png'},
-  {id:'pel-dom', n:'Пельмени Домашние', c:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Домашні» (свинина).jpg'},
-  {id:'pel-kozackie', n:'Пельмени Козацкие', c:'Пельмени', img:'assets/img/products/dumplings/Козацькі (Свинина + яловичина).png'},
-  {id:'pel-kurinye', n:'Пельмени Куриные', c:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Курячі».jpg'},
-  {id:'pel-malyshki', n:'Пельмени Малюки', c:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Малюки» .png'},
-  {id:'pel-babush', n:'Пельмени Бабушкины', c:'Пельмени', img:'assets/img/products/dumplings/Бабусині (Свинина + яловичина + курка).png'},
-  {id:'pel-vershk', n:'Пельмени Вершковые', c:'Пельмени', img:'assets/img/products/dumplings/Вершкові (Свинина + яловичина + вершкове масло).png'},
-  {id:'ravioli', n:'Равиоли', c:'Пельмени', img:'assets/img/products/dumplings/Пельмені «Равіолі» .png'},
-  {id:'hink-dom', n:'Хинкали Домашние', c:'Хинкали', img:'assets/img/products/dumplings/Хінкалі «Домашні» .png'},
-  {id:'hink-kavkaz', n:'Хинкали Кавказские', c:'Хинкали', img:'assets/img/products/dumplings/Хінкалі «Кавказькі» (яловичина + курка + зелень + паприка + базилік).png'},
-  {id:'hink-shah', n:'Хинкали Шах', c:'Хинкали', img:'assets/img/products/dumplings/Хінкалі «Шах» (свинина + яловичина + зелень).png'},
-  {id:'smetana', n:'Сметана фермерская', c:'Молочка', img:'assets/img/products/molochka/Сметана фермерська.png'},
-  {id:'tvorog', n:'Творог домашний', c:'Молочка', img:'assets/img/products/molochka/Творог домашній .png'},
-  {id:'sirna-masa', n:'Сырная масса с изюмом', c:'Молочка', img:'assets/img/products/molochka/Сирна маса з родзинками .png'},
-  {id:'yaitsa', n:'Яйца фермерские', c:'Дополнительно', img:'assets/img/products/qw/яйця.jpg'}
+  {id:'var-kartoshka', n:'Вареники з картоплею', c:'Вареники', img:'assets/img/products/vareniki/Вареники з картоплею.png'},
+  {id:'var-kapusta', n:'Вареники з капустою', c:'Вареники', img:'assets/img/products/vareniki/Вареники з капустою.png'},
+  {id:'var-serdce-pechen', n:'Вареники з серцем і печінкою', c:'Вареники', img:'assets/img/products/vareniki/Вареники з серцем-печінкою.png'},
+  {id:'var-myaso-chesnok', n:'Вареники з м\'ясом і часником', c:'Вареники', img:'assets/img/products/vareniki/Вареники з м\'ясом та часником.png'},
+  {id:'var-tvorog-sladkiy', n:'Вареники з солодким сиром', c:'Вареники', img:'assets/img/products/vareniki/Вареники з солодким творогом.png'},
+  {id:'bl-myaso-dom', n:'Млинці домашні з м\'ясом', c:'Млинці', img:'assets/img/products/bliny/Блинчики (з м\'ясом, творогом).png'},
+  {id:'bl-tvorog-dom', n:'Млинці домашні з сиром', c:'Млинці', img:'assets/img/products/bliny/Блинчики (з м\'ясом, творогом).png'},
+  {id:'bend-myaso', n:'Бендерики з м\'ясом', c:'Млинці', img:'assets/img/products/bliny/Бендерки (м\'ясо, капуста свіжа та тушкована).png'},
+  {id:'bend-kapusta', n:'Бендерики з капустою', c:'Млинці', img:'assets/img/products/bliny/Бендерки (м\'ясо, капуста свіжа та тушкована).png'},
+  {id:'cheb-myaso-syr', n:'Чебуреки з м\'ясом і сиром', c:'Млинці', img:'assets/img/products/bliny/Чебуреки (з м\'ясом та сиром).png'},
+  {id:'syrniki-zhar', n:'Сирники смажені', c:'Млинці', img:'assets/img/products/bliny/Сирники смажені.png'},
+  {id:'zrazy-myas-kap', n:'Зрази смажені', c:'Млинці', img:'assets/img/products/vareniki/Зрази смажені (з м\'ясом , капустою).png'},
+  {id:'sosiska-v-teste', n:'Сосиска в тісті', c:'Млинці', img:'assets/img/products/bliny/Сосиска в тісті.png'},
+  {id:'gnizdechka-myaso', n:'Гніздечка з м\'ясом', c:'Млинці', img:'assets/img/products/bliny/Гніздечка з м\'ясом.png'},
+  {id:'ovoshi-zamorozh', n:'Заморожені овочі', c:'Додатково', img:'assets/img/products/bliny/Заморожені овочі, Картопля фрі.png'},
+  {id:'kartoplya-fri', n:'Картопля фрі', c:'Додатково', img:'assets/img/products/bliny/Заморожені овочі, Картопля фрі.png'},
+  {id:'kot-babush', n:'Котлети «Бабусині»', c:'Котлети', img:'assets/img/products/cutlets/Котлети «Бабусині» (свинина + яловичина).png'},
+  {id:'kot-yozhik', n:'Котлети «Їжачок»', c:'Котлети', img:'assets/img/products/cutlets/Котлети «Їжачок» (курка).png'},
+  {id:'kot-syr', n:'Котлети з сиром', c:'Котлети', img:'assets/img/products/cutlets/Котлети «З сиром» (яловичина + сир).png'},
+  {id:'kot-po-kiev-farsh', n:'Котлети по-київськи', c:'Котлети', img:'assets/img/products/cutlets/Котлети «По-київськи» (курячий фарш + масло + зелень).png'},
+  {id:'kot-sviny', n:'Котлети зі свинини', c:'Котлети', img:'assets/img/products/cutlets/Котлети зі свинини.png'},
+  {id:'kot-shkoln', n:'Котлети «Шкільні»', c:'Котлети', img:'assets/img/products/cutlets/Котлети «Шкільні» (курка).png'},
+  {id:'naggets', n:'Курячі нагетси', c:'Котлети', img:'assets/img/products/cutlets/Нагетси курячі.png'},
+  {id:'grechaniki', n:'Гречаники', c:'Котлети', img:'assets/img/products/cutlets/Гречаники домашні (свинина + яловичина + гречка).png'},
+  {id:'kot-kiev-file', n:'Котлети «Київські»', c:'Котлети', img:'assets/img/products/cutlets/Котлети «Київські» (філе + масло + зелень).png'},
+  {id:'kordon-blu', n:'Кордон-блю', c:'Котлети', img:'assets/img/products/cutlets/Котлети «Кордон-Блю» (філе + шинка + сир).png'},
+  {id:'kot-sokovit', n:'Котлети «Соковиті»', c:'Котлети', img:'assets/img/products/cutlets/Котлети «Соковиті» (яловичина + курка).png'},
+  {id:'kot-dom-maslo', n:'Котлети «Домашні»', c:'Котлети', img:'assets/img/products/cutlets/Котлети «Домашні» (свинина + яловичина + масло).png'},
+  {id:'shnic-dom', n:'Домашній шніцель', c:'Котлети', img:'assets/img/products/cutlets/Шніцель домашній (яловичина).png'},
+  {id:'kot-burger', n:'Котлети для бургерів', c:'Котлети', img:'assets/img/products/cutlets/Котлети для бургерів (яловичина).png'},
+  {id:'kot-rublen', n:'Рублені котлети', c:'Котлети', img:'assets/img/products/cutlets/Котлети рублені (свинина + яловичина + курка).png'},
+  {id:'golubcy', n:'Голубці', c:'Котлети', img:'assets/img/products/cutlets/Голубці (свинина + яловичина).png'},
+  {id:'perec-farsh', n:'Фарширований перець', c:'Котлети', img:'assets/img/products/cutlets/Перець фарширований (свинина + яловичина).png'},
+  {id:'pel-bogatyr', n:'Пельмені «Богатирські»', c:'Пельмені', img:'assets/img/products/dumplings/Богатирські (Яловичина + курка).png'},
+  {id:'pel-bulmeni', n:'Бульмені', c:'Пельмені', img:'assets/img/products/dumplings/Бульмені (Яловичина + бульйон).png'},
+  {id:'pel-dom', n:'Пельмені «Домашні»', c:'Пельмені', img:'assets/img/products/dumplings/Пельмені «Домашні» (свинина).jpg'},
+  {id:'pel-kozackie', n:'Пельмені «Козацькі»', c:'Пельмені', img:'assets/img/products/dumplings/Козацькі (Свинина + яловичина).png'},
+  {id:'pel-kurinye', n:'Пельмені «Курячі»', c:'Пельмені', img:'assets/img/products/dumplings/Пельмені «Курячі».jpg'},
+  {id:'pel-malyshki', n:'Пельмені «Малюки»', c:'Пельмені', img:'assets/img/products/dumplings/Пельмені «Малюки» .png'},
+  {id:'pel-babush', n:'Пельмені «Бабусині»', c:'Пельмені', img:'assets/img/products/dumplings/Бабусині (Свинина + яловичина + курка).png'},
+  {id:'pel-vershk', n:'Пельмені «Вершкові»', c:'Пельмені', img:'assets/img/products/dumplings/Вершкові (Свинина + яловичина + вершкове масло).png'},
+  {id:'ravioli', n:'Равіолі', c:'Пельмені', img:'assets/img/products/dumplings/Пельмені «Равіолі» .png'},
+  {id:'hink-dom', n:'Хінкалі «Домашні»', c:'Хінкалі', img:'assets/img/products/dumplings/Хінкалі «Домашні» .png'},
+  {id:'hink-kavkaz', n:'Хінкалі «Кавказькі»', c:'Хінкалі', img:'assets/img/products/dumplings/Хінкалі «Кавказькі» (яловичина + курка + зелень + паприка + базилік).png'},
+  {id:'hink-shah', n:'Хінкалі «Шах»', c:'Хінкалі', img:'assets/img/products/dumplings/Хінкалі «Шах» (свинина + яловичина + зелень).png'},
+  {id:'smetana', n:'Фермерська сметана', c:'Молочка', img:'assets/img/products/molochka/Сметана фермерська.png'},
+  {id:'tvorog', n:'Домашній сир', c:'Молочка', img:'assets/img/products/molochka/Творог домашній .png'},
+  {id:'sirna-masa', n:'Сирна маса з родзинками', c:'Молочка', img:'assets/img/products/molochka/Сирна маса з родзинками .png'},
+  {id:'yaitsa', n:'Яйця фермерські', c:'Додатково', img:'assets/img/products/qw/яйця.jpg'}
 ];
 
-const cats   = ['Все', ...new Set(P.map(x => x.c))];
+const cats   = ['Усі', ...new Set(P.map(x => x.c))];
 const catsEl = document.getElementById('cats');
 const grid   = document.getElementById('pgrid');
 const search = document.getElementById('searchInput');
 const lbl    = document.getElementById('secLbl');
 
-let activeCat = 'Все', q = '';
+let activeCat = 'Усі', q = '';
 
 cats.forEach(cat => {
   const b = document.createElement('button');
-  b.className = 'cat-btn' + (cat === 'Все' ? ' active' : '');
+  b.className = 'cat-btn' + (cat === 'Усі' ? ' active' : '');
   b.textContent = cat;
   b.onclick = () => {
     activeCat = cat;
     document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
-    lbl.textContent = cat === 'Все' ? 'Все товары' : cat;
+    lbl.textContent = cat === 'Усі' ? 'Усі товари' : cat;
     render();
   };
   catsEl.appendChild(b);
@@ -432,12 +432,12 @@ search.addEventListener('input', e => { q = e.target.value; render(); });
 function render() {
   const lq = q.toLowerCase().trim();
   const list = P.filter(p =>
-    (activeCat === 'Все' || p.c === activeCat) &&
+    (activeCat === 'Усі' || p.c === activeCat) &&
     (!lq || p.n.toLowerCase().includes(lq) || p.c.toLowerCase().includes(lq))
   );
   grid.innerHTML = '';
   if (!list.length) {
-    grid.innerHTML = '<div class="no-res">🔍 Ничего не найдено</div>';
+    grid.innerHTML = '<div class="no-res">🔍 Нічого не знайдено</div>';
     return;
   }
   list.forEach((p, i) => {

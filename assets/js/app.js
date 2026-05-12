@@ -1,12 +1,12 @@
 const FALLBACK_IMAGE = "assets/img/products/dumplings/Богатирські (Яловичина + курка).png";
 const CATEGORY_IMAGES = {
   "Вареники": "assets/img/products/vareniki/Вареники з картоплею.png",
-  "Блинчики": "assets/img/products/bliny/Блинчики (з м'ясом, творогом).png",
-  "Котлеты": "assets/img/products/cutlets/Котлети «Бабусині» (свинина + яловичина).png",
-  "Пельмени": "assets/img/products/dumplings/Богатирські (Яловичина + курка).png",
-  "Хинкали": "assets/img/products/dumplings/Хінкалі «Домашні» .png",
+  "Млинці": "assets/img/products/bliny/Блинчики (з м'ясом, творогом).png",
+  "Котлети": "assets/img/products/cutlets/Котлети «Бабусині» (свинина + яловичина).png",
+  "Пельмені": "assets/img/products/dumplings/Богатирські (Яловичина + курка).png",
+  "Хінкалі": "assets/img/products/dumplings/Хінкалі «Домашні» .png",
   "Молочка": "assets/img/products/molochka/Сметана фермерська.png",
-  "Дополнительно": "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png"
+  "Додатково": "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png"
 };
 const PRODUCT_IMAGES = {
   "var-kartoshka": "assets/img/products/vareniki/Вареники з картоплею.png",
@@ -94,7 +94,7 @@ function renderProducts() {
   });
 
   if (filtered.length === 0) {
-    elements.grid.innerHTML = `<p class="muted">Ничего не найдено. Попробуй другой запрос.</p>`;
+    elements.grid.innerHTML = `<p class="muted">Нічого не знайдено. Спробуйте інший запит.</p>`;
     return;
   }
 
@@ -130,7 +130,7 @@ function getImageForProduct(item) {
 }
 
 function groupByCategory(items) {
-  const order = ["Пельмени", "Хинкали", "Вареники", "Блинчики", "Котлеты", "Молочка", "Дополнительно"];
+  const order = ["Пельмені", "Хінкалі", "Вареники", "Млинці", "Котлети", "Молочка", "Додатково"];
   return order
     .filter((category) => items.some((item) => item.category === category))
     .map((category) => ({
