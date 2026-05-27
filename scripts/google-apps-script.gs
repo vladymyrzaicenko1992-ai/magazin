@@ -206,6 +206,7 @@ function placeOrder_(body) {
 
   var name = String(body.name || "").trim();
   var phone = String(body.phone || "").trim();
+  var address = String(body.address || "").trim();
   var comment = String(body.comment || "").trim();
   var items = body.items || [];
   var total = Number(body.total);
@@ -235,7 +236,7 @@ function placeOrder_(body) {
     };
   }
 
-  var message = formatOrderMessage_(name, phone, comment, items, total);
+  var message = formatOrderMessage_(name, phone, address, comment, items, total);
   try {
     sendTelegramMessage_(cfg.token, cfg.chatId, message);
   } catch (err) {
@@ -249,12 +250,12 @@ function placeOrder_(body) {
     }
     throw err;
   }
-  logOrder_(name, phone, comment, items, total);
+  logOrder_(name, phone, address, comment, items, total);
 
   return { ok: true };
 }
 
-function formatOrderMessage_(name, phone, comment, items, total) {
+function formatOrderMessage_(name, phone, address, comment, items, total) {
   var tz = Session.getScriptTimeZone() || "Europe/Kyiv";
   var time = Utilities.formatDate(new Date(), tz, "dd.MM.yyyy HH:mm");
 
@@ -262,14 +263,27 @@ function formatOrderMessage_(name, phone, comment, items, total) {
     "🛒 НОВЕ ЗАМОВЛЕННЯ",
     "",
     "👤 Ім'я: " + name,
-    "📱 Телефон: " + phone,
-    "━━━━━━━━━━"
+    "📱 Телефон: " + phone
   ];
+  if (address) {
+    lines.push("📍 Адреса: " + address);
+  }
+  lines.push("━━━━━━━━━━");
 
   items.forEach(function (it) {
     var qty = it.qty || it.quantity || 1;
     var title = it.name || it.n || "Товар";
-    lines.push("• " + title + " ×" + qty);
+    var unit = it.unitLabel || it.unit || "шт";
+    var lineSum = it.lineTotal;
+    var price = it.price;
+    var row = "• " + title + " — " + qty + " " + unit;
+    if (price !== undefined && price !== null && price !== "") {
+      row += " × " + price + " грн";
+    }
+    if (lineSum !== undefined && lineSum !== null && lineSum !== "") {
+      row += " = " + Math.round(lineSum * 100) / 100 + " грн";
+    }
+    lines.push(row);
   });
 
   lines.push("━━━━━━━━━━");
@@ -300,13 +314,14 @@ function sendTelegramMessage_(token, chatId, text) {
   }
 }
 
-function logOrder_(name, phone, comment, items, total) {
+function logOrder_(name, phone, address, comment, items, total) {
   try {
     var sheet = getOrdersSheet_();
     sheet.appendRow([
       new Date(),
       name,
       phone,
+      address,
       JSON.stringify(items),
       total,
       comment
@@ -325,6 +340,7 @@ function getOrdersSheet_() {
       "timestamp",
       "name",
       "phone",
+      "address",
       "items_json",
       "total",
       "comment"

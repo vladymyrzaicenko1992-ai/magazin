@@ -1,19 +1,58 @@
 (function () {
-  const CART_KEY = "magazin-cart-v1";
+  const CART_KEY = "magazin-cart-v2";
+  const CART_KEY_LEGACY = "magazin-cart-v1";
+  const CUSTOMER_KEY = "magazin-customer-v1";
+
+  const UNITS = [
+    { id: "pcs", label: "Штуки", short: "шт", step: 1, min: 1, dec: 0 },
+    { id: "kg", label: "Кілограми", short: "кг", step: 0.1, min: 0.1, dec: 1 },
+    { id: "g", label: "Грами", short: "г", step: 100, min: 50, dec: 0 },
+    { id: "l", label: "Літри", short: "л", step: 0.1, min: 0.1, dec: 1 },
+    { id: "ml", label: "Мілілітри", short: "мл", step: 100, min: 100, dec: 0 },
+    { id: "pack", label: "Упаковки", short: "уп", step: 1, min: 1, dec: 0 }
+  ];
+
+  function getUnit(unitId) {
+    return UNITS.find((u) => u.id === unitId) || UNITS[0];
+  }
 
   function loadCart() {
     try {
-      const raw = localStorage.getItem(CART_KEY);
+      let raw = localStorage.getItem(CART_KEY);
+      if (!raw) {
+        raw = localStorage.getItem(CART_KEY_LEGACY);
+        if (raw) {
+          localStorage.setItem(CART_KEY, raw);
+          localStorage.removeItem(CART_KEY_LEGACY);
+        }
+      }
       const list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list : [];
+      return Array.isArray(list) ? list.map(normalizeItem).filter((x) => x.id) : [];
     } catch (_) {
       return [];
     }
   }
 
+  function normalizeItem(item) {
+    if (!item || !item.id) return null;
+    const u = getUnit(item.unit || "pcs");
+    let qty = Number(item.qty);
+    if (!Number.isFinite(qty) || qty <= 0) qty = u.min;
+    if (u.dec === 0) qty = Math.max(u.min, Math.round(qty));
+    else qty = Math.max(u.min, Math.round(qty * 10) / 10);
+    return {
+      id: item.id,
+      n: item.n || "",
+      c: item.c || "",
+      price: parsePrice(item.price),
+      qty,
+      unit: u.id
+    };
+  }
+
   function saveCart(items) {
     try {
-      localStorage.setItem(CART_KEY, JSON.stringify(items));
+      localStorage.setItem(CART_KEY, JSON.stringify(items.map(normalizeItem).filter(Boolean)));
     } catch (_) {}
     updateBadge();
     try {
@@ -31,31 +70,44 @@
     return Number.isFinite(n) && n >= 0 ? n : null;
   }
 
+  function formatQty(qty, unitId) {
+    const u = getUnit(unitId);
+    if (u.dec === 0) return String(Math.round(qty));
+    const s = Number(qty).toFixed(1);
+    return s.endsWith(".0") ? s.slice(0, -2) : s;
+  }
+
   function getCount() {
     return loadCart().reduce((sum, x) => sum + (x.qty || 0), 0);
+  }
+
+  function getPositionsCount() {
+    return loadCart().length;
   }
 
   function addItem(product, qty) {
     const price = parsePrice(product.price);
     if (price === null) return { ok: false, error: "no_price" };
 
-    const amount = Math.max(1, Math.floor(Number(qty) || 1));
     const cart = loadCart();
     const idx = cart.findIndex((x) => x.id === product.id);
-    const row = {
-      id: product.id,
-      n: product.n,
-      c: product.c,
-      price,
-      qty: amount
-    };
+    const addQty = Math.max(1, Number(qty) || 1);
 
     if (idx >= 0) {
-      cart[idx].qty += amount;
+      cart[idx].qty += addQty;
       cart[idx].price = price;
       cart[idx].n = product.n;
     } else {
-      cart.push(row);
+      cart.push(
+        normalizeItem({
+          id: product.id,
+          n: product.n,
+          c: product.c,
+          price,
+          qty: addQty,
+          unit: "pcs"
+        })
+      );
     }
     saveCart(cart);
     return { ok: true };
@@ -65,12 +117,26 @@
     const cart = loadCart();
     const item = cart.find((x) => x.id === id);
     if (!item) return;
-    const n = Math.floor(Number(qty));
-    if (!Number.isFinite(n) || n < 1) {
+    const u = getUnit(item.unit);
+    let n = Number(String(qty).replace(",", "."));
+    if (!Number.isFinite(n) || n < u.min) {
       removeItem(id);
       return;
     }
-    item.qty = n;
+    if (u.dec === 0) n = Math.round(n);
+    else n = Math.round(n * 10) / 10;
+    item.qty = Math.max(u.min, n);
+    saveCart(cart);
+  }
+
+  function setUnit(id, unitId) {
+    const cart = loadCart();
+    const item = cart.find((x) => x.id === id);
+    if (!item) return;
+    const u = getUnit(unitId);
+    item.unit = u.id;
+    if (item.qty < u.min) item.qty = u.min;
+    if (u.dec === 0) item.qty = Math.max(u.min, Math.round(item.qty));
     saveCart(cart);
   }
 
@@ -78,7 +144,8 @@
     const cart = loadCart();
     const item = cart.find((x) => x.id === id);
     if (!item) return;
-    setQty(id, (item.qty || 1) + delta);
+    const u = getUnit(item.unit);
+    setQty(id, (item.qty || u.min) + delta * u.step);
   }
 
   function removeItem(id) {
@@ -101,6 +168,25 @@
     return `${Number(n).toFixed(2)} грн`;
   }
 
+  function lineLabel(item) {
+    const u = getUnit(item.unit);
+    return `${formatQty(item.qty, item.unit)} ${u.short}`;
+  }
+
+  function loadCustomer() {
+    try {
+      return JSON.parse(localStorage.getItem(CUSTOMER_KEY) || "{}");
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveCustomer(data) {
+    try {
+      localStorage.setItem(CUSTOMER_KEY, JSON.stringify(data));
+    } catch (_) {}
+  }
+
   async function getOrderApiUrl() {
     try {
       const res = await fetch(`assets/data/config.json?v=${Date.now()}`);
@@ -117,14 +203,21 @@
       action: "order",
       name: customer.name,
       phone: customer.phone,
+      address: customer.address || "",
       comment: customer.comment || "",
       website: "",
-      items: items.map((it) => ({
-        id: it.id,
-        name: it.n,
-        qty: it.qty,
-        price: it.price
-      })),
+      items: items.map((it) => {
+        const u = getUnit(it.unit);
+        return {
+          id: it.id,
+          name: it.n,
+          qty: it.qty,
+          unit: u.id,
+          unitLabel: u.short,
+          price: it.price,
+          lineTotal: lineTotal(it)
+        };
+      }),
       total: cartTotal(items)
     };
   }
@@ -139,6 +232,12 @@
     if (!apiUrl) {
       throw new Error("Не налаштовано googleWebAppUrl у assets/data/config.json");
     }
+
+    saveCustomer({
+      name: customer.name,
+      phone: customer.phone,
+      address: customer.address || ""
+    });
 
     const payload = buildOrderPayload(priced, customer);
     const res = await fetch(apiUrl, {
@@ -155,20 +254,13 @@
       data = JSON.parse(text);
     } catch (_) {
       throw new Error(
-        "Google Apps Script не відповів JSON. Розгорніть нову версію веб-додатку (див. docs/TELEGRAM_ORDERS.md)."
+        "Google Apps Script не відповів JSON. Розгорніть нову версію веб-додатку."
       );
     }
     if (!data.ok) {
       const err = data.error || "Не вдалося відправити замовлення";
       if (String(err).indexOf("Unknown action") >= 0) {
-        throw new Error(
-          "У Google ще старий скрипт без замовлень. Вставте scripts/google-apps-script.gs і натисніть Розгорнути → Нова версія."
-        );
-      }
-      if (String(err).indexOf("Telegram не налаштовано") >= 0) {
-        throw new Error(
-          err + " Інструкція: docs/TELEGRAM_FIX.md — у Apps Script запустіть ▶ setupTelegramProperties з токеном."
-        );
+        throw new Error("Оновіть scripts/google-apps-script.gs і зробіть Нове розгортання.");
       }
       throw new Error(err);
     }
@@ -178,28 +270,37 @@
   function updateBadge() {
     const el = document.getElementById("cartBadge");
     if (!el) return;
-    const n = getCount();
+    const n = getPositionsCount();
     el.textContent = String(n);
     el.hidden = n < 1;
   }
 
   window.MagazinCart = {
     CART_KEY,
+    UNITS,
+    getUnit,
     loadCart,
     saveCart,
     isInCart,
     getCount,
+    getPositionsCount,
     addItem,
     setQty,
+    setUnit,
     changeQty,
     removeItem,
     clearCart,
     lineTotal,
     cartTotal,
     formatMoney,
+    formatQty,
+    lineLabel,
+    loadCustomer,
+    saveCustomer,
     submitOrder,
     updateBadge,
-    parsePrice
+    parsePrice,
+    normalizeItem
   };
 
   updateBadge();
