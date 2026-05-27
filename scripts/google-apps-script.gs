@@ -141,13 +141,21 @@ function createTelegramSheet_() {
 }
 
 /**
- * Альтернатива листу: ▶ у редакторі, вставте токен замість PASTE_...
+ * НАЙПРОСТІШЕ: вставте токен у TOKEN нижче → виберіть setupTelegramProperties → ▶ Виконати.
+ * Після успіху видаліть токен з цього файлу (Ctrl+S). Розгортання не потрібне.
  */
 function setupTelegramProperties() {
+  var TOKEN = "ВСТАВТЕ_ТОКЕН_ВІД_BOTFATHER_СЮДИ";
+  if (TOKEN.indexOf("ВСТАВТЕ") >= 0 || TOKEN.length < 30) {
+    throw new Error(
+      "Відкрийте setupTelegramProperties у редакторі, замініть TOKEN на токен від @BotFather, натисніть ▶ Run."
+    );
+  }
   getProps_().setProperties({
-    TELEGRAM_BOT_TOKEN: "PASTE_BOT_TOKEN_FROM_BOTFATHER",
+    TELEGRAM_BOT_TOKEN: TOKEN.trim(),
     TELEGRAM_CHAT_ID: DEFAULT_CHAT_ID
   });
+  Logger.log("Telegram OK. Перевірте веб: .../exec?action=ping");
 }
 
 function listTelegramChats_() {
@@ -207,9 +215,10 @@ function placeOrder_(body) {
     return {
       ok: false,
       error:
-        "Telegram не налаштовано. У таблиці: лист «telegram», клітинка B1 = токен бота (@BotFather), B2 = " +
+        "Telegram не налаштовано. У Apps Script: функція setupTelegramProperties → вставте токен у TOKEN → ▶ Run. " +
+        "Або Script Properties: TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID=" +
         DEFAULT_CHAT_ID +
-        ". Або Script Properties. Потім ?action=initTelegram якщо листа немає."
+        ". Розгортання: «Виконувати від імені: Я»."
     };
   }
 

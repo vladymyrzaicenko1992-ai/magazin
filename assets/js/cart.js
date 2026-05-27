@@ -158,6 +158,11 @@
           "У Google ще старий скрипт без замовлень. Вставте scripts/google-apps-script.gs і натисніть Розгорнути → Нова версія."
         );
       }
+      if (String(err).indexOf("Telegram не налаштовано") >= 0) {
+        throw new Error(
+          err + " Інструкція: docs/TELEGRAM_FIX.md — у Apps Script запустіть ▶ setupTelegramProperties з токеном."
+        );
+      }
       throw new Error(err);
     }
     return data;
