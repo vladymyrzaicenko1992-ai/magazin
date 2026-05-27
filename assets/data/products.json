@@ -1,9 +1,16 @@
 [
   {
+    "id": "test-tovar-demo",
+    "name": "Тестовий товар (демо)",
+    "category": "Додатково",
+    "price": 99,
+    "image": "assets/img/products/qw/яйця.jpg"
+  },
+  {
     "id": "var-kartoshka",
     "name": "Вареники з картоплею",
     "category": "Вареники",
-    "price": null
+    "price": 85
   },
   {
     "id": "var-kapusta",
@@ -99,7 +106,7 @@
     "id": "kot-babush",
     "name": "Котлети «Бабусині»",
     "category": "Котлети",
-    "price": null
+    "price": 95
   },
   {
     "id": "kot-yozhik",
@@ -201,7 +208,7 @@
     "id": "pel-bogatyr",
     "name": "Пельмені «Богатирські»",
     "category": "Пельмені",
-    "price": null
+    "price": 120
   },
   {
     "id": "pel-bulmeni",
@@ -255,7 +262,7 @@
     "id": "hink-dom",
     "name": "Хінкалі «Домашні»",
     "category": "Хінкалі",
-    "price": null
+    "price": 110
   },
   {
     "id": "hink-kavkaz",
@@ -273,7 +280,7 @@
     "id": "smetana",
     "name": "Фермерська сметана",
     "category": "Молочка",
-    "price": null
+    "price": 65
   },
   {
     "id": "tvorog",

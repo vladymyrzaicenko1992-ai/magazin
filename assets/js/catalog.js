@@ -51,7 +51,8 @@ const BASE_PRODUCTS = [
   { id: "smetana", n: "Фермерська сметана", c: "Молочка", img: "assets/img/products/molochka/Сметана фермерська.png", price: null },
   { id: "tvorog", n: "Домашній сир", c: "Молочка", img: "assets/img/products/molochka/Творог домашній .png", price: null },
   { id: "sirna-masa", n: "Сирна маса з родзинками", c: "Молочка", img: "assets/img/products/molochka/Сирна маса з родзинками .png", price: null },
-  { id: "yaitsa", n: "Яйця фермерські", c: "Додатково", img: "assets/img/products/qw/яйця.jpg", price: null }
+  { id: "yaitsa", n: "Яйця фермерські", c: "Додатково", img: "assets/img/products/qw/яйця.jpg", price: null },
+  { id: "test-tovar-demo", n: "Тестовий товар (демо)", c: "Додатково", img: "assets/img/products/qw/яйця.jpg", price: 99 }
 ];
 
 function parsePrice(value) {
@@ -96,7 +97,9 @@ function loadDeletedIds() {
 }
 
 function saveDeletedIds(ids) {
-  localStorage.setItem(DELETED_KEY, JSON.stringify(ids));
+  try {
+    localStorage.setItem(DELETED_KEY, JSON.stringify(ids));
+  } catch (_) {}
 }
 
 function markDeleted(id) {
@@ -115,16 +118,18 @@ function applyDeletedFilter(catalog) {
 }
 
 function migrateLegacyStorage() {
-  const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
-  if (!legacy || localStorage.getItem(STORAGE_KEY)) return;
-  localStorage.setItem(STORAGE_KEY, legacy);
+  try {
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (!legacy || localStorage.getItem(STORAGE_KEY)) return;
+    localStorage.setItem(STORAGE_KEY, legacy);
+  } catch (_) {}
 }
 
 function loadFromStorage() {
-  migrateLegacyStorage();
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
   try {
+    migrateLegacyStorage();
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
     return JSON.parse(raw).map(normalizeProduct).filter(Boolean);
   } catch (_) {
     return [];
@@ -134,7 +139,9 @@ function loadFromStorage() {
 function saveToStorage(products) {
   const canonical = BASE_PRODUCTS.map(normalizeProduct).filter(Boolean);
   const full = mergeById(canonical, products);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(full));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(full));
+  } catch (_) {}
   return full;
 }
 
@@ -159,10 +166,12 @@ async function loadCatalog() {
   catalog = mergeById(canonical, catalog);
   catalog = applyDeletedFilter(catalog);
 
-  const stored = loadFromStorage();
-  if (stored.length < canonical.length) {
-    saveToStorage(mergeById(canonical, stored));
-  }
+  try {
+    const stored = loadFromStorage();
+    if (stored.length < canonical.length) {
+      saveToStorage(mergeById(canonical, stored));
+    }
+  } catch (_) {}
 
   return catalog;
 }
@@ -194,8 +203,10 @@ function downloadProductsJson(products, filename) {
 }
 
 function restoreAllProducts() {
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(LEGACY_STORAGE_KEY);
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+  } catch (_) {}
   clearDeletedIds();
 }
 
