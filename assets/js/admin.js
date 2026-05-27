@@ -87,7 +87,7 @@ function renderProducts() {
   });
 }
 
-addBtn.addEventListener("click", () => {
+if (addBtn) addBtn.addEventListener("click", () => {
   const name = newNameEl.value.trim();
   const category = newCategoryEl.value.trim();
   const image = newImageEl.value.trim();
@@ -117,7 +117,7 @@ addBtn.addEventListener("click", () => {
   setMessage("Товар додано");
 });
 
-resetBtn.addEventListener("click", () => {
+if (resetBtn) resetBtn.addEventListener("click", () => {
   restoreAllProducts();
   products = BASE_PRODUCTS.map(normalizeProduct);
   saveProducts();
@@ -125,15 +125,15 @@ resetBtn.addEventListener("click", () => {
   setMessage("Список скинуто до базового");
 });
 
-restoreBtn.addEventListener("click", async () => {
-  restoreAllProducts();
-  products = await loadCatalog();
-  saveProducts();
-  renderProducts();
-  setMessage("Усі товари відновлено");
-});
+if (restoreBtn) restoreBtn.addEventListener("click", async () => {
+    restoreAllProducts();
+    products = await loadCatalog();
+    saveProducts();
+    renderProducts();
+    setMessage("Усі товари відновлено");
+  });
 
-publishBtn.addEventListener("click", () => {
+if (publishBtn) publishBtn.addEventListener("click", () => {
   saveProducts();
   downloadProductsJson(products, "products.json");
   setMessage("Файл products.json завантажено. Замініть assets/data/products.json і зробіть push.");
