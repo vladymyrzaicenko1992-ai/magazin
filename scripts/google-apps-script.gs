@@ -76,6 +76,8 @@ function getProps_() {
 
 var TELEGRAM_SHEET = "telegram";
 var DEFAULT_CHAT_ID = "-1003933471474";
+/** Токен @Magazine1304_bot — після /revoke оновіть тут і зробіть Нове розгортання */
+var TELEGRAM_BOT_TOKEN = "8809482654:AAH6dFjlNa4ju6DIEM1D9KHwRO4HkDDPoI4";
 
 function getTelegramConfig_() {
   var p = getProps_();
@@ -101,11 +103,13 @@ function getTelegramConfig_() {
     };
   }
 
-  return {
-    token: token || fromSheet.token,
-    chatId: chatId || fromSheet.chatId,
-    source: token || chatId ? "partial" : "none"
-  };
+  token = token || fromSheet.token || TELEGRAM_BOT_TOKEN;
+  chatId = chatId || fromSheet.chatId || DEFAULT_CHAT_ID;
+  if (token && chatId) {
+    return { token: token, chatId: chatId, source: "code" };
+  }
+
+  return { token: "", chatId: "", source: "none" };
 }
 
 function readTelegramFromSheet_() {
@@ -140,22 +144,13 @@ function createTelegramSheet_() {
   return sheet;
 }
 
-/**
- * НАЙПРОСТІШЕ: вставте токен у TOKEN нижче → виберіть setupTelegramProperties → ▶ Виконати.
- * Після успіху видаліть токен з цього файлу (Ctrl+S). Розгортання не потрібне.
- */
+/** Опційно: записує токен з TELEGRAM_BOT_TOKEN у Script Properties */
 function setupTelegramProperties() {
-  var TOKEN = "ВСТАВТЕ_ТОКЕН_ВІД_BOTFATHER_СЮДИ";
-  if (TOKEN.indexOf("ВСТАВТЕ") >= 0 || TOKEN.length < 30) {
-    throw new Error(
-      "Відкрийте setupTelegramProperties у редакторі, замініть TOKEN на токен від @BotFather, натисніть ▶ Run."
-    );
-  }
   getProps_().setProperties({
-    TELEGRAM_BOT_TOKEN: TOKEN.trim(),
+    TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN,
     TELEGRAM_CHAT_ID: DEFAULT_CHAT_ID
   });
-  Logger.log("Telegram OK. Перевірте веб: .../exec?action=ping");
+  Logger.log("Telegram OK у Properties. ping?action=ping");
 }
 
 function listTelegramChats_() {
