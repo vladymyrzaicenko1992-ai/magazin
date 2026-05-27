@@ -468,8 +468,9 @@
   });
 })();
 </script>
+<script src="assets/js/catalog.js"></script>
 <script>
-const STORAGE_KEY = "magazin-products-v1";
+const { loadCatalog, formatPrice, STORAGE_KEY } = window.MagazinCatalog;
 const P = [
   {id:'var-kartoshka', n:'Вареники з картоплею', c:'Вареники', img:'assets/img/products/vareniki/Вареники з картоплею.png'},
   {id:'var-kapusta', n:'Вареники з капустою', c:'Вареники', img:'assets/img/products/vareniki/Вареники з капустою.png'},
@@ -532,34 +533,8 @@ let products = [];
 let activeCat = "Усі";
 let q = "";
 
-function normalizeProduct(item) {
-  return {
-    id: item.id,
-    n: item.n || item.name,
-    c: item.c || item.category,
-    img: item.img || item.image || "",
-    price: typeof item.price === "number" ? item.price : null
-  };
-}
-
-function formatPrice(price) {
-  if (typeof price !== "number") return "Ціну уточнюйте";
-  return `${price.toFixed(2)} грн`;
-}
-
-function loadProducts() {
-  const fromStorage = localStorage.getItem(STORAGE_KEY);
-  if (!fromStorage) {
-    products = P.map(normalizeProduct);
-    return;
-  }
-
-  try {
-    const parsed = JSON.parse(fromStorage);
-    products = parsed.map(normalizeProduct);
-  } catch (_) {
-    products = P.map(normalizeProduct);
-  }
+async function loadProducts() {
+  products = await loadCatalog(P);
 }
 
 function renderCategories() {
@@ -614,9 +589,18 @@ function render() {
   });
 }
 
-loadProducts();
-renderCategories();
-render();
+async function init() {
+  await loadProducts();
+  renderCategories();
+  render();
+}
+
+init();
+
+window.addEventListener("storage", (event) => {
+  if (event.key !== STORAGE_KEY) return;
+  loadProducts().then(() => render());
+});
 </script>
 </body>
 </html>

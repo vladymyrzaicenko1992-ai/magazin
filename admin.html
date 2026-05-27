@@ -98,10 +98,11 @@
 <body>
   <div class="wrap">
     <h1>Адмін-панель товарів</h1>
-    <p>Додавайте товари, змінюйте ціни та видаляйте позиції. Дані зберігаються в браузері через LocalStorage.</p>
+    <p>Додавайте товари, змінюйте ціни та видаляйте позиції. Після змін натисніть «Опублікувати ціни» і замініть файл <code>assets/data/products.json</code> у репозиторії — тоді ціни побачать усі на сайті.</p>
     <div class="toolbar">
       <a class="btn-ghost" href="index.html">← Повернутись на вітрину</a>
       <button id="resetBtn" type="button">Скинути до базового списку</button>
+      <button id="publishBtn" type="button">Опублікувати ціни (завантажити products.json)</button>
     </div>
 
     <section class="card">
@@ -122,6 +123,7 @@
     </section>
   </div>
 
+  <script src="assets/js/catalog.js"></script>
   <script src="assets/js/admin.js"></script>
 </body>
 </html>

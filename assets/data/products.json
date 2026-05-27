@@ -2,246 +2,295 @@
   {
     "id": "var-kartoshka",
     "name": "Вареники з картоплею",
-    "category": "Вареники"
+    "category": "Вареники",
+    "price": null
   },
   {
     "id": "var-kapusta",
     "name": "Вареники з капустою",
-    "category": "Вареники"
+    "category": "Вареники",
+    "price": null
   },
   {
     "id": "var-serdce-pechen",
     "name": "Вареники з серцем і печінкою",
-    "category": "Вареники"
+    "category": "Вареники",
+    "price": null
   },
   {
     "id": "var-myaso-chesnok",
     "name": "Вареники з м'ясом і часником",
-    "category": "Вареники"
+    "category": "Вареники",
+    "price": null
   },
   {
     "id": "var-tvorog-sladkiy",
     "name": "Вареники з солодким сиром",
-    "category": "Вареники"
+    "category": "Вареники",
+    "price": null
   },
   {
     "id": "bl-myaso-dom",
     "name": "Млинці домашні з м'ясом",
-    "category": "Млинці"
+    "category": "Млинці",
+    "price": null
   },
   {
     "id": "bl-tvorog-dom",
     "name": "Млинці домашні з сиром",
-    "category": "Млинці"
+    "category": "Млинці",
+    "price": null
   },
   {
     "id": "bend-myaso",
     "name": "Бендерики з м'ясом",
-    "category": "Млинці"
+    "category": "Млинці",
+    "price": null
   },
   {
     "id": "bend-kapusta",
     "name": "Бендерики з капустою",
-    "category": "Млинці"
+    "category": "Млинці",
+    "price": null
   },
   {
     "id": "cheb-myaso-syr",
     "name": "Чебуреки з м'ясом і сиром",
-    "category": "Млинці"
+    "category": "Млинці",
+    "price": null
   },
   {
     "id": "syrniki-zhar",
     "name": "Сирники смажені",
-    "category": "Млинці"
+    "category": "Млинці",
+    "price": null
   },
   {
     "id": "zrazy-myas-kap",
     "name": "Зрази смажені",
-    "category": "Млинці"
+    "category": "Млинці",
+    "price": null
   },
   {
     "id": "sosiska-v-teste",
     "name": "Сосиска в тісті",
-    "category": "Млинці"
+    "category": "Млинці",
+    "price": null
   },
   {
     "id": "gnizdechka-myaso",
     "name": "Гніздечка з м'ясом",
-    "category": "Млинці"
+    "category": "Млинці",
+    "price": null
   },
   {
     "id": "ovoshi-zamorozh",
     "name": "Заморожені овочі",
-    "category": "Додатково"
+    "category": "Додатково",
+    "price": null
   },
   {
     "id": "kartoplya-fri",
     "name": "Картопля фрі",
-    "category": "Додатково"
+    "category": "Додатково",
+    "price": null
   },
   {
     "id": "kot-babush",
     "name": "Котлети «Бабусині»",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-yozhik",
     "name": "Котлети «Їжачок»",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-syr",
     "name": "Котлети з сиром",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-po-kiev-farsh",
     "name": "Котлети по-київськи",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-sviny",
     "name": "Котлети зі свинини",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-shkoln",
     "name": "Котлети «Шкільні»",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "naggets",
     "name": "Курячі нагетси",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "grechaniki",
     "name": "Гречаники",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-kiev-file",
     "name": "Котлети «Київські»",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kordon-blu",
     "name": "Кордон-блю",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-sokovit",
     "name": "Котлети «Соковиті»",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-dom-maslo",
     "name": "Котлети «Домашні»",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "shnic-dom",
     "name": "Домашній шніцель",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-burger",
     "name": "Котлети для бургерів",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "kot-rublen",
     "name": "Рублені котлети",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "golubcy",
     "name": "Голубці",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "perec-farsh",
     "name": "Фарширований перець",
-    "category": "Котлети"
+    "category": "Котлети",
+    "price": null
   },
   {
     "id": "pel-bogatyr",
     "name": "Пельмені «Богатирські»",
-    "category": "Пельмені"
+    "category": "Пельмені",
+    "price": null
   },
   {
     "id": "pel-bulmeni",
     "name": "Бульмені",
-    "category": "Пельмені"
+    "category": "Пельмені",
+    "price": null
   },
   {
     "id": "pel-dom",
     "name": "Пельмені «Домашні»",
-    "category": "Пельмені"
+    "category": "Пельмені",
+    "price": null
   },
   {
     "id": "pel-kozackie",
     "name": "Пельмені «Козацькі»",
-    "category": "Пельмені"
+    "category": "Пельмені",
+    "price": null
   },
   {
     "id": "pel-kurinye",
     "name": "Пельмені «Курячі»",
-    "category": "Пельмені"
+    "category": "Пельмені",
+    "price": null
   },
   {
     "id": "pel-malyshki",
     "name": "Пельмені «Малюки»",
-    "category": "Пельмені"
+    "category": "Пельмені",
+    "price": null
   },
   {
     "id": "pel-babush",
     "name": "Пельмені «Бабусині»",
-    "category": "Пельмені"
+    "category": "Пельмені",
+    "price": null
   },
   {
     "id": "pel-vershk",
     "name": "Пельмені «Вершкові»",
-    "category": "Пельмені"
+    "category": "Пельмені",
+    "price": null
   },
   {
     "id": "ravioli",
     "name": "Равіолі",
-    "category": "Пельмені"
+    "category": "Пельмені",
+    "price": null
   },
   {
     "id": "hink-dom",
     "name": "Хінкалі «Домашні»",
-    "category": "Хінкалі"
+    "category": "Хінкалі",
+    "price": null
   },
   {
     "id": "hink-kavkaz",
     "name": "Хінкалі «Кавказькі»",
-    "category": "Хінкалі"
+    "category": "Хінкалі",
+    "price": null
   },
   {
     "id": "hink-shah",
     "name": "Хінкалі «Шах»",
-    "category": "Хінкалі"
+    "category": "Хінкалі",
+    "price": null
   },
   {
     "id": "smetana",
     "name": "Фермерська сметана",
-    "category": "Молочка"
+    "category": "Молочка",
+    "price": null
   },
   {
     "id": "tvorog",
     "name": "Домашній сир",
-    "category": "Молочка"
+    "category": "Молочка",
+    "price": null
   },
   {
     "id": "sirna-masa",
     "name": "Сирна маса з родзинками",
-    "category": "Молочка"
+    "category": "Молочка",
+    "price": null
   },
   {
     "id": "yaitsa",
     "name": "Яйця фермерські",
-    "category": "Додатково"
+    "category": "Додатково",
+    "price": null
   }
 ]

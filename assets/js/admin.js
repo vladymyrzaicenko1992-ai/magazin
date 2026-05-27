@@ -1,4 +1,10 @@
-const STORAGE_KEY = "magazin-products-v1";
+const {
+  normalizeProduct,
+  parsePrice,
+  saveToStorage,
+  loadCatalog,
+  downloadProductsJson
+} = window.MagazinCatalog;
 
 const BASE_PRODUCTS = [
   { id: "var-kartoshka", n: "Вареники з картоплею", c: "Вареники", img: "assets/img/products/vareniki/Вареники з картоплею.png", price: null },
@@ -60,6 +66,7 @@ const newPriceEl = document.getElementById("newPrice");
 const newImageEl = document.getElementById("newImage");
 const addBtn = document.getElementById("addBtn");
 const resetBtn = document.getElementById("resetBtn");
+const publishBtn = document.getElementById("publishBtn");
 
 let products = [];
 
@@ -71,35 +78,42 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
-function normalizeProduct(item) {
-  return {
-    id: item.id,
-    n: item.n || item.name,
-    c: item.c || item.category,
-    img: item.img || item.image || "",
-    price: typeof item.price === "number" ? item.price : null
-  };
-}
-
 function saveProducts() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-}
-
-function loadProducts() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) {
-    products = BASE_PRODUCTS.map(normalizeProduct);
-    return;
-  }
-  try {
-    products = JSON.parse(raw).map(normalizeProduct);
-  } catch (_) {
-    products = BASE_PRODUCTS.map(normalizeProduct);
-  }
+  saveToStorage(products);
 }
 
 function setMessage(text) {
   formMessageEl.textContent = text;
+}
+
+function bindRowInputs(row, item) {
+  const nameInput = row.querySelector('[data-field="n"]');
+  const catInput = row.querySelector('[data-field="c"]');
+  const priceInput = row.querySelector('[data-field="price"]');
+  const imgInput = row.querySelector('[data-field="img"]');
+  const delBtn = row.querySelector('[data-action="delete"]');
+
+  function persistRow() {
+    item.n = nameInput.value.trim();
+    item.c = catInput.value.trim();
+    item.img = imgInput.value.trim();
+    item.price = parsePrice(priceInput.value);
+    saveProducts();
+    setMessage("Зміни збережено");
+  }
+
+  nameInput.addEventListener("change", persistRow);
+  catInput.addEventListener("change", persistRow);
+  imgInput.addEventListener("change", persistRow);
+  priceInput.addEventListener("change", persistRow);
+  priceInput.addEventListener("input", persistRow);
+
+  delBtn.addEventListener("click", () => {
+    products = products.filter((p) => p.id !== item.id);
+    saveProducts();
+    renderProducts();
+    setMessage("Товар видалено");
+  });
 }
 
 function renderProducts() {
@@ -114,34 +128,7 @@ function renderProducts() {
       <input type="text" value="${item.img.replace(/"/g, "&quot;")}" data-field="img">
       <button type="button" class="btn-danger" data-action="delete">Видалити</button>
     `;
-
-    const nameInput = row.querySelector('[data-field="n"]');
-    const catInput = row.querySelector('[data-field="c"]');
-    const priceInput = row.querySelector('[data-field="price"]');
-    const imgInput = row.querySelector('[data-field="img"]');
-    const delBtn = row.querySelector('[data-action="delete"]');
-
-    function persistRow() {
-      item.n = nameInput.value.trim();
-      item.c = catInput.value.trim();
-      item.img = imgInput.value.trim();
-      item.price = priceInput.value === "" ? null : Number(priceInput.value);
-      saveProducts();
-      setMessage("Зміни збережено");
-    }
-
-    nameInput.addEventListener("change", persistRow);
-    catInput.addEventListener("change", persistRow);
-    priceInput.addEventListener("change", persistRow);
-    imgInput.addEventListener("change", persistRow);
-
-    delBtn.addEventListener("click", () => {
-      products = products.filter((p) => p.id !== item.id);
-      saveProducts();
-      renderProducts();
-      setMessage("Товар видалено");
-    });
-
+    bindRowInputs(row, item);
     listEl.appendChild(row);
   });
 }
@@ -150,8 +137,7 @@ addBtn.addEventListener("click", () => {
   const name = newNameEl.value.trim();
   const category = newCategoryEl.value.trim();
   const image = newImageEl.value.trim();
-  const priceValue = newPriceEl.value;
-  const price = priceValue === "" ? null : Number(priceValue);
+  const price = parsePrice(newPriceEl.value);
 
   if (!name || !category) {
     setMessage("Вкажіть назву і категорію");
@@ -178,11 +164,25 @@ addBtn.addEventListener("click", () => {
 });
 
 resetBtn.addEventListener("click", () => {
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(window.MagazinCatalog.STORAGE_KEY);
   products = BASE_PRODUCTS.map(normalizeProduct);
+  saveProducts();
   renderProducts();
   setMessage("Список скинуто до базового");
 });
 
-loadProducts();
-renderProducts();
+publishBtn.addEventListener("click", () => {
+  saveProducts();
+  downloadProductsJson(products, "products.json");
+  setMessage("Файл products.json завантажено. Замініть assets/data/products.json і зробіть push.");
+});
+
+async function init() {
+  products = await loadCatalog(BASE_PRODUCTS);
+  if (!localStorage.getItem(window.MagazinCatalog.STORAGE_KEY)) {
+    saveProducts();
+  }
+  renderProducts();
+}
+
+init();
