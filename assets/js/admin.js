@@ -1,14 +1,4 @@
-const {
-  BASE_PRODUCTS,
-  normalizeProduct,
-  parsePrice,
-  saveToStorage,
-  loadCatalog,
-  downloadProductsJson,
-  markDeleted,
-  clearDeletedIds,
-  restoreAllProducts
-} = window.MagazinCatalog;
+const Catalog = window.MagazinCatalog;
 
 const listEl = document.getElementById("productsList");
 const formMessageEl = document.getElementById("formMessage");
@@ -32,7 +22,7 @@ function slugify(value) {
 }
 
 function saveProducts() {
-  products = saveToStorage(products);
+  products = Catalog.saveToStorage(products);
 }
 
 function setMessage(text) {
@@ -50,7 +40,7 @@ function bindRowInputs(row, item) {
     item.n = nameInput.value.trim();
     item.c = catInput.value.trim();
     item.img = imgInput.value.trim();
-    item.price = parsePrice(priceInput.value);
+    item.price = Catalog.parsePrice(priceInput.value);
     saveProducts();
     setMessage("Зміни збережено");
   }
@@ -62,7 +52,7 @@ function bindRowInputs(row, item) {
   priceInput.addEventListener("input", persistRow);
 
   delBtn.addEventListener("click", () => {
-    markDeleted(item.id);
+    Catalog.markDeleted(item.id);
     products = products.filter((p) => p.id !== item.id);
     saveProducts();
     renderProducts();
@@ -91,7 +81,7 @@ if (addBtn) addBtn.addEventListener("click", () => {
   const name = newNameEl.value.trim();
   const category = newCategoryEl.value.trim();
   const image = newImageEl.value.trim();
-  const price = parsePrice(newPriceEl.value);
+  const price = Catalog.parsePrice(newPriceEl.value);
 
   if (!name || !category) {
     setMessage("Вкажіть назву і категорію");
@@ -118,16 +108,16 @@ if (addBtn) addBtn.addEventListener("click", () => {
 });
 
 if (resetBtn) resetBtn.addEventListener("click", () => {
-  restoreAllProducts();
-  products = BASE_PRODUCTS.map(normalizeProduct);
+  Catalog.restoreAllProducts();
+  products = Catalog.BASE_PRODUCTS.map(Catalog.normalizeProduct);
   saveProducts();
   renderProducts();
   setMessage("Список скинуто до базового");
 });
 
 if (restoreBtn) restoreBtn.addEventListener("click", async () => {
-    restoreAllProducts();
-    products = await loadCatalog();
+  Catalog.restoreAllProducts();
+  products = await Catalog.loadCatalog();
     saveProducts();
     renderProducts();
     setMessage("Усі товари відновлено");
@@ -135,12 +125,12 @@ if (restoreBtn) restoreBtn.addEventListener("click", async () => {
 
 if (publishBtn) publishBtn.addEventListener("click", () => {
   saveProducts();
-  downloadProductsJson(products, "products.json");
+  Catalog.downloadProductsJson(products, "products.json");
   setMessage("Файл products.json завантажено. Замініть assets/data/products.json і зробіть push.");
 });
 
 async function init() {
-  products = await loadCatalog();
+  products = await Catalog.loadCatalog();
   renderProducts();
 }
 
