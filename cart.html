@@ -25,6 +25,7 @@
       background: var(--deep);
       color: var(--txt);
       min-height: 100vh;
+      padding-bottom: 200px;
     }
     .top {
       position: sticky; top: 0; z-index: 10;
@@ -47,14 +48,21 @@
     main {
       max-width: 680px;
       margin: 0 auto;
-      padding: 20px 18px 120px;
+      padding: 20px 18px 24px;
     }
-    .cart-empty {
+    .sec-title {
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--txt2);
+      margin: 18px 0 10px;
+    }
+    .cart-empty, .cart-success {
       text-align: center;
       padding: 48px 16px;
       color: var(--txt2);
     }
-    .cart-empty a {
+    .cart-empty a, .cart-success a {
       display: inline-block;
       margin-top: 16px;
       padding: 12px 20px;
@@ -64,10 +72,16 @@
       text-decoration: none;
       font-weight: 600;
     }
+    .cart-success h2 {
+      font-family: 'Syne', sans-serif;
+      color: var(--acc2);
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
     .cart-row {
       display: grid;
       grid-template-columns: 1fr auto auto;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
       padding: 14px;
       background: var(--card);
@@ -86,38 +100,91 @@
       color: var(--txt2);
       margin-top: 4px;
     }
-    .cart-row-qty {
+    .qty-stepper {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px;
+      border: 1px solid var(--bdr);
+      padding: 2px;
+    }
+    .qty-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      color: var(--acc);
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .qty-btn:hover { background: rgba(0,200,240,.12); }
+    .qty-val {
+      min-width: 28px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .cart-row-end {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 6px;
-    }
-    .cart-row-qty input {
-      width: 64px;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid var(--bdr);
-      background: rgba(255,255,255,0.06);
-      color: var(--txt);
-      font-size: 15px;
-      text-align: center;
+      gap: 8px;
     }
     .cart-line-sum {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--acc2);
       font-weight: 600;
       white-space: nowrap;
     }
     .cart-remove {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       border: 1px solid var(--bdr);
       background: transparent;
       color: #ffc2bc;
-      font-size: 22px;
+      font-size: 20px;
       line-height: 1;
       cursor: pointer;
+    }
+    .checkout-card {
+      background: var(--card);
+      border: 1px solid var(--bdr);
+      border-radius: var(--r);
+      padding: 16px;
+      margin-top: 8px;
+    }
+    .checkout-card label {
+      display: block;
+      font-size: 12px;
+      color: var(--txt2);
+      margin-bottom: 6px;
+      margin-top: 12px;
+    }
+    .checkout-card label:first-child { margin-top: 0; }
+    .checkout-card input,
+    .checkout-card textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--bdr);
+      background: rgba(255,255,255,0.06);
+      color: var(--txt);
+      font-size: 15px;
+      font-family: inherit;
+    }
+    .checkout-card textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+    .hp { position: absolute; left: -9999px; opacity: 0; height: 0; }
+    .checkout-err {
+      color: #ffc2bc;
+      font-size: 13px;
+      margin-top: 10px;
+      min-height: 18px;
     }
     .cart-foot {
       position: fixed;
@@ -125,6 +192,7 @@
       padding: 16px 18px calc(16px + env(safe-area-inset-bottom));
       background: rgba(8,15,30,.98);
       border-top: 1px solid var(--bdr);
+      z-index: 20;
     }
     .cart-foot-in {
       max-width: 680px;
@@ -139,20 +207,16 @@
     }
     .cart-total-row strong {
       font-family: 'Syne', sans-serif;
-      font-size: 20px;
+      font-size: 22px;
       color: var(--acc2);
     }
-    .cart-actions {
-      display: flex;
-      gap: 10px;
-    }
     .btn {
-      flex: 1;
+      width: 100%;
       border: none;
       border-radius: 12px;
-      padding: 14px;
-      font-size: 15px;
-      font-weight: 600;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
       font-family: inherit;
     }
@@ -160,12 +224,15 @@
       background: linear-gradient(135deg, var(--acc), var(--acc2));
       color: #07202a;
     }
+    .btn-order:disabled { opacity: .5; cursor: not-allowed; }
     .btn-clear {
-      flex: 0 0 auto;
+      margin-top: 10px;
       background: transparent;
       border: 1px solid var(--bdr);
       color: var(--txt2);
-      padding: 14px 16px;
+      font-weight: 500;
+      font-size: 14px;
+      padding: 10px;
     }
     .cart-hint {
       font-size: 12px;
@@ -175,18 +242,17 @@
       line-height: 1.5;
     }
     .cart-err { color: #ffc2bc; padding: 20px; }
-    .sr-only {
-      position: absolute;
-      width: 1px; height: 1px;
-      padding: 0; margin: -1px;
-      overflow: hidden;
-      clip: rect(0,0,0,0);
-      border: 0;
-    }
-    @media (max-width: 480px) {
-      .cart-row { grid-template-columns: 1fr; }
-      .cart-row-qty { flex-direction: row; align-items: center; }
-      .cart-remove { justify-self: end; }
+    @media (max-width: 520px) {
+      .cart-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .cart-row-end {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .qty-stepper { justify-self: start; }
     }
   </style>
 </head>
@@ -201,27 +267,51 @@
       <p>Кошик порожній</p>
       <a href="index.html">Обрати товари</a>
     </div>
+
+    <div id="cartSuccess" class="cart-success" hidden>
+      <h2>✅ Замовлення відправлено</h2>
+      <p>Менеджер скоро зв'яжеться з вами.</p>
+      <a href="index.html">Повернутись до меню</a>
+    </div>
+
     <div id="cartContent">
+      <p class="sec-title">Товари</p>
       <div id="cartList"></div>
+
+      <div id="cartCheckout" hidden>
+        <p class="sec-title">Оформлення</p>
+        <div class="checkout-card">
+          <form id="checkoutForm">
+            <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off">
+            <label for="customerName">Ваше ім'я</label>
+            <input id="customerName" type="text" required minlength="2" autocomplete="name" placeholder="Олександр">
+            <label for="customerPhone">Телефон</label>
+            <input id="customerPhone" type="tel" required autocomplete="tel" placeholder="+380 XX XXX XX XX">
+            <label for="customerComment">Коментар (необов'язково)</label>
+            <textarea id="customerComment" placeholder="Час доставки, побажання…"></textarea>
+            <p id="checkoutError" class="checkout-err"></p>
+          </form>
+        </div>
+      </div>
     </div>
   </main>
 
-  <div class="cart-foot">
+  <div class="cart-foot" id="cartFoot" hidden>
     <div class="cart-foot-in">
       <div class="cart-total-row">
-        <span>Разом</span>
+        <span>Загальна сума</span>
         <strong id="cartTotal">0.00 грн</strong>
       </div>
-      <div class="cart-actions">
-        <button type="button" class="btn btn-clear" id="cartClearBtn">Очистити</button>
-        <button type="button" class="btn btn-order" id="cartOrderBtn" disabled>Замовити в Telegram</button>
-      </div>
-      <p class="cart-hint">Відкриється чат з продавцем — перевірте текст і натисніть «Надіслати».</p>
+      <button type="submit" form="checkoutForm" class="btn btn-order" id="cartSubmitBtn">
+        Оформити замовлення
+      </button>
+      <button type="button" class="btn btn-clear" id="cartClearBtn">Очистити кошик</button>
+      <p class="cart-hint">Замовлення надійде в Telegram-групу менеджера.</p>
     </div>
   </div>
 
-  <script src="assets/js/catalog.js?v=12"></script>
-  <script src="assets/js/cart.js?v=12"></script>
-  <script src="assets/js/cart-page.js?v=12"></script>
+  <script src="assets/js/catalog.js?v=13"></script>
+  <script src="assets/js/cart.js?v=13"></script>
+  <script src="assets/js/cart-page.js?v=13"></script>
 </body>
 </html>

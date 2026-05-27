@@ -1,6 +1,5 @@
 (function () {
   const CART_KEY = "magazin-cart-v1";
-  const TELEGRAM_PHONE = "380955301343";
 
   function loadCart() {
     try {
@@ -68,6 +67,13 @@
     saveCart(cart);
   }
 
+  function changeQty(id, delta) {
+    const cart = loadCart();
+    const item = cart.find((x) => x.id === id);
+    if (!item) return;
+    setQty(id, (item.qty || 1) + delta);
+  }
+
   function removeItem(id) {
     saveCart(loadCart().filter((x) => x.id !== id));
   }
@@ -88,24 +94,65 @@
     return `${Number(n).toFixed(2)} грн`;
   }
 
-  function buildOrderMessage(items) {
-    const lines = ["🛒 Замовлення з vse-v-morozilke.shop", ""];
-    items.forEach((item, i) => {
-      const sum = lineTotal(item);
-      lines.push(
-        `${i + 1}. ${item.n} — ${item.qty} шт × ${formatMoney(item.price)} = ${formatMoney(sum)}`
-      );
-    });
-    lines.push("", `💰 Разом: ${formatMoney(cartTotal(items))}`);
-    lines.push("", "Дякуємо! Очікуємо підтвердження.");
-    return lines.join("\n");
+  async function getOrderApiUrl() {
+    try {
+      const res = await fetch(`assets/data/config.json?v=${Date.now()}`);
+      if (!res.ok) return "";
+      const cfg = await res.json();
+      return (cfg.orderApiUrl || cfg.googleWebAppUrl || "").trim();
+    } catch (_) {
+      return "";
+    }
   }
 
-  function openTelegramOrder(items) {
-    const text = buildOrderMessage(items);
-    const encoded = encodeURIComponent(text);
-    const web = `https://t.me/+${TELEGRAM_PHONE}?text=${encoded}`;
-    window.location.href = web;
+  function buildOrderPayload(items, customer) {
+    return {
+      action: "order",
+      name: customer.name,
+      phone: customer.phone,
+      comment: customer.comment || "",
+      website: "",
+      items: items.map((it) => ({
+        id: it.id,
+        name: it.n,
+        qty: it.qty,
+        price: it.price
+      })),
+      total: cartTotal(items)
+    };
+  }
+
+  async function submitOrder(items, customer) {
+    const priced = items.filter((x) => parsePrice(x.price) !== null);
+    if (!priced.length) {
+      throw new Error("У кошику немає товарів з ціною");
+    }
+
+    const apiUrl = await getOrderApiUrl();
+    if (!apiUrl) {
+      throw new Error("API замовлень не налаштовано");
+    }
+
+    const payload = buildOrderPayload(priced, customer);
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      mode: "cors",
+      redirect: "follow",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (_) {
+      throw new Error("Сервер не повернув JSON. Оновіть Apps Script (action=order).");
+    }
+    if (!data.ok) {
+      throw new Error(data.error || "Не вдалося відправити замовлення");
+    }
+    return data;
   }
 
   function updateBadge() {
@@ -118,19 +165,18 @@
 
   window.MagazinCart = {
     CART_KEY,
-    TELEGRAM_PHONE,
     loadCart,
     saveCart,
     getCount,
     addItem,
     setQty,
+    changeQty,
     removeItem,
     clearCart,
     lineTotal,
     cartTotal,
     formatMoney,
-    buildOrderMessage,
-    openTelegramOrder,
+    submitOrder,
     updateBadge,
     parsePrice
   };
