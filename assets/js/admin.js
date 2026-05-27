@@ -78,18 +78,34 @@ function fillAddFormSelects() {
 async function persistToCloud() {
   const url = await Catalog.getGoogleWebAppUrl();
   if (!url) {
-    setMessage("Збережено лише в браузері. Підключіть Google у блоці вище.");
-    return false;
+    return { google: false, text: "Збережено (лише в браузері)" };
   }
   const result = await Catalog.saveToGoogle(url, products);
   const check = await Catalog.fetchFromGoogle(url);
-  const savedCount = result.saved ?? products.length;
   if (check.length < Math.min(products.length, 1)) {
     throw new Error("Після збереження Google повернув порожній каталог");
   }
-  setMessage(`Збережено в Google (${savedCount} товарів) і в браузері`);
   setGoogleMessage("Остання синхронізація: зараз");
-  return true;
+  const savedCount = result.saved ?? products.length;
+  return { google: true, text: `Збережено (Google, ${savedCount} товарів)` };
+}
+
+function setCardStatus(card, kind, text) {
+  if (!card) return;
+  const el = card.querySelector('[data-field="status"]');
+  if (!el) return;
+  if (el._hideTimer) {
+    clearTimeout(el._hideTimer);
+    el._hideTimer = null;
+  }
+  el.textContent = text || "";
+  el.className = "card-status" + (kind ? ` card-status--${kind}` : "");
+  if (kind === "ok") {
+    el._hideTimer = setTimeout(() => {
+      el.textContent = "";
+      el.className = "card-status";
+    }, 4000);
+  }
 }
 
 function escapeHtml(value) {
@@ -163,6 +179,10 @@ function bindRowInputs(row, item) {
   updatePhotoPreview(photoFrame, imgPreview, item.img);
 
   async function persistRow() {
+    row.classList.add("is-saving");
+    setCardStatus(row, "pending", "Збереження…");
+    if (saveBtn) saveBtn.disabled = true;
+
     item.n = nameInput.value.trim();
     item.c = catInput.value.trim();
     item.unit = Catalog.normalizeUnit(unitInput.value);
@@ -171,22 +191,31 @@ function bindRowInputs(row, item) {
     saveProducts();
     if (priceView) priceView.textContent = formatSavedPrice(item.price);
     updatePhotoPreview(photoFrame, imgPreview, item.img);
+
     try {
-      await persistToCloud();
+      const cloud = await persistToCloud();
+      setCardStatus(row, "ok", cloud.text || "Збережено");
     } catch (err) {
-      setMessage("Збережено в браузері. Google: " + err.message);
+      setCardStatus(row, "err", "У браузері збережено. Google: " + err.message);
+    } finally {
+      row.classList.remove("is-saving");
+      if (saveBtn) saveBtn.disabled = false;
     }
   }
 
+  function markCardDirty() {
+    setCardStatus(row, "warn", "Натисніть «Зберегти»");
+  }
+
   if (saveBtn) saveBtn.addEventListener("click", () => { persistRow(); });
-  nameInput.addEventListener("change", () => setMessage("Натисніть «Зберегти»"));
-  catInput.addEventListener("change", () => setMessage("Натисніть «Зберегти»"));
-  unitInput.addEventListener("change", () => setMessage("Натисніть «Зберегти»"));
+  nameInput.addEventListener("change", markCardDirty);
+  catInput.addEventListener("change", markCardDirty);
+  unitInput.addEventListener("change", markCardDirty);
   imgInput.addEventListener("input", () => {
     updatePhotoPreview(photoFrame, imgPreview, imgInput.value);
-    setMessage("Натисніть «Зберегти»");
+    markCardDirty();
   });
-  priceInput.addEventListener("change", () => setMessage("Натисніть «Зберегти»"));
+  priceInput.addEventListener("change", markCardDirty);
 
   if (imgFileInput) {
     imgFileInput.addEventListener("change", async () => {
@@ -195,7 +224,7 @@ function bindRowInputs(row, item) {
       const dataUrl = await fileToDataUrl(file);
       imgInput.value = dataUrl;
       updatePhotoPreview(photoFrame, imgPreview, dataUrl);
-      setMessage("Фото завантажено, натисніть «Зберегти»");
+      setCardStatus(row, "warn", "Фото завантажено — натисніть «Зберегти»");
     });
   }
 
@@ -250,6 +279,7 @@ function renderProducts() {
         <div class="product-actions">
           <button type="button" class="btn-primary" data-action="save">Зберегти</button>
           <button type="button" class="btn-danger" data-action="delete">Видалити</button>
+          <p class="card-status" data-field="status" aria-live="polite"></p>
         </div>
       </div>
       <div class="product-photo-wrap">

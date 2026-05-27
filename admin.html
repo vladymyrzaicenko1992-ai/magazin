@@ -143,6 +143,40 @@
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 2px;
+      align-items: center;
+    }
+    .card-status {
+      flex: 1 1 100%;
+      min-height: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0;
+      padding: 0;
+      transition: opacity 0.2s;
+    }
+    .card-status:empty {
+      display: none;
+    }
+    .card-status--pending {
+      color: var(--accent);
+    }
+    .card-status--ok {
+      color: var(--ok);
+    }
+    .card-status--warn {
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .card-status--err {
+      color: #ffc2bc;
+      font-weight: 500;
+    }
+    .product-card.is-saving {
+      opacity: 0.92;
+      pointer-events: none;
+    }
+    .product-card.is-saving .product-actions button[data-action="save"] {
+      pointer-events: auto;
     }
     .product-actions button {
       width: auto;
@@ -314,8 +348,8 @@
     </div>
   </div>
 
-  <script src="assets/js/admin-auth.js?v=14"></script>
-  <script src="assets/js/catalog.js?v=14"></script>
-  <script src="assets/js/admin.js?v=14"></script>
+  <script src="assets/js/admin-auth.js?v=15"></script>
+  <script src="assets/js/catalog.js?v=15"></script>
+  <script src="assets/js/admin.js?v=15"></script>
 </body>
 </html>
