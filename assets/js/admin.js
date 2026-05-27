@@ -11,6 +11,11 @@ const addBtn = document.getElementById("addBtn");
 const resetBtn = document.getElementById("resetBtn");
 const publishBtn = document.getElementById("publishBtn");
 const restoreBtn = document.getElementById("restoreBtn");
+const googleWebAppUrlEl = document.getElementById("googleWebAppUrl");
+const saveGoogleUrlBtn = document.getElementById("saveGoogleUrlBtn");
+const syncGoogleBtn = document.getElementById("syncGoogleBtn");
+const loadGoogleBtn = document.getElementById("loadGoogleBtn");
+const googleMessageEl = document.getElementById("googleMessage");
 
 let products = [];
 
@@ -28,6 +33,22 @@ function saveProducts() {
 
 function setMessage(text) {
   formMessageEl.textContent = text;
+}
+
+function setGoogleMessage(text) {
+  if (googleMessageEl) googleMessageEl.textContent = text;
+}
+
+async function persistToCloud() {
+  const url = await Catalog.getGoogleWebAppUrl();
+  if (!url) {
+    setMessage("Збережено лише в браузері. Підключіть Google у блоці вище.");
+    return false;
+  }
+  await Catalog.saveToGoogle(url, products);
+  setMessage("Збережено в Google і в браузері");
+  setGoogleMessage("Остання синхронізація: зараз");
+  return true;
 }
 
 function escapeHtml(value) {
@@ -71,7 +92,11 @@ function bindRowInputs(row, item) {
     saveProducts();
     if (priceView) priceView.textContent = formatSavedPrice(item.price);
     if (imgPreview) imgPreview.src = item.img || "";
-    setMessage("Зміни збережено");
+    try {
+      await persistToCloud();
+    } catch (err) {
+      setMessage("Збережено в браузері. Google: " + err.message);
+    }
   }
 
   if (saveBtn) saveBtn.addEventListener("click", () => { persistRow(); });
@@ -152,6 +177,11 @@ if (addBtn) addBtn.addEventListener("click", async () => {
   products.unshift({ id, n: name, c: category, img: image, price });
   saveProducts();
   renderProducts();
+  try {
+    await persistToCloud();
+  } catch (err) {
+    setMessage("Товар додано локально. Google: " + err.message);
+  }
 
   newNameEl.value = "";
   newCategoryEl.value = "";
@@ -183,9 +213,63 @@ if (publishBtn) publishBtn.addEventListener("click", () => {
   setMessage("Файл products.json завантажено. Замініть assets/data/products.json і зробіть push.");
 });
 
+if (saveGoogleUrlBtn) {
+  saveGoogleUrlBtn.addEventListener("click", async () => {
+    const url = googleWebAppUrlEl.value.trim();
+    if (!url) {
+      setGoogleMessage("Вкажіть URL веб-додатку");
+      return;
+    }
+    Catalog.setGoogleWebAppUrl(url);
+    setGoogleMessage("URL збережено в цьому браузері");
+  });
+}
+
+if (syncGoogleBtn) {
+  syncGoogleBtn.addEventListener("click", async () => {
+    const url = googleWebAppUrlEl?.value.trim() || (await Catalog.getGoogleWebAppUrl());
+    if (!url) {
+      setGoogleMessage("Спочатку вкажіть і збережіть URL");
+      return;
+    }
+    Catalog.setGoogleWebAppUrl(url);
+    try {
+      saveProducts();
+      await Catalog.saveToGoogle(url, products);
+      setGoogleMessage(`У Google збережено ${products.length} товарів`);
+      setMessage("Каталог синхронізовано з Google");
+    } catch (err) {
+      setGoogleMessage("Помилка: " + err.message);
+    }
+  });
+}
+
+if (loadGoogleBtn) {
+  loadGoogleBtn.addEventListener("click", async () => {
+    const url = await Catalog.getGoogleWebAppUrl();
+    if (!url) {
+      setGoogleMessage("URL не налаштовано");
+      return;
+    }
+    try {
+      products = await Catalog.fetchFromGoogle(url);
+      products = Catalog.saveToStorage(products);
+      renderProducts();
+      setGoogleMessage("Завантажено з Google");
+      setMessage("Список оновлено з Google");
+    } catch (err) {
+      setGoogleMessage("Помилка: " + err.message);
+    }
+  });
+}
+
 async function init() {
   products = await Catalog.loadCatalog();
   renderProducts();
+  const url = await Catalog.getGoogleWebAppUrl();
+  if (googleWebAppUrlEl && url) googleWebAppUrlEl.value = url;
+  if (url) setGoogleMessage("Google підключено");
+  else setGoogleMessage("Google не підключено — дані лише в браузері");
 }
 
 init();

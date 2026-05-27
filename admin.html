@@ -117,13 +117,28 @@
 <body>
   <div class="wrap">
     <h1>Адмін-панель товарів</h1>
-    <p>Додавайте товари, змінюйте ціни та видаляйте позиції. Після змін натисніть «Опублікувати ціни» і замініть файл <code>assets/data/products.json</code> у репозиторії — тоді ціни побачать усі на сайті.</p>
+    <p>Додавайте товари, змінюйте ціни та видаляйте позиції. Для збереження для всіх пристроїв підключіть <strong>Google Таблицю</strong> (на Google Диску) — див. блок нижче.</p>
     <div class="toolbar">
       <a class="btn-ghost" href="index.html">← Повернутись на вітрину</a>
       <button id="resetBtn" type="button">Скинути до базового списку</button>
       <button id="publishBtn" type="button">Опублікувати ціни (завантажити products.json)</button>
       <button id="restoreBtn" type="button">Відновити всі товари</button>
     </div>
+
+    <section class="card">
+      <h2>Google Диск (таблиця)</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+        Без Google дані зберігаються лише в цьому браузері. Підключіть таблицю — тоді ціни з’являться на головній сторінці для всіх.
+        <a href="docs/GOOGLE_DRIVE.md" target="_blank" rel="noopener">Інструкція</a>
+      </p>
+      <input id="googleWebAppUrl" type="url" placeholder="URL веб-додатку Apps Script (script.google.com/.../exec)">
+      <div class="toolbar" style="margin-top:10px;">
+        <button id="saveGoogleUrlBtn" type="button">Зберегти URL</button>
+        <button id="syncGoogleBtn" type="button" class="btn-primary">Синхронізувати в Google</button>
+        <button id="loadGoogleBtn" type="button">Завантажити з Google</button>
+      </div>
+      <div id="googleMessage" class="msg"></div>
+    </section>
 
     <section class="card">
       <h2>Додати товар</h2>
@@ -144,7 +159,7 @@
     </section>
   </div>
 
-  <script src="assets/js/catalog.js?v=6"></script>
-  <script src="assets/js/admin.js?v=6"></script>
+  <script src="assets/js/catalog.js?v=7"></script>
+  <script src="assets/js/admin.js?v=7"></script>
 </body>
 </html>

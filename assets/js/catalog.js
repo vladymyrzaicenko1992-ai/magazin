@@ -1,6 +1,9 @@
 const STORAGE_KEY = "magazin-products-v2";
 const LEGACY_STORAGE_KEY = "magazin-products-v1";
 const DELETED_KEY = "magazin-deleted-v2";
+const GOOGLE_URL_KEY = "magazin-google-webapp-url";
+
+let cachedSiteConfig = null;
 
 const BASE_PRODUCTS = [
   { id: "var-kartoshka", n: "Вареники з картоплею", c: "Вареники", img: "assets/img/products/vareniki/Вареники з картоплею.png", price: null },
@@ -151,27 +154,95 @@ async function fetchCatalogJson(url) {
   return (await res.json()).map(normalizeProduct).filter(Boolean);
 }
 
+async function fetchSiteConfig() {
+  if (cachedSiteConfig) return cachedSiteConfig;
+  try {
+    const res = await fetch(`assets/data/config.json?v=${Date.now()}`);
+    cachedSiteConfig = res.ok ? await res.json() : {};
+  } catch (_) {
+    cachedSiteConfig = {};
+  }
+  return cachedSiteConfig;
+}
+
+async function getGoogleWebAppUrl() {
+  try {
+    const fromBrowser = localStorage.getItem(GOOGLE_URL_KEY);
+    if (fromBrowser && fromBrowser.trim()) return fromBrowser.trim();
+  } catch (_) {}
+  const cfg = await fetchSiteConfig();
+  return (cfg.googleWebAppUrl || "").trim();
+}
+
+function setGoogleWebAppUrl(url) {
+  try {
+    localStorage.setItem(GOOGLE_URL_KEY, String(url || "").trim());
+  } catch (_) {}
+}
+
+async function fetchFromGoogle(url) {
+  const endpoint = `${url}${url.includes("?") ? "&" : "?"}action=get&ts=${Date.now()}`;
+  const res = await fetch(endpoint);
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "Помилка читання Google");
+  return (data.products || []).map(normalizeProduct).filter(Boolean);
+}
+
+async function saveToGoogle(url, products) {
+  const payload = JSON.stringify({
+    action: "save",
+    products: toProductsJson(products)
+  });
+  const res = await fetch(url, {
+    method: "POST",
+    body: payload,
+    headers: { "Content-Type": "text/plain;charset=utf-8" }
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "Помилка запису в Google");
+  return data;
+}
+
 async function loadCatalog() {
   const canonical = BASE_PRODUCTS.map(normalizeProduct).filter(Boolean);
   let catalog = mergeById(canonical, []);
 
-  try {
-    const fromJson = await fetchCatalogJson();
-    if (fromJson.length) catalog = mergeById(catalog, fromJson);
-  } catch (_) {}
+  const googleUrl = await getGoogleWebAppUrl();
+  let usedGoogle = false;
 
-  const fromStorage = loadFromStorage();
-  if (fromStorage.length) catalog = mergeById(catalog, fromStorage);
+  if (googleUrl) {
+    try {
+      const fromGoogle = await fetchFromGoogle(googleUrl);
+      if (fromGoogle.length) {
+        catalog = mergeById(catalog, fromGoogle);
+        usedGoogle = true;
+      }
+    } catch (err) {
+      console.warn("Google catalog load failed:", err);
+    }
+  }
+
+  if (!usedGoogle) {
+    try {
+      const fromJson = await fetchCatalogJson();
+      if (fromJson.length) catalog = mergeById(catalog, fromJson);
+    } catch (_) {}
+
+    const fromStorage = loadFromStorage();
+    if (fromStorage.length) catalog = mergeById(catalog, fromStorage);
+  }
 
   catalog = mergeById(canonical, catalog);
   catalog = applyDeletedFilter(catalog);
 
-  try {
-    const stored = loadFromStorage();
-    if (stored.length < canonical.length) {
-      saveToStorage(mergeById(canonical, stored));
-    }
-  } catch (_) {}
+  if (!usedGoogle) {
+    try {
+      const stored = loadFromStorage();
+      if (stored.length < canonical.length) {
+        saveToStorage(mergeById(canonical, stored));
+      }
+    } catch (_) {}
+  }
 
   return catalog;
 }
@@ -212,6 +283,7 @@ function restoreAllProducts() {
 
 window.MagazinCatalog = {
   STORAGE_KEY,
+  GOOGLE_URL_KEY,
   BASE_PRODUCTS,
   parsePrice,
   normalizeProduct,
@@ -226,5 +298,9 @@ window.MagazinCatalog = {
   markDeleted,
   clearDeletedIds,
   restoreAllProducts,
-  loadDeletedIds
+  loadDeletedIds,
+  getGoogleWebAppUrl,
+  setGoogleWebAppUrl,
+  fetchFromGoogle,
+  saveToGoogle
 };
