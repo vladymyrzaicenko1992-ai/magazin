@@ -4,7 +4,15 @@
  * POST JSON: { "name", "phone", "comment", "items", "total", "website" }
  */
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: https://vse-v-morozilke.shop');
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$allowed = [
+    'https://vse-v-morozilke.shop',
+    'https://vladymyrzaicenko1992-ai.github.io',
+];
+if (in_array($origin, $allowed, true)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Vary: Origin');
+}
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 

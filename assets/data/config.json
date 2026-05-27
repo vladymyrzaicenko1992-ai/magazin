@@ -1,3 +1,4 @@
 {
-  "googleWebAppUrl": "https://script.google.com/macros/s/AKfycby6te-XqT6SX7IL8fWCc4RryzKfk2-4X2EWUoqIoY_J_b_vcY3pY2K6aFA8Rv99Twv29Q/exec"
+  "googleWebAppUrl": "https://script.google.com/macros/s/AKfycby6te-XqT6SX7IL8fWCc4RryzKfk2-4X2EWUoqIoY_J_b_vcY3pY2K6aFA8Rv99Twv29Q/exec",
+  "orderApiUrl": "https://161-35-146-240.nip.io/order.php"
 }
