@@ -98,6 +98,8 @@
       cart[idx].price = price;
       cart[idx].n = product.n;
     } else {
+      const defaultUnit =
+        product.unit && getUnit(product.unit).id ? getUnit(product.unit).id : "pcs";
       cart.push(
         normalizeItem({
           id: product.id,
@@ -105,7 +107,7 @@
           c: product.c,
           price,
           qty: addQty,
-          unit: "pcs"
+          unit: defaultUnit
         })
       );
     }

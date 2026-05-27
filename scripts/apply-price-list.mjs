@@ -51,17 +51,16 @@ const PRICE_BY_ID = {
   "kot-shkoln": 198,
   "tvorog": 115,
   "sirna-masa": 118,
-  "smetana": 98
+  "smetana": 98,
+  "rikadelki": 115,
+  "kot-pechen": 220,
+  "kot-malyshki": 195,
+  "sir-feta": 215,
+  "maslo-vershk": 380
 };
 
-/** У прайсі, але немає на сайті (треба додати в каталог) */
-const MISSING_ON_SITE = [
-  { name: "Рікадельки", price: 115, category: "Котлети" },
-  { name: "Котлети з печінкою", price: 220, category: "Котлети" },
-  { name: "Котлети Малюки", price: 195, category: "Котлети", note: "На сайті є лише «Пельмені Малюки» (pel-malyshki)" },
-  { name: "Сир Фета", price: 215, category: "Молочка" },
-  { name: "Масло вершкове", price: 380, category: "Молочка" }
-];
+/** У прайсі, але ще не в каталозі (додайте id у PRICE_BY_ID і BASE_PRODUCTS) */
+const MISSING_ON_SITE = [];
 
 const catalogJs = fs.readFileSync(path.join(root, "assets/js/catalog.js"), "utf8");
 const baseMatch = catalogJs.match(/const BASE_PRODUCTS = (\[[\s\S]*?\n\]);/);

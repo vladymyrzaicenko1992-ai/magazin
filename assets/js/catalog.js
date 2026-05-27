@@ -5,6 +5,46 @@ const GOOGLE_URL_KEY = "magazin-google-webapp-url";
 
 let cachedSiteConfig = null;
 
+const PRODUCT_UNITS = [
+  { id: "pcs", label: "Штуки (шт)" },
+  { id: "kg", label: "Кілограми (кг)" },
+  { id: "g", label: "Грами (г)" },
+  { id: "l", label: "Літри (л)" },
+  { id: "ml", label: "Мілілітри (мл)" },
+  { id: "pack", label: "Упаковки (уп)" }
+];
+
+const CATEGORY_PRESETS = [
+  "Вареники",
+  "Млинці",
+  "Додатково",
+  "Котлети",
+  "Пельмені",
+  "Хінкалі",
+  "Молочка"
+];
+
+function normalizeUnit(value) {
+  const id = String(value || "pcs").trim().toLowerCase();
+  return PRODUCT_UNITS.some((u) => u.id === id) ? id : "pcs";
+}
+
+function getCategoryList(products) {
+  const set = new Set(CATEGORY_PRESETS);
+  (products || []).forEach((p) => {
+    const c = (p && (p.c || p.category)) || "";
+    if (c.trim()) set.add(c.trim());
+  });
+  return Array.from(set).sort((a, b) => {
+    const ia = CATEGORY_PRESETS.indexOf(a);
+    const ib = CATEGORY_PRESETS.indexOf(b);
+    if (ia >= 0 && ib >= 0) return ia - ib;
+    if (ia >= 0) return -1;
+    if (ib >= 0) return 1;
+    return a.localeCompare(b, "uk");
+  });
+}
+
 const BASE_PRODUCTS = [
   { id: "var-kartoshka", n: "Вареники з картоплею", c: "Вареники", img: "assets/img/products/vareniki/Вареники з картоплею.png", price: null },
   { id: "var-kapusta", n: "Вареники з капустою", c: "Вареники", img: "assets/img/products/vareniki/Вареники з капустою.png", price: null },
@@ -29,6 +69,9 @@ const BASE_PRODUCTS = [
   { id: "kot-sviny", n: "Котлети зі свинини", c: "Котлети", img: "assets/img/products/cutlets/Котлети зі свинини.png", price: null },
   { id: "kot-shkoln", n: "Котлети «Шкільні»", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Шкільні» (курка).png", price: null },
   { id: "naggets", n: "Курячі нагетси", c: "Котлети", img: "assets/img/products/cutlets/Нагетси курячі.png", price: null },
+  { id: "rikadelki", n: "Рікадельки", c: "Котлети", img: "", price: null },
+  { id: "kot-pechen", n: "Котлети з печінкою", c: "Котлети", img: "", price: null },
+  { id: "kot-malyshki", n: "Котлети «Малюки»", c: "Котлети", img: "", price: null },
   { id: "grechaniki", n: "Гречаники", c: "Котлети", img: "assets/img/products/cutlets/Гречаники домашні (свинина + яловичина + гречка).png", price: null },
   { id: "kot-kiev-file", n: "Котлети «Київські»", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Київські» (філе + масло + зелень).png", price: null },
   { id: "kordon-blu", n: "Кордон-блю", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Кордон-Блю» (філе + шинка + сир).png", price: null },
@@ -54,6 +97,8 @@ const BASE_PRODUCTS = [
   { id: "smetana", n: "Фермерська сметана", c: "Молочка", img: "assets/img/products/molochka/Сметана фермерська.png", price: null },
   { id: "tvorog", n: "Домашній сир", c: "Молочка", img: "assets/img/products/molochka/Творог домашній .png", price: null },
   { id: "sirna-masa", n: "Сирна маса з родзинками", c: "Молочка", img: "assets/img/products/molochka/Сирна маса з родзинками .png", price: null },
+  { id: "sir-feta", n: "Сир Фета", c: "Молочка", img: "", price: null },
+  { id: "maslo-vershk", n: "Масло вершкове", c: "Молочка", img: "", price: null },
   { id: "yaitsa", n: "Яйця фермерські", c: "Додатково", img: "assets/img/products/qw/яйця.jpg", price: null }
 ];
 
@@ -70,7 +115,8 @@ function normalizeProduct(item) {
     n: item.n || item.name || "",
     c: item.c || item.category || "",
     img: item.img || item.image || "",
-    price: parsePrice(item.price)
+    price: parsePrice(item.price),
+    unit: normalizeUnit(item.unit)
   };
 }
 
@@ -84,7 +130,8 @@ function mergeById(base, overrides) {
       ...prev,
       ...item,
       img: item.img || prev.img,
-      price: item.price !== null ? item.price : prev.price
+      price: item.price !== null ? item.price : prev.price,
+      unit: item.unit ? normalizeUnit(item.unit) : normalizeUnit(prev.unit)
     });
   }
   return Array.from(map.values());
@@ -270,7 +317,12 @@ function formatPrice(price) {
 
 function toProductsJson(products) {
   return products.map((p) => {
-    const row = { id: p.id, name: p.n, category: p.c };
+    const row = {
+      id: p.id,
+      name: p.n,
+      category: p.c,
+      unit: normalizeUnit(p.unit)
+    };
     if (p.price !== null) row.price = p.price;
     if (p.img) row.image = p.img;
     return row;
@@ -300,6 +352,10 @@ window.MagazinCatalog = {
   STORAGE_KEY,
   GOOGLE_URL_KEY,
   BASE_PRODUCTS,
+  PRODUCT_UNITS,
+  CATEGORY_PRESETS,
+  normalizeUnit,
+  getCategoryList,
   parsePrice,
   normalizeProduct,
   mergeById,

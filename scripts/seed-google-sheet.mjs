@@ -42,6 +42,13 @@ function parsePrice(value) {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
+const PRODUCT_UNITS = ["pcs", "kg", "g", "l", "ml", "pack"];
+
+function normalizeUnit(value) {
+  const id = String(value || "pcs").trim().toLowerCase();
+  return PRODUCT_UNITS.includes(id) ? id : "pcs";
+}
+
 function normalize(item) {
   if (!item?.id) return null;
   return {
@@ -49,7 +56,8 @@ function normalize(item) {
     n: item.n || item.name || "",
     c: item.c || item.category || "",
     img: item.img || item.image || "",
-    price: parsePrice(item.price)
+    price: parsePrice(item.price),
+    unit: normalizeUnit(item.unit)
   };
 }
 
@@ -63,7 +71,8 @@ function mergeById(base, extra) {
       ...prev,
       ...item,
       img: item.img || prev.img,
-      price: item.price !== null ? item.price : prev.price
+      price: item.price !== null ? item.price : prev.price,
+      unit: item.unit ? normalizeUnit(item.unit) : normalizeUnit(prev.unit)
     });
   }
   return [...map.values()];
@@ -75,7 +84,7 @@ const catalog = mergeById(
 );
 
 const products = catalog.map((p) => {
-  const row = { id: p.id, name: p.n, category: p.c };
+  const row = { id: p.id, name: p.n, category: p.c, unit: normalizeUnit(p.unit) };
   if (p.price !== null) row.price = p.price;
   if (p.img) row.image = p.img;
   return row;

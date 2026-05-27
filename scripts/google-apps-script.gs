@@ -354,7 +354,7 @@ function getSheet_() {
   var sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(["id", "name", "category", "price", "image"]);
+    sheet.appendRow(["id", "name", "category", "price", "image", "unit"]);
   }
   return sheet;
 }
@@ -372,7 +372,8 @@ function readProducts() {
     name: headers.indexOf("name"),
     category: headers.indexOf("category"),
     price: headers.indexOf("price"),
-    image: headers.indexOf("image")
+    image: headers.indexOf("image"),
+    unit: headers.indexOf("unit")
   };
 
   var out = [];
@@ -381,12 +382,15 @@ function readProducts() {
     var id = row[idx.id >= 0 ? idx.id : 0];
     if (!id) continue;
     var priceVal = idx.price >= 0 ? row[idx.price] : "";
+    var unitVal = idx.unit >= 0 ? String(row[idx.unit] || "").trim().toLowerCase() : "";
+    if (!unitVal) unitVal = "pcs";
     out.push({
       id: String(id),
       name: String(row[idx.name >= 0 ? idx.name : 1] || ""),
       category: String(row[idx.category >= 0 ? idx.category : 2] || ""),
       price: priceVal === "" || priceVal === null ? null : Number(priceVal),
-      image: String(row[idx.image >= 0 ? idx.image : 4] || "")
+      image: String(row[idx.image >= 0 ? idx.image : 4] || ""),
+      unit: unitVal
     });
   }
   return out;
@@ -395,14 +399,17 @@ function readProducts() {
 function writeProducts(products) {
   var sheet = getSheet_();
   sheet.clear();
-  sheet.appendRow(["id", "name", "category", "price", "image"]);
+  sheet.appendRow(["id", "name", "category", "price", "image", "unit"]);
   products.forEach(function (p) {
+    var unit = String(p.unit || "pcs").trim().toLowerCase();
+    if (!unit) unit = "pcs";
     sheet.appendRow([
       p.id || "",
       p.name || p.n || "",
       p.category || p.c || "",
       p.price === null || p.price === undefined || p.price === "" ? "" : p.price,
-      p.image || p.img || ""
+      p.image || p.img || "",
+      unit
     ]);
   });
 }

@@ -4,6 +4,7 @@ const listEl = document.getElementById("productsList");
 const formMessageEl = document.getElementById("formMessage");
 const newNameEl = document.getElementById("newName");
 const newCategoryEl = document.getElementById("newCategory");
+const newUnitEl = document.getElementById("newUnit");
 const newPriceEl = document.getElementById("newPrice");
 const newImageEl = document.getElementById("newImage");
 const newImageFileEl = document.getElementById("newImageFile");
@@ -37,6 +38,38 @@ function setMessage(text) {
 
 function setGoogleMessage(text) {
   if (googleMessageEl) googleMessageEl.textContent = text;
+}
+
+function categoryOptionsHtml(selected, categories) {
+  const cats = categories.slice();
+  const sel = String(selected || "").trim();
+  if (sel && !cats.includes(sel)) cats.push(sel);
+  return cats
+    .map(
+      (c) =>
+        `<option value="${escapeHtml(c)}"${c === sel ? " selected" : ""}>${escapeHtml(c)}</option>`
+    )
+    .join("");
+}
+
+function unitOptionsHtml(selected) {
+  const sel = Catalog.normalizeUnit(selected);
+  return Catalog.PRODUCT_UNITS.map(
+    (u) =>
+      `<option value="${escapeHtml(u.id)}"${u.id === sel ? " selected" : ""}>${escapeHtml(u.label)}</option>`
+  ).join("");
+}
+
+function fillAddFormSelects() {
+  if (newCategoryEl) {
+    newCategoryEl.innerHTML = categoryOptionsHtml(
+      newCategoryEl.value || Catalog.CATEGORY_PRESETS[0],
+      Catalog.getCategoryList(products)
+    );
+  }
+  if (newUnitEl) {
+    newUnitEl.innerHTML = unitOptionsHtml(newUnitEl.value || "pcs");
+  }
 }
 
 async function persistToCloud() {
@@ -81,6 +114,7 @@ function fileToDataUrl(file) {
 function bindRowInputs(row, item) {
   const nameInput = row.querySelector('[data-field="n"]');
   const catInput = row.querySelector('[data-field="c"]');
+  const unitInput = row.querySelector('[data-field="unit"]');
   const priceInput = row.querySelector('[data-field="price"]');
   const imgInput = row.querySelector('[data-field="img"]');
   const imgFileInput = row.querySelector('[data-field="img-file"]');
@@ -92,6 +126,7 @@ function bindRowInputs(row, item) {
   async function persistRow() {
     item.n = nameInput.value.trim();
     item.c = catInput.value.trim();
+    item.unit = Catalog.normalizeUnit(unitInput.value);
     item.img = imgInput.value.trim();
     item.price = Catalog.parsePrice(priceInput.value);
     saveProducts();
@@ -107,6 +142,7 @@ function bindRowInputs(row, item) {
   if (saveBtn) saveBtn.addEventListener("click", () => { persistRow(); });
   nameInput.addEventListener("change", () => setMessage("Натисніть «Зберегти»"));
   catInput.addEventListener("change", () => setMessage("Натисніть «Зберегти»"));
+  unitInput.addEventListener("change", () => setMessage("Натисніть «Зберегти»"));
   imgInput.addEventListener("change", () => setMessage("Натисніть «Зберегти»"));
   priceInput.addEventListener("change", () => setMessage("Натисніть «Зберегти»"));
 
@@ -131,14 +167,16 @@ function bindRowInputs(row, item) {
 }
 
 function renderProducts() {
+  const categories = Catalog.getCategoryList(products);
   listEl.innerHTML = "";
   products.forEach((item) => {
     const row = document.createElement("div");
     row.className = "row";
     row.innerHTML = `
       <input type="text" value="${escapeHtml(item.n)}" data-field="n">
-      <input type="text" value="${escapeHtml(item.c)}" data-field="c">
-      <input type="number" min="0" step="0.01" value="${item.price ?? ""}" data-field="price" placeholder="Ціна, грн">
+      <select data-field="c">${categoryOptionsHtml(item.c, categories)}</select>
+      <select data-field="unit">${unitOptionsHtml(item.unit)}</select>
+      <input type="number" min="0" step="0.01" value="${item.price ?? ""}" data-field="price" placeholder="Ціна">
       <div>
         <span class="price-view" data-field="price-view">${formatSavedPrice(item.price)}</span>
       </div>
@@ -153,11 +191,13 @@ function renderProducts() {
     bindRowInputs(row, item);
     listEl.appendChild(row);
   });
+  fillAddFormSelects();
 }
 
 if (addBtn) addBtn.addEventListener("click", async () => {
   const name = newNameEl.value.trim();
   const category = newCategoryEl.value.trim();
+  const unit = Catalog.normalizeUnit(newUnitEl && newUnitEl.value);
   let image = newImageEl.value.trim();
   const price = Catalog.parsePrice(newPriceEl.value);
 
@@ -179,7 +219,7 @@ if (addBtn) addBtn.addEventListener("click", async () => {
     image = await fileToDataUrl(newFile);
   }
 
-  products.unshift({ id, n: name, c: category, img: image, price });
+  products.unshift({ id, n: name, c: category, unit, img: image, price });
   saveProducts();
   renderProducts();
   try {
@@ -189,7 +229,6 @@ if (addBtn) addBtn.addEventListener("click", async () => {
   }
 
   newNameEl.value = "";
-  newCategoryEl.value = "";
   newImageEl.value = "";
   newPriceEl.value = "";
   if (newImageFileEl) newImageFileEl.value = "";
@@ -270,6 +309,7 @@ if (loadGoogleBtn) {
 
 async function init() {
   products = await Catalog.loadCatalog();
+  fillAddFormSelects();
   renderProducts();
   const url = await Catalog.getGoogleWebAppUrl();
   if (googleWebAppUrlEl && url) googleWebAppUrlEl.value = url;

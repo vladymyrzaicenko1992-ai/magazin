@@ -161,6 +161,24 @@
     "image": "assets/img/products/cutlets/Нагетси курячі.png"
   },
   {
+    "id": "rikadelki",
+    "name": "Рікадельки",
+    "category": "Котлети",
+    "price": 115
+  },
+  {
+    "id": "kot-pechen",
+    "name": "Котлети з печінкою",
+    "category": "Котлети",
+    "price": 220
+  },
+  {
+    "id": "kot-malyshki",
+    "name": "Котлети «Малюки»",
+    "category": "Котлети",
+    "price": 195
+  },
+  {
     "id": "grechaniki",
     "name": "Гречаники",
     "category": "Котлети",
@@ -334,6 +352,18 @@
     "category": "Молочка",
     "price": 118,
     "image": "assets/img/products/molochka/Сирна маса з родзинками .png"
+  },
+  {
+    "id": "sir-feta",
+    "name": "Сир Фета",
+    "category": "Молочка",
+    "price": 215
+  },
+  {
+    "id": "maslo-vershk",
+    "name": "Масло вершкове",
+    "category": "Молочка",
+    "price": 380
   },
   {
     "id": "yaitsa",

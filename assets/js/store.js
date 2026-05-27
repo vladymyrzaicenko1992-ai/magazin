@@ -70,7 +70,9 @@
       const inCart = canOrder && Cart.isInCart(p.id);
       d.innerHTML =
         '<div class="pcard-img">' +
-        (img ? '<img src="' + img + '" alt="" loading="lazy">' : "") +
+        (img
+          ? '<img src="' + img + '" alt="" loading="lazy">'
+          : '<span class="pcard-ph" aria-hidden="true">🍽️</span>') +
         "</div>" +
         '<div class="pcard-body">' +
         '<div class="pcard-name">' + escapeHtml(p.n) + "</div>" +

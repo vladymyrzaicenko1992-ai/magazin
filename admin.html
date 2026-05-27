@@ -30,10 +30,13 @@
     p { margin: 0 0 16px; color: var(--muted); }
     .row {
       display: grid;
-      grid-template-columns: 1.6fr 1fr 1fr 1.4fr 1.2fr auto auto;
+      grid-template-columns: 1.5fr 1.1fr 0.95fr 0.85fr 1fr 1.3fr auto auto;
       gap: 10px;
       margin-bottom: 10px;
       align-items: center;
+    }
+    .row-add {
+      grid-template-columns: 1.5fr 1.1fr 0.95fr 0.85fr 1fr 1.3fr auto;
     }
     .card {
       border: 1px solid var(--border);
@@ -94,6 +97,12 @@
       letter-spacing: 0.04em;
       margin-bottom: 8px;
     }
+    .list-head-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1.1fr 0.95fr 0.85fr 1fr 1.3fr auto auto;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
     .price-view {
       font-size: 12px;
       color: var(--ok);
@@ -139,7 +148,7 @@
   <div id="adminApp" hidden>
     <div class="wrap">
       <h1>Адмін-панель товарів</h1>
-      <p>Додавайте товари, змінюйте ціни та видаляйте позиції. Для збереження для всіх пристроїв підключіть <strong>Google Таблицю</strong> (на Google Диску) — див. блок нижче.</p>
+      <p>Додавайте товари, змінюйте ціни, <strong>категорію</strong> та <strong>одиницю</strong> (шт, кг, л…) — у кошику вона підставиться автоматично. Для збереження для всіх пристроїв підключіть <strong>Google Таблицю</strong>.</p>
       <div class="toolbar">
         <a class="btn-ghost" href="index.html">← Повернутись на вітрину</a>
         <button id="adminLogoutBtn" type="button">Вийти</button>
@@ -165,9 +174,10 @@
 
       <section class="card">
         <h2>Додати товар</h2>
-        <div class="row">
+        <div class="row row-add">
           <input id="newName" type="text" placeholder="Назва товару">
-          <input id="newCategory" type="text" placeholder="Категорія">
+          <select id="newCategory"></select>
+          <select id="newUnit"></select>
           <input id="newPrice" type="number" min="0" step="0.01" placeholder="Ціна, грн">
           <input id="newImage" type="text" placeholder="Шлях до фото (опц.)">
           <input id="newImageFile" type="file" accept="image/*">
@@ -177,14 +187,23 @@
       </section>
 
       <section class="card">
-        <div class="list-head">Товари</div>
+        <div class="list-head row list-head-row">
+          <span>Назва</span>
+          <span>Категорія</span>
+          <span>Одиниця</span>
+          <span>Ціна</span>
+          <span></span>
+          <span>Фото</span>
+          <span></span>
+          <span></span>
+        </div>
         <div id="productsList"></div>
       </section>
     </div>
   </div>
 
-  <script src="assets/js/admin-auth.js?v=12"></script>
-  <script src="assets/js/catalog.js?v=12"></script>
-  <script src="assets/js/admin.js?v=12"></script>
+  <script src="assets/js/admin-auth.js?v=13"></script>
+  <script src="assets/js/catalog.js?v=13"></script>
+  <script src="assets/js/admin.js?v=13"></script>
 </body>
 </html>
