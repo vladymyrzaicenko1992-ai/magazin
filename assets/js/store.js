@@ -5,7 +5,7 @@
     return;
   }
 
-  const { loadCatalog, formatPrice, STORAGE_KEY } = Catalog;
+  const { loadCatalog, formatPrice } = Catalog;
   const CAT_ORDER = ["Усі", "Вареники", "Млинці", "Додатково", "Котлети", "Пельмені", "Хінкалі", "Молочка"];
   const catsEl = document.getElementById("cats");
   const grid = document.getElementById("pgrid");
@@ -105,30 +105,6 @@
       render();
     });
   }
-
-  window.addEventListener("storage", (event) => {
-    if (event.key !== STORAGE_KEY) return;
-    loadProducts().then(() => {
-      renderCategories();
-      render();
-    });
-  });
-
-  async function refreshCatalog() {
-    await loadProducts();
-    renderCategories();
-    render();
-  }
-
-  // Covers same-tab and cache-heavy scenarios where storage events may not fire.
-  window.addEventListener("focus", () => {
-    refreshCatalog().catch(() => {});
-  });
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      refreshCatalog().catch(() => {});
-    }
-  });
 
   init();
 })();
