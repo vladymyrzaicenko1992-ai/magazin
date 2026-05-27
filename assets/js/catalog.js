@@ -1,4 +1,58 @@
-const STORAGE_KEY = "magazin-products-v1";
+const STORAGE_KEY = "magazin-products-v2";
+const LEGACY_STORAGE_KEY = "magazin-products-v1";
+const DELETED_KEY = "magazin-deleted-v2";
+
+const BASE_PRODUCTS = [
+  { id: "var-kartoshka", n: "Вареники з картоплею", c: "Вареники", img: "assets/img/products/vareniki/Вареники з картоплею.png", price: null },
+  { id: "var-kapusta", n: "Вареники з капустою", c: "Вареники", img: "assets/img/products/vareniki/Вареники з капустою.png", price: null },
+  { id: "var-serdce-pechen", n: "Вареники з серцем і печінкою", c: "Вареники", img: "assets/img/products/vareniki/Вареники з серцем-печінкою.png", price: null },
+  { id: "var-myaso-chesnok", n: "Вареники з м'ясом і часником", c: "Вареники", img: "assets/img/products/vareniki/Вареники з м'ясом та часником.png", price: null },
+  { id: "var-tvorog-sladkiy", n: "Вареники з солодким сиром", c: "Вареники", img: "assets/img/products/vareniki/Вареники з солодким творогом.png", price: null },
+  { id: "bl-myaso-dom", n: "Млинці домашні з м'ясом", c: "Млинці", img: "assets/img/products/bliny/Блинчики (з м'ясом, творогом).png", price: null },
+  { id: "bl-tvorog-dom", n: "Млинці домашні з сиром", c: "Млинці", img: "assets/img/products/bliny/Блинчики (з м'ясом, творогом).png", price: null },
+  { id: "bend-myaso", n: "Бендерики з м'ясом", c: "Млинці", img: "assets/img/products/bliny/Бендерки (м'ясо, капуста свіжа та тушкована).png", price: null },
+  { id: "bend-kapusta", n: "Бендерики з капустою", c: "Млинці", img: "assets/img/products/bliny/Бендерки (м'ясо, капуста свіжа та тушкована).png", price: null },
+  { id: "cheb-myaso-syr", n: "Чебуреки з м'ясом і сиром", c: "Млинці", img: "assets/img/products/bliny/Чебуреки (з м'ясом та сиром).png", price: null },
+  { id: "syrniki-zhar", n: "Сирники смажені", c: "Млинці", img: "assets/img/products/bliny/Сирники смажені.png", price: null },
+  { id: "zrazy-myas-kap", n: "Зрази смажені", c: "Млинці", img: "assets/img/products/vareniki/Зрази смажені (з м'ясом , капустою).png", price: null },
+  { id: "sosiska-v-teste", n: "Сосиска в тісті", c: "Млинці", img: "assets/img/products/bliny/Сосиска в тісті.png", price: null },
+  { id: "gnizdechka-myaso", n: "Гніздечка з м'ясом", c: "Млинці", img: "assets/img/products/bliny/Гніздечка з м'ясом.png", price: null },
+  { id: "ovoshi-zamorozh", n: "Заморожені овочі", c: "Додатково", img: "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png", price: null },
+  { id: "kartoplya-fri", n: "Картопля фрі", c: "Додатково", img: "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png", price: null },
+  { id: "kot-babush", n: "Котлети «Бабусині»", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Бабусині» (свинина + яловичина).png", price: null },
+  { id: "kot-yozhik", n: "Котлети «Їжачок»", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Їжачок» (курка).png", price: null },
+  { id: "kot-syr", n: "Котлети з сиром", c: "Котлети", img: "assets/img/products/cutlets/Котлети «З сиром» (яловичина + сир).png", price: null },
+  { id: "kot-po-kiev-farsh", n: "Котлети по-київськи", c: "Котлети", img: "assets/img/products/cutlets/Котлети «По-київськи» (курячий фарш + масло + зелень).png", price: null },
+  { id: "kot-sviny", n: "Котлети зі свинини", c: "Котлети", img: "assets/img/products/cutlets/Котлети зі свинини.png", price: null },
+  { id: "kot-shkoln", n: "Котлети «Шкільні»", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Шкільні» (курка).png", price: null },
+  { id: "naggets", n: "Курячі нагетси", c: "Котлети", img: "assets/img/products/cutlets/Нагетси курячі.png", price: null },
+  { id: "grechaniki", n: "Гречаники", c: "Котлети", img: "assets/img/products/cutlets/Гречаники домашні (свинина + яловичина + гречка).png", price: null },
+  { id: "kot-kiev-file", n: "Котлети «Київські»", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Київські» (філе + масло + зелень).png", price: null },
+  { id: "kordon-blu", n: "Кордон-блю", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Кордон-Блю» (філе + шинка + сир).png", price: null },
+  { id: "kot-sokovit", n: "Котлети «Соковиті»", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Соковиті» (яловичина + курка).png", price: null },
+  { id: "kot-dom-maslo", n: "Котлети «Домашні»", c: "Котлети", img: "assets/img/products/cutlets/Котлети «Домашні» (свинина + яловичина + масло).png", price: null },
+  { id: "shnic-dom", n: "Домашній шніцель", c: "Котлети", img: "assets/img/products/cutlets/Шніцель домашній (яловичина).png", price: null },
+  { id: "kot-burger", n: "Котлети для бургерів", c: "Котлети", img: "assets/img/products/cutlets/Котлети для бургерів (яловичина).png", price: null },
+  { id: "kot-rublen", n: "Рублені котлети", c: "Котлети", img: "assets/img/products/cutlets/Котлети рублені (свинина + яловичина + курка).png", price: null },
+  { id: "golubcy", n: "Голубці", c: "Котлети", img: "assets/img/products/cutlets/Голубці (свинина + яловичина).png", price: null },
+  { id: "perec-farsh", n: "Фарширований перець", c: "Котлети", img: "assets/img/products/cutlets/Перець фарширований (свинина + яловичина).png", price: null },
+  { id: "pel-bogatyr", n: "Пельмені «Богатирські»", c: "Пельмені", img: "assets/img/products/dumplings/Богатирські (Яловичина + курка).png", price: null },
+  { id: "pel-bulmeni", n: "Бульмені", c: "Пельмені", img: "assets/img/products/dumplings/Бульмені (Яловичина + бульйон).png", price: null },
+  { id: "pel-dom", n: "Пельмені «Домашні»", c: "Пельмені", img: "assets/img/products/dumplings/Пельмені «Домашні» (свинина).jpg", price: null },
+  { id: "pel-kozackie", n: "Пельмені «Козацькі»", c: "Пельмені", img: "assets/img/products/dumplings/Козацькі (Свинина + яловичина).png", price: null },
+  { id: "pel-kurinye", n: "Пельмені «Курячі»", c: "Пельмені", img: "assets/img/products/dumplings/Пельмені «Курячі».jpg", price: null },
+  { id: "pel-malyshki", n: "Пельмені «Малюки»", c: "Пельмені", img: "assets/img/products/dumplings/Пельмені «Малюки» .png", price: null },
+  { id: "pel-babush", n: "Пельмені «Бабусині»", c: "Пельмені", img: "assets/img/products/dumplings/Бабусині (Свинина + яловичина + курка).png", price: null },
+  { id: "pel-vershk", n: "Пельмені «Вершкові»", c: "Пельмені", img: "assets/img/products/dumplings/Вершкові (Свинина + яловичина + вершкове масло).png", price: null },
+  { id: "ravioli", n: "Равіолі", c: "Пельмені", img: "assets/img/products/dumplings/Пельмені «Равіолі» .png", price: null },
+  { id: "hink-dom", n: "Хінкалі «Домашні»", c: "Хінкалі", img: "assets/img/products/dumplings/Хінкалі «Домашні» .png", price: null },
+  { id: "hink-kavkaz", n: "Хінкалі «Кавказькі»", c: "Хінкалі", img: "assets/img/products/dumplings/Хінкалі «Кавказькі» (яловичина + курка + зелень + паприка + базилік).png", price: null },
+  { id: "hink-shah", n: "Хінкалі «Шах»", c: "Хінкалі", img: "assets/img/products/dumplings/Хінкалі «Шах» (свинина + яловичина + зелень).png", price: null },
+  { id: "smetana", n: "Фермерська сметана", c: "Молочка", img: "assets/img/products/molochka/Сметана фермерська.png", price: null },
+  { id: "tvorog", n: "Домашній сир", c: "Молочка", img: "assets/img/products/molochka/Творог домашній .png", price: null },
+  { id: "sirna-masa", n: "Сирна маса з родзинками", c: "Молочка", img: "assets/img/products/molochka/Сирна маса з родзинками .png", price: null },
+  { id: "yaitsa", n: "Яйця фермерські", c: "Додатково", img: "assets/img/products/qw/яйця.jpg", price: null }
+];
 
 function parsePrice(value) {
   if (value === null || value === undefined || value === "") return null;
@@ -7,6 +61,7 @@ function parsePrice(value) {
 }
 
 function normalizeProduct(item) {
+  if (!item || !item.id) return null;
   return {
     id: item.id,
     n: item.n || item.name || "",
@@ -18,46 +73,97 @@ function normalizeProduct(item) {
 
 function mergeById(base, overrides) {
   const map = new Map(base.map((p) => [p.id, { ...p }]));
-  for (const item of overrides.map(normalizeProduct)) {
+  for (const raw of overrides) {
+    const item = normalizeProduct(raw);
+    if (!item) continue;
     const prev = map.get(item.id) || normalizeProduct({ id: item.id });
     map.set(item.id, {
       ...prev,
       ...item,
+      img: item.img || prev.img,
       price: item.price !== null ? item.price : prev.price
     });
   }
   return Array.from(map.values());
 }
 
+function loadDeletedIds() {
+  try {
+    return JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveDeletedIds(ids) {
+  localStorage.setItem(DELETED_KEY, JSON.stringify(ids));
+}
+
+function markDeleted(id) {
+  const ids = loadDeletedIds();
+  if (!ids.includes(id)) ids.push(id);
+  saveDeletedIds(ids);
+}
+
+function clearDeletedIds() {
+  localStorage.removeItem(DELETED_KEY);
+}
+
+function applyDeletedFilter(catalog) {
+  const deleted = new Set(loadDeletedIds());
+  return catalog.filter((p) => !deleted.has(p.id));
+}
+
+function migrateLegacyStorage() {
+  const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+  if (!legacy || localStorage.getItem(STORAGE_KEY)) return;
+  localStorage.setItem(STORAGE_KEY, legacy);
+}
+
 function loadFromStorage() {
+  migrateLegacyStorage();
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
   try {
-    return JSON.parse(raw).map(normalizeProduct);
+    return JSON.parse(raw).map(normalizeProduct).filter(Boolean);
   } catch (_) {
     return [];
   }
 }
 
 function saveToStorage(products) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+  const canonical = BASE_PRODUCTS.map(normalizeProduct).filter(Boolean);
+  const full = mergeById(canonical, products);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(full));
+  return full;
 }
 
 async function fetchCatalogJson(url) {
-  const res = await fetch(`${url}?v=${Date.now()}`);
+  const res = await fetch(`${url || "assets/data/products.json"}?v=${Date.now()}`);
   if (!res.ok) return [];
-  return (await res.json()).map(normalizeProduct);
+  return (await res.json()).map(normalizeProduct).filter(Boolean);
 }
 
-async function loadCatalog(fallbackProducts, jsonUrl) {
-  let catalog = fallbackProducts.map(normalizeProduct);
+async function loadCatalog() {
+  const canonical = BASE_PRODUCTS.map(normalizeProduct).filter(Boolean);
+  let catalog = mergeById(canonical, []);
+
   try {
-    const fromJson = await fetchCatalogJson(jsonUrl || "assets/data/products.json");
+    const fromJson = await fetchCatalogJson();
     if (fromJson.length) catalog = mergeById(catalog, fromJson);
   } catch (_) {}
 
   const fromStorage = loadFromStorage();
   if (fromStorage.length) catalog = mergeById(catalog, fromStorage);
+
+  catalog = mergeById(canonical, catalog);
+  catalog = applyDeletedFilter(catalog);
+
+  const stored = loadFromStorage();
+  if (stored.length < canonical.length) {
+    saveToStorage(mergeById(canonical, stored));
+  }
+
   return catalog;
 }
 
@@ -69,11 +175,7 @@ function formatPrice(price) {
 
 function toProductsJson(products) {
   return products.map((p) => {
-    const row = {
-      id: p.id,
-      name: p.n,
-      category: p.c
-    };
+    const row = { id: p.id, name: p.n, category: p.c };
     if (p.price !== null) row.price = p.price;
     if (p.img) row.image = p.img;
     return row;
@@ -91,8 +193,15 @@ function downloadProductsJson(products, filename) {
   URL.revokeObjectURL(link.href);
 }
 
+function restoreAllProducts() {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
+  clearDeletedIds();
+}
+
 window.MagazinCatalog = {
   STORAGE_KEY,
+  BASE_PRODUCTS,
   parsePrice,
   normalizeProduct,
   mergeById,
@@ -102,5 +211,9 @@ window.MagazinCatalog = {
   loadCatalog,
   formatPrice,
   toProductsJson,
-  downloadProductsJson
+  downloadProductsJson,
+  markDeleted,
+  clearDeletedIds,
+  restoreAllProducts,
+  loadDeletedIds
 };
