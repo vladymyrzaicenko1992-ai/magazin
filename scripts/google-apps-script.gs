@@ -1,9 +1,9 @@
 /**
  * Google Таблиця + Telegram-замовлення.
  *
- * Script Properties (Проект → Налаштування → Властивості скрипта):
- *   TELEGRAM_BOT_TOKEN — від @BotFather
- *   TELEGRAM_CHAT_ID   — id групи «Заказы» (від'ємне число, напр. -100123...)
+ * Telegram — один із двох способів:
+ * 1) Лист «telegram» у цій же таблиці: B1 = токен бота, B2 = chat_id (-1003933471474)
+ * 2) Script Properties: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
  *
  * Після зміни коду: Розгорнути → Нова версія веб-додатку.
  */
@@ -18,10 +18,20 @@ function doGet(e) {
       return jsonOut({ ok: true, products: readProducts() });
     }
     if (action === "ping") {
+      var cfg = getTelegramConfig_();
       return jsonOut({
         ok: true,
         orders: true,
-        telegram: !!getTelegramConfig_().token && !!getTelegramConfig_().chatId
+        telegram: !!cfg.token && !!cfg.chatId,
+        source: cfg.source
+      });
+    }
+    if (action === "initTelegram") {
+      createTelegramSheet_();
+      return jsonOut({
+        ok: true,
+        message:
+          "Лист «telegram» готовий. Вставте токен від @BotFather у клітинку B1. Chat_id уже в B2."
       });
     }
     if (action === "chats") {
@@ -64,22 +74,79 @@ function getProps_() {
   return PropertiesService.getScriptProperties();
 }
 
+var TELEGRAM_SHEET = "telegram";
+var DEFAULT_CHAT_ID = "-1003933471474";
+
 function getTelegramConfig_() {
   var p = getProps_();
+  var token = (p.getProperty("TELEGRAM_BOT_TOKEN") || "").trim();
+  var chatId = (p.getProperty("TELEGRAM_CHAT_ID") || "").trim();
+  if (token && chatId) {
+    return { token: token, chatId: chatId, source: "properties" };
+  }
+
+  var fromSheet = readTelegramFromSheet_();
+  if (fromSheet.token && fromSheet.chatId) {
+    return {
+      token: fromSheet.token,
+      chatId: fromSheet.chatId,
+      source: "sheet"
+    };
+  }
+  if (fromSheet.token && !chatId) {
+    return {
+      token: fromSheet.token,
+      chatId: fromSheet.chatId || DEFAULT_CHAT_ID,
+      source: "sheet"
+    };
+  }
+
   return {
-    token: (p.getProperty("TELEGRAM_BOT_TOKEN") || "").trim(),
-    chatId: (p.getProperty("TELEGRAM_CHAT_ID") || "").trim()
+    token: token || fromSheet.token,
+    chatId: chatId || fromSheet.chatId,
+    source: token || chatId ? "partial" : "none"
   };
 }
 
+function readTelegramFromSheet_() {
+  try {
+    var sheet =
+      SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TELEGRAM_SHEET);
+    if (!sheet) return { token: "", chatId: "" };
+    return {
+      token: String(sheet.getRange("B1").getValue() || "").trim(),
+      chatId: String(sheet.getRange("B2").getValue() || "").trim()
+    };
+  } catch (err) {
+    Logger.log("readTelegramFromSheet: " + err);
+    return { token: "", chatId: "" };
+  }
+}
+
+/** Створює лист telegram (▶ або ?action=initTelegram після розгортання). */
+function createTelegramSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(TELEGRAM_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(TELEGRAM_SHEET);
+  }
+  sheet.clear();
+  sheet.getRange("A1").setValue("TELEGRAM_BOT_TOKEN");
+  sheet.getRange("B1").setValue("");
+  sheet.getRange("A2").setValue("TELEGRAM_CHAT_ID");
+  sheet.getRange("B2").setValue(DEFAULT_CHAT_ID);
+  sheet.getRange("A4").setValue("Токен: @BotFather → /mybots → API Token");
+  sheet.getRange("A5").setValue("Після B1 збережіть таблицю. Розгортання не потрібне.");
+  return sheet;
+}
+
 /**
- * Запустіть один раз з редактора (▶), підставивши токен від @BotFather.
- * CHAT_ID групи «Заказы»: -1003933471474
+ * Альтернатива листу: ▶ у редакторі, вставте токен замість PASTE_...
  */
 function setupTelegramProperties() {
   getProps_().setProperties({
     TELEGRAM_BOT_TOKEN: "PASTE_BOT_TOKEN_FROM_BOTFATHER",
-    TELEGRAM_CHAT_ID: "-1003933471474"
+    TELEGRAM_CHAT_ID: DEFAULT_CHAT_ID
   });
 }
 
@@ -140,7 +207,9 @@ function placeOrder_(body) {
     return {
       ok: false,
       error:
-        "Telegram не налаштовано. Додайте TELEGRAM_BOT_TOKEN і TELEGRAM_CHAT_ID у Script Properties."
+        "Telegram не налаштовано. У таблиці: лист «telegram», клітинка B1 = токен бота (@BotFather), B2 = " +
+        DEFAULT_CHAT_ID +
+        ". Або Script Properties. Потім ?action=initTelegram якщо листа немає."
     };
   }
 
