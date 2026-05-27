@@ -16,6 +16,13 @@
       localStorage.setItem(CART_KEY, JSON.stringify(items));
     } catch (_) {}
     updateBadge();
+    try {
+      window.dispatchEvent(new Event("magazin-cart-changed"));
+    } catch (_) {}
+  }
+
+  function isInCart(id) {
+    return loadCart().some((x) => x.id === id);
   }
 
   function parsePrice(value) {
@@ -180,6 +187,7 @@
     CART_KEY,
     loadCart,
     saveCart,
+    isInCart,
     getCount,
     addItem,
     setQty,

@@ -67,6 +67,7 @@
       d.style.animationDelay = i * 0.028 + "s";
       const img = p.img ? encodeURI(p.img) : "";
       const canOrder = Cart && Cart.parsePrice(p.price) !== null;
+      const inCart = canOrder && Cart.isInCart(p.id);
       d.innerHTML =
         '<div class="pcard-img">' +
         (img ? '<img src="' + img + '" alt="" loading="lazy">' : "") +
@@ -76,7 +77,11 @@
         '<div class="pcard-cat">' + escapeHtml(p.c) + "</div>" +
         '<div class="pcard-price">' + escapeHtml(formatPrice(p.price)) + "</div>" +
         (canOrder
-          ? '<button type="button" class="pcard-add">В кошик</button>'
+          ? '<button type="button" class="pcard-add' +
+            (inCart ? " in-cart" : "") +
+            '">' +
+            (inCart ? "Вже в кошику" : "В кошик") +
+            "</button>"
           : '<span class="pcard-no-cart">Ціну уточнюйте</span>') +
         "</div>";
       const imgEl = d.querySelector("img");
@@ -86,10 +91,8 @@
         addBtn.addEventListener("click", () => {
           const result = Cart.addItem(p, 1);
           if (!result.ok) return;
-          addBtn.textContent = "Додано ✓";
-          setTimeout(() => {
-            addBtn.textContent = "В кошик";
-          }, 900);
+          addBtn.textContent = "Вже в кошику";
+          addBtn.classList.add("in-cart");
         });
       }
       grid.appendChild(d);
@@ -121,6 +124,14 @@
       render();
     });
   }
+
+  window.addEventListener("magazin-cart-changed", () => {
+    if (products.length) render();
+  });
+
+  window.addEventListener("pageshow", () => {
+    if (products.length) render();
+  });
 
   init();
 })();
