@@ -85,8 +85,43 @@
       color: var(--txt2); letter-spacing: .05em;
       text-transform: uppercase;
     }
+    .cart-link {
+      position: relative;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--bdr);
+      background: var(--cb);
+      color: var(--txt);
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .cart-link:hover {
+      border-color: rgba(0,200,240,.35);
+      background: var(--cbh);
+    }
+    .cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: var(--warm);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 18px;
+      text-align: center;
+    }
+    .cart-badge[hidden] { display: none; }
     .open-badge {
-      margin-left: auto; flex-shrink: 0;
+      flex-shrink: 0;
       background: rgba(0,228,176,.1);
       border: 1px solid rgba(0,228,176,.28);
       border-radius: 100px;
@@ -305,6 +340,26 @@
       color: var(--acc2);
       font-weight: 600;
     }
+    .pcard-add {
+      margin-top: 8px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      background: rgba(0,200,240,.15);
+      color: var(--acc);
+    }
+    .pcard-add:hover { background: rgba(0,200,240,.28); }
+    .pcard-no-cart {
+      display: block;
+      margin-top: 8px;
+      font-size: 10px;
+      color: var(--txt2);
+    }
 
     .no-res {
       grid-column: 1/-1;
@@ -382,6 +437,10 @@
       Усе в морозильці
       <small>домашні заморожені продукти</small>
     </div>
+    <a class="cart-link" href="cart.html" title="Кошик" aria-label="Кошик">
+      🛒
+      <span class="cart-badge" id="cartBadge" hidden>0</span>
+    </a>
     <div class="open-badge">Відкрито</div>
   </div>
 </header>
@@ -468,7 +527,8 @@
   });
 })();
 </script>
-<script src="assets/js/catalog.js?v=11"></script>
-<script src="assets/js/store.js?v=11"></script>
+<script src="assets/js/catalog.js?v=12"></script>
+<script src="assets/js/cart.js?v=12"></script>
+<script src="assets/js/store.js?v=12"></script>
 </body>
 </html>

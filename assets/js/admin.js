@@ -277,4 +277,12 @@ async function init() {
   else setGoogleMessage("Google не підключено — дані лише в браузері");
 }
 
-init();
+function bootAdmin() {
+  init();
+}
+
+try {
+  if (sessionStorage.getItem("magazin-admin-ok") === "1") bootAdmin();
+} catch (_) {}
+
+window.addEventListener("magazin-admin-ready", bootAdmin);

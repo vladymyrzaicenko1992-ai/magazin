@@ -26,6 +26,7 @@
     }
     .wrap { max-width: 980px; margin: 0 auto; }
     h1 { margin: 0 0 10px; font-size: 28px; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
     p { margin: 0 0 16px; color: var(--muted); }
     .row {
       display: grid;
@@ -77,6 +78,7 @@
       gap: 8px;
       margin-bottom: 12px;
       flex-wrap: wrap;
+      align-items: center;
     }
     .msg {
       margin-top: 8px;
@@ -84,6 +86,7 @@
       min-height: 18px;
       font-size: 13px;
     }
+    .msg.err { color: #ffc2bc; }
     .list-head {
       color: var(--muted);
       font-size: 12px;
@@ -109,57 +112,79 @@
     .row-actions button {
       min-width: 96px;
     }
+    .login-wrap {
+      max-width: 360px;
+      margin: 48px auto 0;
+    }
+    .login-wrap h1 { text-align: center; }
     @media (max-width: 860px) {
       .row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Адмін-панель товарів</h1>
-    <p>Додавайте товари, змінюйте ціни та видаляйте позиції. Для збереження для всіх пристроїв підключіть <strong>Google Таблицю</strong> (на Google Диску) — див. блок нижче.</p>
-    <div class="toolbar">
-      <a class="btn-ghost" href="index.html">← Повернутись на вітрину</a>
-      <button id="resetBtn" type="button">Скинути до базового списку</button>
-      <button id="publishBtn" type="button">Опублікувати ціни (завантажити products.json)</button>
-      <button id="restoreBtn" type="button">Відновити всі товари</button>
+  <section id="adminLogin" class="login-wrap">
+    <div class="card">
+      <h1>Вхід в адмінку</h1>
+      <p>Введіть пароль для доступу до панелі керування.</p>
+      <form id="adminLoginForm">
+        <input id="adminPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Пароль" required>
+        <button type="submit" class="btn-primary" style="margin-top:10px;">Увійти</button>
+      </form>
+      <div id="adminLoginError" class="msg err"></div>
+      <p style="margin-top:16px;text-align:center;"><a class="btn-ghost" href="index.html">← На вітрину</a></p>
     </div>
+  </section>
 
-    <section class="card">
-      <h2>Google Диск (таблиця)</h2>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">
-        Без Google дані зберігаються лише в цьому браузері. Підключіть таблицю — тоді ціни з’являться на головній сторінці для всіх.
-        <a href="docs/GOOGLE_DRIVE.md" target="_blank" rel="noopener">Інструкція</a>
-      </p>
-      <input id="googleWebAppUrl" type="url" placeholder="URL веб-додатку Apps Script (script.google.com/.../exec)">
-      <div class="toolbar" style="margin-top:10px;">
-        <button id="saveGoogleUrlBtn" type="button">Зберегти URL</button>
-        <button id="syncGoogleBtn" type="button" class="btn-primary">Синхронізувати в Google</button>
-        <button id="loadGoogleBtn" type="button">Завантажити з Google</button>
+  <div id="adminApp" hidden>
+    <div class="wrap">
+      <h1>Адмін-панель товарів</h1>
+      <p>Додавайте товари, змінюйте ціни та видаляйте позиції. Для збереження для всіх пристроїв підключіть <strong>Google Таблицю</strong> (на Google Диску) — див. блок нижче.</p>
+      <div class="toolbar">
+        <a class="btn-ghost" href="index.html">← Повернутись на вітрину</a>
+        <button id="adminLogoutBtn" type="button">Вийти</button>
+        <button id="resetBtn" type="button">Скинути до базового списку</button>
+        <button id="publishBtn" type="button">Опублікувати ціни (завантажити products.json)</button>
+        <button id="restoreBtn" type="button">Відновити всі товари</button>
       </div>
-      <div id="googleMessage" class="msg"></div>
-    </section>
 
-    <section class="card">
-      <h2>Додати товар</h2>
-      <div class="row">
-        <input id="newName" type="text" placeholder="Назва товару">
-        <input id="newCategory" type="text" placeholder="Категорія">
-        <input id="newPrice" type="number" min="0" step="0.01" placeholder="Ціна, грн">
-        <input id="newImage" type="text" placeholder="Шлях до фото (опц.)">
-        <input id="newImageFile" type="file" accept="image/*">
-        <button id="addBtn" class="btn-primary" type="button">Додати</button>
-      </div>
-      <div id="formMessage" class="msg"></div>
-    </section>
+      <section class="card">
+        <h2>Google Диск (таблиця)</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+          Без Google дані зберігаються лише в цьому браузері. Підключіть таблицю — тоді ціни з’являться на головній сторінці для всіх.
+          <a href="docs/GOOGLE_DRIVE.md" target="_blank" rel="noopener">Інструкція</a>
+        </p>
+        <input id="googleWebAppUrl" type="url" placeholder="URL веб-додатку Apps Script (script.google.com/.../exec)">
+        <div class="toolbar" style="margin-top:10px;">
+          <button id="saveGoogleUrlBtn" type="button">Зберегти URL</button>
+          <button id="syncGoogleBtn" type="button" class="btn-primary">Синхронізувати в Google</button>
+          <button id="loadGoogleBtn" type="button">Завантажити з Google</button>
+        </div>
+        <div id="googleMessage" class="msg"></div>
+      </section>
 
-    <section class="card">
-      <div class="list-head">Товари</div>
-      <div id="productsList"></div>
-    </section>
+      <section class="card">
+        <h2>Додати товар</h2>
+        <div class="row">
+          <input id="newName" type="text" placeholder="Назва товару">
+          <input id="newCategory" type="text" placeholder="Категорія">
+          <input id="newPrice" type="number" min="0" step="0.01" placeholder="Ціна, грн">
+          <input id="newImage" type="text" placeholder="Шлях до фото (опц.)">
+          <input id="newImageFile" type="file" accept="image/*">
+          <button id="addBtn" class="btn-primary" type="button">Додати</button>
+        </div>
+        <div id="formMessage" class="msg"></div>
+      </section>
+
+      <section class="card">
+        <div class="list-head">Товари</div>
+        <div id="productsList"></div>
+      </section>
+    </div>
   </div>
 
-  <script src="assets/js/catalog.js?v=10"></script>
-  <script src="assets/js/admin.js?v=10"></script>
+  <script src="assets/js/admin-auth.js?v=12"></script>
+  <script src="assets/js/catalog.js?v=12"></script>
+  <script src="assets/js/admin.js?v=12"></script>
 </body>
 </html>

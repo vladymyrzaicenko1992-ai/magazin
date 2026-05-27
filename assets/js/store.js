@@ -5,6 +5,7 @@
     return;
   }
 
+  const Cart = window.MagazinCart;
   const { loadCatalog, formatPrice } = Catalog;
   const CAT_ORDER = ["Усі", "Вареники", "Млинці", "Додатково", "Котлети", "Пельмені", "Хінкалі", "Молочка"];
   const catsEl = document.getElementById("cats");
@@ -65,6 +66,7 @@
       d.className = "pcard";
       d.style.animationDelay = i * 0.028 + "s";
       const img = p.img ? encodeURI(p.img) : "";
+      const canOrder = Cart && Cart.parsePrice(p.price) !== null;
       d.innerHTML =
         '<div class="pcard-img">' +
         (img ? '<img src="' + img + '" alt="" loading="lazy">' : "") +
@@ -73,9 +75,23 @@
         '<div class="pcard-name">' + escapeHtml(p.n) + "</div>" +
         '<div class="pcard-cat">' + escapeHtml(p.c) + "</div>" +
         '<div class="pcard-price">' + escapeHtml(formatPrice(p.price)) + "</div>" +
+        (canOrder
+          ? '<button type="button" class="pcard-add">В кошик</button>'
+          : '<span class="pcard-no-cart">Ціну уточнюйте</span>') +
         "</div>";
       const imgEl = d.querySelector("img");
       if (imgEl) imgEl.alt = p.n;
+      const addBtn = d.querySelector(".pcard-add");
+      if (addBtn && Cart) {
+        addBtn.addEventListener("click", () => {
+          const result = Cart.addItem(p, 1);
+          if (!result.ok) return;
+          addBtn.textContent = "Додано ✓";
+          setTimeout(() => {
+            addBtn.textContent = "В кошик";
+          }, 900);
+        });
+      }
       grid.appendChild(d);
     });
   }

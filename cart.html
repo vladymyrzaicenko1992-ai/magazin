@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Кошик — Усе в морозильці</title>
+  <meta name="theme-color" content="#080f1e">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --deep: #080f1e;
+      --acc: #00c8f0;
+      --acc2: #00e4b0;
+      --bdr: rgba(255,255,255,0.08);
+      --txt: #e4f0fa;
+      --txt2: #7aa8c4;
+      --card: rgba(255,255,255,0.05);
+      --r: 14px;
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--deep);
+      color: var(--txt);
+      min-height: 100vh;
+    }
+    .top {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(8,15,30,.97);
+      border-bottom: 1px solid var(--bdr);
+      padding: 14px 18px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .top h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      flex: 1;
+    }
+    .back {
+      color: var(--acc);
+      text-decoration: none;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 20px 18px 120px;
+    }
+    .cart-empty {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--txt2);
+    }
+    .cart-empty a {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: var(--acc);
+      color: #07202a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .cart-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 14px;
+      background: var(--card);
+      border: 1px solid var(--bdr);
+      border-radius: var(--r);
+      margin-bottom: 10px;
+    }
+    .cart-row-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .cart-row-meta {
+      font-size: 12px;
+      color: var(--txt2);
+      margin-top: 4px;
+    }
+    .cart-row-qty {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    .cart-row-qty input {
+      width: 64px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--bdr);
+      background: rgba(255,255,255,0.06);
+      color: var(--txt);
+      font-size: 15px;
+      text-align: center;
+    }
+    .cart-line-sum {
+      font-size: 13px;
+      color: var(--acc2);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .cart-remove {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--bdr);
+      background: transparent;
+      color: #ffc2bc;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .cart-foot {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      padding: 16px 18px calc(16px + env(safe-area-inset-bottom));
+      background: rgba(8,15,30,.98);
+      border-top: 1px solid var(--bdr);
+    }
+    .cart-foot-in {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .cart-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+    .cart-total-row strong {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      color: var(--acc2);
+    }
+    .cart-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      flex: 1;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-order {
+      background: linear-gradient(135deg, var(--acc), var(--acc2));
+      color: #07202a;
+    }
+    .btn-clear {
+      flex: 0 0 auto;
+      background: transparent;
+      border: 1px solid var(--bdr);
+      color: var(--txt2);
+      padding: 14px 16px;
+    }
+    .cart-hint {
+      font-size: 12px;
+      color: var(--txt2);
+      margin-top: 10px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .cart-err { color: #ffc2bc; padding: 20px; }
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+    @media (max-width: 480px) {
+      .cart-row { grid-template-columns: 1fr; }
+      .cart-row-qty { flex-direction: row; align-items: center; }
+      .cart-remove { justify-self: end; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <a class="back" href="index.html">← Меню</a>
+    <h1>Кошик</h1>
+  </header>
+
+  <main>
+    <div id="cartEmpty" class="cart-empty" hidden>
+      <p>Кошик порожній</p>
+      <a href="index.html">Обрати товари</a>
+    </div>
+    <div id="cartContent">
+      <div id="cartList"></div>
+    </div>
+  </main>
+
+  <div class="cart-foot">
+    <div class="cart-foot-in">
+      <div class="cart-total-row">
+        <span>Разом</span>
+        <strong id="cartTotal">0.00 грн</strong>
+      </div>
+      <div class="cart-actions">
+        <button type="button" class="btn btn-clear" id="cartClearBtn">Очистити</button>
+        <button type="button" class="btn btn-order" id="cartOrderBtn" disabled>Замовити в Telegram</button>
+      </div>
+      <p class="cart-hint">Відкриється чат з продавцем — перевірте текст і натисніть «Надіслати».</p>
+    </div>
+  </div>
+
+  <script src="assets/js/catalog.js?v=12"></script>
+  <script src="assets/js/cart.js?v=12"></script>
+  <script src="assets/js/cart-page.js?v=12"></script>
+</body>
+</html>
