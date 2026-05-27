@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Адмін-панель — Усе в морозильці</title>
+  <style>
+    :root {
+      --bg: #0b1324;
+      --card: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.12);
+      --text: #e7f2fb;
+      --muted: #91abc0;
+      --accent: #00c8f0;
+      --ok: #00d49a;
+      --danger: #ff6f61;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px 16px 40px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    h1 { margin: 0 0 10px; font-size: 28px; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    .row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 2fr auto;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    input, select, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      padding: 10px;
+      font-size: 14px;
+    }
+    button { cursor: pointer; }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #07202a;
+      font-weight: 700;
+    }
+    .btn-danger {
+      background: rgba(255, 111, 97, 0.12);
+      border-color: rgba(255, 111, 97, 0.5);
+      color: #ffc2bc;
+    }
+    .btn-ghost {
+      width: auto;
+      display: inline-block;
+      color: var(--text);
+      text-decoration: none;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .msg {
+      margin-top: 8px;
+      color: var(--ok);
+      min-height: 18px;
+      font-size: 13px;
+    }
+    .list-head {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 860px) {
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Адмін-панель товарів</h1>
+    <p>Додавайте товари, змінюйте ціни та видаляйте позиції. Дані зберігаються в браузері через LocalStorage.</p>
+    <div class="toolbar">
+      <a class="btn-ghost" href="index.html">← Повернутись на вітрину</a>
+      <button id="resetBtn" type="button">Скинути до базового списку</button>
+    </div>
+
+    <section class="card">
+      <h2>Додати товар</h2>
+      <div class="row">
+        <input id="newName" type="text" placeholder="Назва товару">
+        <input id="newCategory" type="text" placeholder="Категорія">
+        <input id="newPrice" type="number" min="0" step="0.01" placeholder="Ціна, грн">
+        <input id="newImage" type="text" placeholder="Шлях до фото (опц.)">
+        <button id="addBtn" class="btn-primary" type="button">Додати</button>
+      </div>
+      <div id="formMessage" class="msg"></div>
+    </section>
+
+    <section class="card">
+      <div class="list-head">Товари</div>
+      <div id="productsList"></div>
+    </section>
+  </div>
+
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>

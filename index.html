@@ -299,6 +299,12 @@
       margin-top: 3px;
       font-size: 11px; color: var(--txt2);
     }
+    .pcard-price {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--acc2);
+      font-weight: 600;
+    }
 
     .no-res {
       grid-column: 1/-1;
@@ -319,6 +325,19 @@
     footer .fin strong { color: var(--txt); font-weight: 500; }
     footer .fin a { color: var(--acc); text-decoration: none; }
     footer .fin a:hover { text-decoration: underline; }
+    .admin-link {
+      display: inline-flex;
+      margin-top: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 200, 240, .35);
+      color: var(--acc);
+      text-decoration: none;
+      font-size: 12px;
+    }
+    .admin-link:hover {
+      border-color: var(--acc);
+    }
 
     /* QR унизу сторінки */
     .qr-foot {
@@ -420,7 +439,8 @@
     <strong>Усе в морозильці</strong><br>
     Київ · вокзал Дарниця, навпроти АТБ<br>
     <a href="https://maps.google.com/?q=50.43462504418194,30.64699041302942" target="_blank" rel="noopener">Відкрити на карті Google</a><br>
-    <a href="https://vse-v-morozilke.shop/" rel="noopener">vse-v-morozilke.shop</a>
+    <a href="https://vse-v-morozilke.shop/" rel="noopener">vse-v-morozilke.shop</a><br>
+    <a class="admin-link" href="admin.html">Адмін-панель</a>
   </div>
 </footer>
 
@@ -449,6 +469,7 @@
 })();
 </script>
 <script>
+const STORAGE_KEY = "magazin-products-v1";
 const P = [
   {id:'var-kartoshka', n:'Вареники з картоплею', c:'Вареники', img:'assets/img/products/vareniki/Вареники з картоплею.png'},
   {id:'var-kapusta', n:'Вареники з капустою', c:'Вареники', img:'assets/img/products/vareniki/Вареники з капустою.png'},
@@ -501,56 +522,100 @@ const P = [
   {id:'yaitsa', n:'Яйця фермерські', c:'Додатково', img:'assets/img/products/qw/яйця.jpg'}
 ];
 
-const CAT_ORDER = ['Усі', 'Вареники', 'Млинці', 'Додатково', 'Котлети', 'Пельмені', 'Хінкалі', 'Молочка'];
-const presentCats = new Set(P.map(x => x.c));
-const cats = CAT_ORDER.filter(c => c === 'Усі' || presentCats.has(c));
-const catsEl = document.getElementById('cats');
-const grid   = document.getElementById('pgrid');
-const search = document.getElementById('searchInput');
-const lbl    = document.getElementById('secLbl');
+const CAT_ORDER = ["Усі", "Вареники", "Млинці", "Додатково", "Котлети", "Пельмені", "Хінкалі", "Молочка"];
+const catsEl = document.getElementById("cats");
+const grid = document.getElementById("pgrid");
+const search = document.getElementById("searchInput");
+const lbl = document.getElementById("secLbl");
 
-let activeCat = 'Усі', q = '';
+let products = [];
+let activeCat = "Усі";
+let q = "";
 
-cats.forEach(cat => {
-  const b = document.createElement('button');
-  b.className = 'cat-btn' + (cat === 'Усі' ? ' active' : '');
-  b.textContent = cat;
-  b.onclick = () => {
-    activeCat = cat;
-    document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    lbl.textContent = cat === 'Усі' ? 'Усі товари' : cat;
-    render();
+function normalizeProduct(item) {
+  return {
+    id: item.id,
+    n: item.n || item.name,
+    c: item.c || item.category,
+    img: item.img || item.image || "",
+    price: typeof item.price === "number" ? item.price : null
   };
-  catsEl.appendChild(b);
-});
+}
 
-search.addEventListener('input', e => { q = e.target.value; render(); });
+function formatPrice(price) {
+  if (typeof price !== "number") return "Ціну уточнюйте";
+  return `${price.toFixed(2)} грн`;
+}
+
+function loadProducts() {
+  const fromStorage = localStorage.getItem(STORAGE_KEY);
+  if (!fromStorage) {
+    products = P.map(normalizeProduct);
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(fromStorage);
+    products = parsed.map(normalizeProduct);
+  } catch (_) {
+    products = P.map(normalizeProduct);
+  }
+}
+
+function renderCategories() {
+  const presentCats = new Set(products.map((x) => x.c));
+  const cats = CAT_ORDER.filter((c) => c === "Усі" || presentCats.has(c));
+  catsEl.innerHTML = "";
+
+  cats.forEach((cat) => {
+    const b = document.createElement("button");
+    b.className = "cat-btn" + (cat === activeCat ? " active" : "");
+    b.textContent = cat;
+    b.onclick = () => {
+      activeCat = cat;
+      document.querySelectorAll(".cat-btn").forEach((x) => x.classList.remove("active"));
+      b.classList.add("active");
+      lbl.textContent = cat === "Усі" ? "Усі товари" : cat;
+      render();
+    };
+    catsEl.appendChild(b);
+  });
+}
+
+search.addEventListener("input", (e) => {
+  q = e.target.value;
+  render();
+});
 
 function render() {
   const lq = q.toLowerCase().trim();
-  const list = P.filter(p =>
-    (activeCat === 'Усі' || p.c === activeCat) &&
+  const list = products.filter((p) =>
+    (activeCat === "Усі" || p.c === activeCat) &&
     (!lq || p.n.toLowerCase().includes(lq) || p.c.toLowerCase().includes(lq))
   );
-  grid.innerHTML = '';
+
+  grid.innerHTML = "";
   if (!list.length) {
     grid.innerHTML = '<div class="no-res">🔍 Нічого не знайдено</div>';
     return;
   }
+
   list.forEach((p, i) => {
-    const d = document.createElement('div');
-    d.className = 'pcard';
-    d.style.animationDelay = (i * 0.028) + 's';
-    d.innerHTML = `<div class="pcard-img"><img src="${encodeURI(p.img)}" alt="${p.n.replace(/"/g, '&quot;')}" loading="lazy"></div>
+    const d = document.createElement("div");
+    d.className = "pcard";
+    d.style.animationDelay = (i * 0.028) + "s";
+    d.innerHTML = `<div class="pcard-img"><img src="${encodeURI(p.img)}" alt="${p.n.replace(/"/g, "&quot;")}" loading="lazy"></div>
       <div class="pcard-body">
         <div class="pcard-name">${p.n}</div>
         <div class="pcard-cat">${p.c}</div>
+        <div class="pcard-price">${formatPrice(p.price)}</div>
       </div>`;
     grid.appendChild(d);
   });
 }
 
+loadProducts();
+renderCategories();
 render();
 </script>
 </body>
