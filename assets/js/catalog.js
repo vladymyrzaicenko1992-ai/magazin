@@ -234,6 +234,39 @@ async function fetchFromGoogle(url) {
   return (data.products || []).map(normalizeProduct).filter(Boolean);
 }
 
+async function fetchTrending(url, limit, days) {
+  const lim = limit || 5;
+  const d = days || 7;
+  const endpoint =
+    `${url}${url.includes("?") ? "&" : "?"}action=trending&days=${d}&limit=${lim}&ts=${Date.now()}`;
+  const res = await fetch(endpoint);
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "Помилка читання топу");
+  return data.trending || [];
+}
+
+async function trackCartAdd(url, product, qty) {
+  const id = product && product.id;
+  if (!url || !id) return;
+  const payload = JSON.stringify({
+    action: "trackAdd",
+    id,
+    name: product.n || product.name || "",
+    qty: qty || 1
+  });
+  try {
+    await fetch(url, {
+      method: "POST",
+      mode: "cors",
+      redirect: "follow",
+      body: payload,
+      headers: { "Content-Type": "text/plain;charset=utf-8" }
+    });
+  } catch (err) {
+    console.warn("trackCartAdd:", err);
+  }
+}
+
 async function saveToGoogle(url, products) {
   const payload = JSON.stringify({
     action: "save",
@@ -373,5 +406,7 @@ window.MagazinCatalog = {
   getGoogleWebAppUrl,
   setGoogleWebAppUrl,
   fetchFromGoogle,
+  fetchTrending,
+  trackCartAdd,
   saveToGoogle
 };

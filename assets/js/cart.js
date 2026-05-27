@@ -112,6 +112,14 @@
       );
     }
     saveCart(cart);
+    try {
+      const Catalog = window.MagazinCatalog;
+      if (Catalog && Catalog.trackCartAdd) {
+        Catalog.getGoogleWebAppUrl().then((url) => {
+          if (url) Catalog.trackCartAdd(url, product, addQty);
+        });
+      }
+    } catch (_) {}
     return { ok: true };
   }
 

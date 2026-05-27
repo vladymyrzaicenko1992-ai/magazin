@@ -27,6 +27,7 @@
 
   let products = [];
   let categoryMins = {};
+  let trendingIds = Meta.TRENDING_IDS.slice();
   let activeCat = "Усі";
   let q = "";
   let socialTimer = null;
@@ -34,6 +35,18 @@
   async function loadProducts() {
     products = await loadCatalog();
     categoryMins = Meta.buildCategoryMins(products);
+  }
+
+  async function loadTrendingIds() {
+    const url = await Catalog.getGoogleWebAppUrl();
+    if (!url) return;
+    try {
+      const rows = await Catalog.fetchTrending(url, 5, 7);
+      const ids = rows.map((r) => r.id).filter(Boolean);
+      if (ids.length) trendingIds = ids;
+    } catch (err) {
+      console.warn("Топ з Google недоступний, резервний список:", err);
+    }
   }
 
   function escapeHtml(value) {
@@ -45,7 +58,7 @@
   }
 
   function isTrendingId(id) {
-    return Meta.TRENDING_IDS.includes(id);
+    return trendingIds.includes(id);
   }
 
   function filterList(list) {
@@ -176,17 +189,19 @@
         setTimeout(() => btn.classList.remove("pcard-add--pop"), 400);
         flashAddToast(p.n);
         showUpsell(p);
-        render();
-        renderTrending();
+        loadTrendingIds().then(() => {
+          renderTrending();
+          render();
+        });
       });
     });
   }
 
   function renderTrending() {
     if (!trendingGrid || !trendingWrap) return;
-    const trending = Meta.TRENDING_IDS.map((id) => products.find((p) => p.id === id)).filter(
-      (p) => p && Meta.isListed(p, categoryMins)
-    );
+    const trending = trendingIds
+      .map((id) => products.find((p) => p.id === id))
+      .filter((p) => p && Meta.isListed(p, categoryMins));
     if (!trending.length) {
       trendingWrap.hidden = true;
       return;
@@ -280,8 +295,10 @@
           Cart.addItem(p, 1);
           flashAddToast(p.n);
           upsellPop.hidden = true;
-          render();
-          renderTrending();
+          loadTrendingIds().then(() => {
+            renderTrending();
+            render();
+          });
         }
       });
     });
@@ -318,6 +335,7 @@
   async function init() {
     try {
       await loadProducts();
+      await loadTrendingIds();
       renderCategories();
       renderTrending();
       render();

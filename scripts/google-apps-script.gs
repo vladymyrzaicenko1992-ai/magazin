@@ -10,6 +10,8 @@
 
 var SHEET_NAME = "products";
 var ORDERS_SHEET = "orders";
+var CART_ADDS_SHEET = "cart_adds";
+var STATS_7D_SHEET = "stats_7d";
 
 function doGet(e) {
   try {
@@ -39,6 +41,11 @@ function doGet(e) {
       if (chats.error) return jsonOut({ ok: false, error: chats.error });
       return jsonOut({ ok: true, chats: chats });
     }
+    if (action === "trending") {
+      var days = parseInt(e.parameter.days, 10) || 7;
+      var limit = parseInt(e.parameter.limit, 10) || 5;
+      return jsonOut(getTrending_(days, limit));
+    }
     return jsonOut({ ok: false, error: "Unknown action" });
   } catch (err) {
     return jsonOut({ ok: false, error: String(err) });
@@ -57,6 +64,9 @@ function doPost(e) {
     }
     if (body.action === "order") {
       return jsonOut(placeOrder_(body));
+    }
+    if (body.action === "trackAdd") {
+      return jsonOut(trackCartAdd_(body));
     }
     return jsonOut({ ok: false, error: "Unknown action" });
   } catch (err) {
@@ -410,6 +420,95 @@ function writeProducts(products) {
       p.price === null || p.price === undefined || p.price === "" ? "" : p.price,
       p.image || p.img || "",
       unit
+    ]);
+  });
+}
+
+/** Лог кожного «Додати в кошик» + зведення топу за 7 днів на листі stats_7d */
+function getCartAddsSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CART_ADDS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(CART_ADDS_SHEET);
+    sheet.appendRow(["timestamp", "product_id", "product_name", "qty"]);
+  }
+  return sheet;
+}
+
+function getStats7dSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(STATS_7D_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(STATS_7D_SHEET);
+    sheet.appendRow(["rank", "product_id", "product_name", "adds_7d", "updated"]);
+  }
+  return sheet;
+}
+
+function trackCartAdd_(body) {
+  var id = String(body.id || "").trim();
+  if (!id) return { ok: false, error: "product id required" };
+  var name = String(body.name || body.n || "").trim();
+  var qty = Number(body.qty);
+  if (!qty || qty < 1) qty = 1;
+
+  getCartAddsSheet_().appendRow([new Date(), id, name, qty]);
+  refreshStats7dSheet_();
+
+  return { ok: true };
+}
+
+function getTrending_(days, limit) {
+  days = days || 7;
+  limit = limit || 5;
+  var since = new Date();
+  since.setDate(since.getDate() - days);
+  since.setHours(0, 0, 0, 0);
+
+  var sheet = getCartAddsSheet_();
+  var data = sheet.getDataRange().getValues();
+  var counts = {};
+  var names = {};
+
+  for (var i = 1; i < data.length; i++) {
+    var ts = data[i][0];
+    var pid = String(data[i][1] || "").trim();
+    if (!pid) continue;
+    if (!(ts instanceof Date) || ts < since) continue;
+    counts[pid] = (counts[pid] || 0) + 1;
+    if (!names[pid] && data[i][2]) names[pid] = String(data[i][2]);
+  }
+
+  var ids = Object.keys(counts).sort(function (a, b) {
+    return counts[b] - counts[a];
+  });
+
+  var trending = ids.slice(0, limit).map(function (id) {
+    return { id: id, name: names[id] || "", count: counts[id] };
+  });
+
+  return { ok: true, days: days, trending: trending };
+}
+
+function refreshStats7dSheet_() {
+  var result = getTrending_(7, 100);
+  var sheet = getStats7dSheet_();
+  var products = readProducts();
+  var nameById = {};
+  products.forEach(function (p) {
+    nameById[p.id] = p.name;
+  });
+
+  sheet.clear();
+  sheet.appendRow(["rank", "product_id", "product_name", "adds_7d", "updated"]);
+  var now = new Date();
+  (result.trending || []).forEach(function (row, i) {
+    sheet.appendRow([
+      i + 1,
+      row.id,
+      nameById[row.id] || row.name || "",
+      row.count,
+      now
     ]);
   });
 }
