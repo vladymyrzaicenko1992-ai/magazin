@@ -44,8 +44,9 @@
     }
     .top h1 {
       font-family: 'Syne', sans-serif;
-      font-size: 18px;
+      font-size: 17px;
       flex: 1;
+      line-height: 1.3;
     }
     .top-meta {
       font-size: 12px;
@@ -340,7 +341,7 @@
 <body>
   <header class="top">
     <a class="back" href="index.html">← Меню</a>
-    <h1>Кошик</h1>
+    <h1>Ваш набір майже готовий 👌</h1>
     <span class="top-meta" id="cartCountLabel"></span>
   </header>
 
@@ -359,7 +360,7 @@
     </div>
 
     <div id="cartContent">
-      <p class="sec-title">Ваші товари</p>
+      <p class="sec-title">🛒 Ваш набір</p>
       <p class="checkout-intro" style="margin-bottom:8px">Оберіть одиницю виміру та кількість. Ціна вказана за обрану одиницю.</p>
       <div id="cartList"></div>
 
@@ -391,15 +392,15 @@
         <strong id="cartTotal">0.00 грн</strong>
       </div>
       <button type="submit" form="checkoutForm" class="btn btn-order" id="cartSubmitBtn">
-        Оформити замовлення
+        📲 Оформити замовлення
       </button>
       <button type="button" class="btn btn-clear" id="cartClearBtn">Очистити кошик</button>
       <p class="cart-hint">Ціна × кількість у обраних одиницях (шт, кг, л тощо)</p>
     </div>
   </div>
 
-  <script src="assets/js/catalog.js?v=22"></script>
-  <script src="assets/js/cart.js?v=22"></script>
-  <script src="assets/js/cart-page.js?v=22"></script>
+  <script src="assets/js/catalog.js?v=23"></script>
+  <script src="assets/js/cart.js?v=23"></script>
+  <script src="assets/js/cart-page.js?v=23"></script>
 </body>
 </html>

@@ -92,11 +92,15 @@
       const line = Cart.lineTotal(item);
       const row = document.createElement("article");
       row.className = "cart-row";
+      const catLine =
+        window.MagazinStoreMeta && item.c
+          ? window.MagazinStoreMeta.getDisplaySubtitle({ c: item.c })
+          : item.c;
       row.innerHTML = `
         <div class="cart-row-top">
           <div class="cart-row-main">
             <div class="cart-row-name">${escapeHtml(item.n)}</div>
-            <div class="cart-row-cat">${escapeHtml(item.c)}</div>
+            <div class="cart-row-cat">${escapeHtml(catLine)}</div>
             <div class="cart-row-price">${Cart.formatMoney(item.price)} <span>/ ${escapeHtml(u.short)}</span></div>
           </div>
           <button type="button" class="cart-remove" data-id="${escapeHtml(item.id)}" aria-label="Видалити">×</button>

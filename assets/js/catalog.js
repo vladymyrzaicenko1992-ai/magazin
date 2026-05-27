@@ -311,7 +311,7 @@ async function loadCatalog() {
 
 function formatPrice(price) {
   const value = parsePrice(price);
-  if (value === null) return "Ціну уточнюйте";
+  if (value === null) return "";
   return `${value.toFixed(2)} грн`;
 }
 
