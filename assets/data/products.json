@@ -3,13 +3,13 @@
     "id": "var-kartoshka",
     "name": "Вареники з картоплею",
     "category": "Вареники",
-    "price": 85
+    "price": 100
   },
   {
     "id": "var-kapusta",
     "name": "Вареники з капустою",
     "category": "Вареники",
-    "price": null
+    "price": 100
   },
   {
     "id": "var-serdce-pechen",

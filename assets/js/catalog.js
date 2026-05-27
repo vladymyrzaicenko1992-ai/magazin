@@ -194,10 +194,18 @@ async function saveToGoogle(url, products) {
   });
   const res = await fetch(url, {
     method: "POST",
+    mode: "cors",
+    redirect: "follow",
     body: payload,
     headers: { "Content-Type": "text/plain;charset=utf-8" }
   });
-  const data = await res.json();
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (_) {
+    throw new Error("Google не повернув JSON. Перевірте URL і доступ веб-додатку.");
+  }
   if (!data.ok) throw new Error(data.error || "Помилка запису в Google");
   return data;
 }
@@ -208,10 +216,11 @@ async function loadCatalog() {
 
   const googleUrl = await getGoogleWebAppUrl();
   let usedGoogle = false;
+  let fromGoogle = [];
 
   if (googleUrl) {
     try {
-      const fromGoogle = await fetchFromGoogle(googleUrl);
+      fromGoogle = await fetchFromGoogle(googleUrl);
       if (fromGoogle.length) {
         catalog = mergeById(catalog, fromGoogle);
         usedGoogle = true;
@@ -221,7 +230,7 @@ async function loadCatalog() {
     }
   }
 
-  if (!usedGoogle) {
+  if (!googleUrl) {
     try {
       const fromJson = await fetchCatalogJson();
       if (fromJson.length) catalog = mergeById(catalog, fromJson);
@@ -229,6 +238,13 @@ async function loadCatalog() {
 
     const fromStorage = loadFromStorage();
     if (fromStorage.length) catalog = mergeById(catalog, fromStorage);
+  } else if (!usedGoogle) {
+    const fromStorage = loadFromStorage();
+    if (fromStorage.length) catalog = mergeById(catalog, fromStorage);
+  }
+
+  if (usedGoogle && fromGoogle.length) {
+    catalog = mergeById(catalog, fromGoogle);
   }
 
   catalog = mergeById(canonical, catalog);

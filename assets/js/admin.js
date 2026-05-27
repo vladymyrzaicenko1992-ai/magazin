@@ -45,8 +45,13 @@ async function persistToCloud() {
     setMessage("Збережено лише в браузері. Підключіть Google у блоці вище.");
     return false;
   }
-  await Catalog.saveToGoogle(url, products);
-  setMessage("Збережено в Google і в браузері");
+  const result = await Catalog.saveToGoogle(url, products);
+  const check = await Catalog.fetchFromGoogle(url);
+  const savedCount = result.saved ?? products.length;
+  if (check.length < Math.min(products.length, 1)) {
+    throw new Error("Після збереження Google повернув порожній каталог");
+  }
+  setMessage(`Збережено в Google (${savedCount} товарів) і в браузері`);
   setGoogleMessage("Остання синхронізація: зараз");
   return true;
 }
