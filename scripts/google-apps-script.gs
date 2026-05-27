@@ -153,6 +153,24 @@ function setupTelegramProperties() {
   Logger.log("Telegram OK у Properties. ping?action=ping");
 }
 
+/**
+ * ОДИН РАЗ: виберіть authorizeTelegram у списку → ▶ Виконати.
+ * З’явиться вікно «Потрібен доступ» → Дозволити / Allow.
+ * Після цього замовлення з сайту підуть у Telegram.
+ */
+function authorizeTelegram() {
+  var cfg = getTelegramConfig_();
+  if (!cfg.token || !cfg.chatId) {
+    throw new Error("Немає токена або chat_id. Перевірте TELEGRAM_BOT_TOKEN у коді.");
+  }
+  sendTelegramMessage_(
+    cfg.token,
+    cfg.chatId,
+    "✅ Дозвіл UrlFetchApp надано. Замовлення з vse-v-morozilke.shop працюють."
+  );
+  Logger.log("OK: тестове повідомлення надіслано в групу «Заказы».");
+}
+
 function listTelegramChats_() {
   var cfg = getTelegramConfig_();
   if (!cfg.token) return { error: "TELEGRAM_BOT_TOKEN не налаштовано" };
@@ -218,7 +236,19 @@ function placeOrder_(body) {
   }
 
   var message = formatOrderMessage_(name, phone, comment, items, total);
-  sendTelegramMessage_(cfg.token, cfg.chatId, message);
+  try {
+    sendTelegramMessage_(cfg.token, cfg.chatId, message);
+  } catch (err) {
+    var msg = String(err);
+    if (msg.indexOf("UrlFetchApp") >= 0 || msg.indexOf("external_request") >= 0) {
+      return {
+        ok: false,
+        error:
+          "Немає дозволу на Telegram. У Apps Script запустіть ▶ функцію authorizeTelegram і натисніть «Дозволити». Розгортання: виконувати від імені «Я»."
+      };
+    }
+    throw err;
+  }
   logOrder_(name, phone, comment, items, total);
 
   return { ok: true };
