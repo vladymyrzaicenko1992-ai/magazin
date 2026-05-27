@@ -3,294 +3,343 @@
     "id": "var-kartoshka",
     "name": "Вареники з картоплею",
     "category": "Вареники",
-    "price": 100
+    "price": 78,
+    "image": "assets/img/products/vareniki/Вареники з картоплею.png"
   },
   {
     "id": "var-kapusta",
     "name": "Вареники з капустою",
     "category": "Вареники",
-    "price": 100
+    "price": 85,
+    "image": "assets/img/products/vareniki/Вареники з капустою.png"
   },
   {
     "id": "var-serdce-pechen",
     "name": "Вареники з серцем і печінкою",
     "category": "Вареники",
-    "price": null
+    "price": 92,
+    "image": "assets/img/products/vareniki/Вареники з серцем-печінкою.png"
   },
   {
     "id": "var-myaso-chesnok",
     "name": "Вареники з м'ясом і часником",
     "category": "Вареники",
-    "price": null
+    "price": 92,
+    "image": "assets/img/products/vareniki/Вареники з м'ясом та часником.png"
   },
   {
     "id": "var-tvorog-sladkiy",
     "name": "Вареники з солодким сиром",
     "category": "Вареники",
-    "price": null
+    "price": 93,
+    "image": "assets/img/products/vareniki/Вареники з солодким творогом.png"
   },
   {
     "id": "bl-myaso-dom",
     "name": "Млинці домашні з м'ясом",
     "category": "Млинці",
-    "price": null
+    "price": 118,
+    "image": "assets/img/products/bliny/Блинчики (з м'ясом, творогом).png"
   },
   {
     "id": "bl-tvorog-dom",
     "name": "Млинці домашні з сиром",
     "category": "Млинці",
-    "price": null
+    "price": 115,
+    "image": "assets/img/products/bliny/Блинчики (з м'ясом, творогом).png"
   },
   {
     "id": "bend-myaso",
     "name": "Бендерики з м'ясом",
     "category": "Млинці",
-    "price": null
+    "price": 105,
+    "image": "assets/img/products/bliny/Бендерки (м'ясо, капуста свіжа та тушкована).png"
   },
   {
     "id": "bend-kapusta",
     "name": "Бендерики з капустою",
     "category": "Млинці",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/bliny/Бендерки (м'ясо, капуста свіжа та тушкована).png"
   },
   {
     "id": "cheb-myaso-syr",
     "name": "Чебуреки з м'ясом і сиром",
     "category": "Млинці",
-    "price": null
+    "price": 95,
+    "image": "assets/img/products/bliny/Чебуреки (з м'ясом та сиром).png"
   },
   {
     "id": "syrniki-zhar",
     "name": "Сирники смажені",
     "category": "Млинці",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/bliny/Сирники смажені.png"
   },
   {
     "id": "zrazy-myas-kap",
     "name": "Зрази смажені",
     "category": "Млинці",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/vareniki/Зрази смажені (з м'ясом , капустою).png"
   },
   {
     "id": "sosiska-v-teste",
     "name": "Сосиска в тісті",
     "category": "Млинці",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/bliny/Сосиска в тісті.png"
   },
   {
     "id": "gnizdechka-myaso",
     "name": "Гніздечка з м'ясом",
     "category": "Млинці",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/bliny/Гніздечка з м'ясом.png"
   },
   {
     "id": "ovoshi-zamorozh",
     "name": "Заморожені овочі",
     "category": "Додатково",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png"
   },
   {
     "id": "kartoplya-fri",
     "name": "Картопля фрі",
     "category": "Додатково",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png"
   },
   {
     "id": "kot-babush",
     "name": "Котлети «Бабусині»",
     "category": "Котлети",
-    "price": 95
+    "price": 129,
+    "image": "assets/img/products/cutlets/Котлети «Бабусині» (свинина + яловичина).png"
   },
   {
     "id": "kot-yozhik",
     "name": "Котлети «Їжачок»",
     "category": "Котлети",
-    "price": null
+    "price": 125,
+    "image": "assets/img/products/cutlets/Котлети «Їжачок» (курка).png"
   },
   {
     "id": "kot-syr",
     "name": "Котлети з сиром",
     "category": "Котлети",
-    "price": null
+    "price": 138,
+    "image": "assets/img/products/cutlets/Котлети «З сиром» (яловичина + сир).png"
   },
   {
     "id": "kot-po-kiev-farsh",
     "name": "Котлети по-київськи",
     "category": "Котлети",
-    "price": null
+    "price": 355,
+    "image": "assets/img/products/cutlets/Котлети «По-київськи» (курячий фарш + масло + зелень).png"
   },
   {
     "id": "kot-sviny",
     "name": "Котлети зі свинини",
     "category": "Котлети",
-    "price": null
+    "price": 195,
+    "image": "assets/img/products/cutlets/Котлети зі свинини.png"
   },
   {
     "id": "kot-shkoln",
     "name": "Котлети «Шкільні»",
     "category": "Котлети",
-    "price": null
+    "price": 198,
+    "image": "assets/img/products/cutlets/Котлети «Шкільні» (курка).png"
   },
   {
     "id": "naggets",
     "name": "Курячі нагетси",
     "category": "Котлети",
-    "price": null
+    "price": 335,
+    "image": "assets/img/products/cutlets/Нагетси курячі.png"
   },
   {
     "id": "grechaniki",
     "name": "Гречаники",
     "category": "Котлети",
-    "price": null
+    "price": 180,
+    "image": "assets/img/products/cutlets/Гречаники домашні (свинина + яловичина + гречка).png"
   },
   {
     "id": "kot-kiev-file",
     "name": "Котлети «Київські»",
     "category": "Котлети",
-    "price": null
+    "price": 138,
+    "image": "assets/img/products/cutlets/Котлети «Київські» (філе + масло + зелень).png"
   },
   {
     "id": "kordon-blu",
     "name": "Кордон-блю",
     "category": "Котлети",
-    "price": null
+    "price": 275,
+    "image": "assets/img/products/cutlets/Котлети «Кордон-Блю» (філе + шинка + сир).png"
   },
   {
     "id": "kot-sokovit",
     "name": "Котлети «Соковиті»",
     "category": "Котлети",
-    "price": null
+    "price": 165,
+    "image": "assets/img/products/cutlets/Котлети «Соковиті» (яловичина + курка).png"
   },
   {
     "id": "kot-dom-maslo",
     "name": "Котлети «Домашні»",
     "category": "Котлети",
-    "price": null
+    "price": 198,
+    "image": "assets/img/products/cutlets/Котлети «Домашні» (свинина + яловичина + масло).png"
   },
   {
     "id": "shnic-dom",
     "name": "Домашній шніцель",
     "category": "Котлети",
-    "price": null
+    "price": 155,
+    "image": "assets/img/products/cutlets/Шніцель домашній (яловичина).png"
   },
   {
     "id": "kot-burger",
     "name": "Котлети для бургерів",
     "category": "Котлети",
-    "price": null
+    "price": 195,
+    "image": "assets/img/products/cutlets/Котлети для бургерів (яловичина).png"
   },
   {
     "id": "kot-rublen",
     "name": "Рублені котлети",
     "category": "Котлети",
-    "price": null
+    "price": 169,
+    "image": "assets/img/products/cutlets/Котлети рублені (свинина + яловичина + курка).png"
   },
   {
     "id": "golubcy",
     "name": "Голубці",
     "category": "Котлети",
-    "price": null
+    "price": 137,
+    "image": "assets/img/products/cutlets/Голубці (свинина + яловичина).png"
   },
   {
     "id": "perec-farsh",
     "name": "Фарширований перець",
     "category": "Котлети",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/cutlets/Перець фарширований (свинина + яловичина).png"
   },
   {
     "id": "pel-bogatyr",
     "name": "Пельмені «Богатирські»",
     "category": "Пельмені",
-    "price": 120
+    "price": 86,
+    "image": "assets/img/products/dumplings/Богатирські (Яловичина + курка).png"
   },
   {
     "id": "pel-bulmeni",
     "name": "Бульмені",
     "category": "Пельмені",
-    "price": null
+    "price": 92,
+    "image": "assets/img/products/dumplings/Бульмені (Яловичина + бульйон).png"
   },
   {
     "id": "pel-dom",
     "name": "Пельмені «Домашні»",
     "category": "Пельмені",
-    "price": null
+    "price": 88,
+    "image": "assets/img/products/dumplings/Пельмені «Домашні» (свинина).jpg"
   },
   {
     "id": "pel-kozackie",
     "name": "Пельмені «Козацькі»",
     "category": "Пельмені",
-    "price": null
+    "price": 106,
+    "image": "assets/img/products/dumplings/Козацькі (Свинина + яловичина).png"
   },
   {
     "id": "pel-kurinye",
     "name": "Пельмені «Курячі»",
     "category": "Пельмені",
-    "price": null
+    "price": 83,
+    "image": "assets/img/products/dumplings/Пельмені «Курячі».jpg"
   },
   {
     "id": "pel-malyshki",
     "name": "Пельмені «Малюки»",
     "category": "Пельмені",
-    "price": null
+    "price": 86,
+    "image": "assets/img/products/dumplings/Пельмені «Малюки» .png"
   },
   {
     "id": "pel-babush",
     "name": "Пельмені «Бабусині»",
     "category": "Пельмені",
-    "price": null
+    "price": 84,
+    "image": "assets/img/products/dumplings/Бабусині (Свинина + яловичина + курка).png"
   },
   {
     "id": "pel-vershk",
     "name": "Пельмені «Вершкові»",
     "category": "Пельмені",
-    "price": null
+    "price": 135,
+    "image": "assets/img/products/dumplings/Вершкові (Свинина + яловичина + вершкове масло).png"
   },
   {
     "id": "ravioli",
     "name": "Равіолі",
     "category": "Пельмені",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/dumplings/Пельмені «Равіолі» .png"
   },
   {
     "id": "hink-dom",
     "name": "Хінкалі «Домашні»",
     "category": "Хінкалі",
-    "price": 110
+    "price": 99,
+    "image": "assets/img/products/dumplings/Хінкалі «Домашні» .png"
   },
   {
     "id": "hink-kavkaz",
     "name": "Хінкалі «Кавказькі»",
     "category": "Хінкалі",
-    "price": null
+    "price": 101,
+    "image": "assets/img/products/dumplings/Хінкалі «Кавказькі» (яловичина + курка + зелень + паприка + базилік).png"
   },
   {
     "id": "hink-shah",
     "name": "Хінкалі «Шах»",
     "category": "Хінкалі",
-    "price": null
+    "price": 106,
+    "image": "assets/img/products/dumplings/Хінкалі «Шах» (свинина + яловичина + зелень).png"
   },
   {
     "id": "smetana",
     "name": "Фермерська сметана",
     "category": "Молочка",
-    "price": 65
+    "price": 98,
+    "image": "assets/img/products/molochka/Сметана фермерська.png"
   },
   {
     "id": "tvorog",
     "name": "Домашній сир",
     "category": "Молочка",
-    "price": null
+    "price": 115,
+    "image": "assets/img/products/molochka/Творог домашній .png"
   },
   {
     "id": "sirna-masa",
     "name": "Сирна маса з родзинками",
     "category": "Молочка",
-    "price": null
+    "price": 118,
+    "image": "assets/img/products/molochka/Сирна маса з родзинками .png"
   },
   {
     "id": "yaitsa",
     "name": "Яйця фермерські",
     "category": "Додатково",
-    "price": null
+    "price": null,
+    "image": "assets/img/products/qw/яйця.jpg"
   }
 ]
