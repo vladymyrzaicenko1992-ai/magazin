@@ -24,26 +24,20 @@
       color: var(--text);
       font-family: Arial, sans-serif;
     }
-    .wrap { max-width: 980px; margin: 0 auto; }
+    .wrap { max-width: 920px; margin: 0 auto; }
     h1 { margin: 0 0 10px; font-size: 28px; }
     h2 { margin: 0 0 12px; font-size: 18px; }
     p { margin: 0 0 16px; color: var(--muted); }
-    .row {
-      display: grid;
-      grid-template-columns: 1.5fr 1.1fr 0.95fr 0.85fr 1fr 1.3fr auto auto;
-      gap: 10px;
-      margin-bottom: 10px;
-      align-items: center;
-    }
-    .row-add {
-      grid-template-columns: 1.5fr 1.1fr 0.95fr 0.85fr 1fr 1.3fr auto;
-    }
     .card {
       border: 1px solid var(--border);
       background: var(--card);
       border-radius: var(--radius);
       padding: 14px;
       margin-bottom: 16px;
+    }
+    .card--products {
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.15);
     }
     input, select, button {
       width: 100%;
@@ -53,6 +47,10 @@
       color: var(--text);
       padding: 10px;
       font-size: 14px;
+    }
+    input[type="file"] {
+      padding: 8px;
+      font-size: 12px;
     }
     button { cursor: pointer; }
     .btn-primary {
@@ -90,44 +88,138 @@
       font-size: 13px;
     }
     .msg.err { color: #ffc2bc; }
-    .list-head {
-      color: var(--muted);
-      font-size: 12px;
+    .field-label {
+      display: block;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 8px;
-    }
-    .list-head-row {
-      display: grid;
-      grid-template-columns: 1.5fr 1.1fr 0.95fr 0.85fr 1fr 1.3fr auto auto;
-      gap: 10px;
-      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 5px;
     }
     .price-view {
       font-size: 12px;
       color: var(--ok);
-      margin-top: 4px;
-      display: block;
-    }
-    .thumb {
-      width: 48px;
-      height: 48px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      display: block;
       margin-top: 6px;
+      display: block;
     }
-    .row-actions button {
-      min-width: 96px;
+    .products-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .product-card {
+      display: grid;
+      grid-template-columns: 1fr 188px;
+      gap: 14px;
+      align-items: stretch;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    }
+    .product-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+    .product-row {
+      display: grid;
+      gap: 10px;
+    }
+    .product-row--name {
+      grid-template-columns: 1fr;
+    }
+    .product-row--meta {
+      grid-template-columns: 1fr 1fr 0.85fr;
+    }
+    .product-row--img {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+    .product-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .product-actions button {
+      width: auto;
+      min-width: 110px;
+      flex: 1;
+    }
+    .product-photo-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      height: 100%;
+    }
+    .product-photo-frame {
+      flex: 1;
+      min-height: 180px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .product-photo {
+      width: 100%;
+      height: 100%;
+      min-height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+    .product-photo-frame:not(.has-img) .product-photo {
+      display: none;
+    }
+    .product-photo-empty {
+      font-size: 42px;
+      opacity: 0.25;
+      user-select: none;
+    }
+    .product-photo-frame.has-img .product-photo-empty {
+      display: none;
+    }
+    .product-photo-file {
+      font-size: 11px;
+    }
+    .product-card--add {
+      border-style: dashed;
+      border-color: rgba(0, 200, 240, 0.35);
+    }
+    .product-card--add .product-photo-frame {
+      min-height: 120px;
+    }
+    .add-submit {
+      align-self: end;
     }
     .login-wrap {
       max-width: 360px;
       margin: 48px auto 0;
     }
     .login-wrap h1 { text-align: center; }
-    @media (max-width: 860px) {
-      .row { grid-template-columns: 1fr; }
+    @media (max-width: 720px) {
+      .product-card {
+        grid-template-columns: 1fr;
+      }
+      .product-photo-wrap {
+        order: -1;
+      }
+      .product-photo-frame {
+        min-height: 200px;
+        max-height: 220px;
+      }
+      .product-row--meta {
+        grid-template-columns: 1fr;
+      }
+      .product-row--img {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -174,36 +266,56 @@
 
       <section class="card">
         <h2>Додати товар</h2>
-        <div class="row row-add">
-          <input id="newName" type="text" placeholder="Назва товару">
-          <select id="newCategory"></select>
-          <select id="newUnit"></select>
-          <input id="newPrice" type="number" min="0" step="0.01" placeholder="Ціна, грн">
-          <input id="newImage" type="text" placeholder="Шлях до фото (опц.)">
-          <input id="newImageFile" type="file" accept="image/*">
-          <button id="addBtn" class="btn-primary" type="button">Додати</button>
-        </div>
+        <article class="product-card product-card--add" id="addProductCard">
+          <div class="product-card-body">
+            <div class="product-row product-row--name">
+              <label class="field">
+                <span class="field-label">Назва</span>
+                <input id="newName" type="text" placeholder="Назва товару">
+              </label>
+            </div>
+            <div class="product-row product-row--meta">
+              <label class="field">
+                <span class="field-label">Категорія</span>
+                <select id="newCategory"></select>
+              </label>
+              <label class="field">
+                <span class="field-label">Одиниця</span>
+                <select id="newUnit"></select>
+              </label>
+              <label class="field">
+                <span class="field-label">Ціна, грн</span>
+                <input id="newPrice" type="number" min="0" step="0.01" placeholder="0">
+              </label>
+            </div>
+            <div class="product-row product-row--img">
+              <label class="field">
+                <span class="field-label">Шлях до фото</span>
+                <input id="newImage" type="text" placeholder="assets/img/...">
+              </label>
+              <button id="addBtn" class="btn-primary add-submit" type="button">Додати</button>
+            </div>
+          </div>
+          <div class="product-photo-wrap">
+            <div class="product-photo-frame" id="newPhotoFrame">
+              <img class="product-photo" id="newPhotoPreview" alt="" hidden>
+              <span class="product-photo-empty" aria-hidden="true">🍽️</span>
+            </div>
+            <input id="newImageFile" type="file" accept="image/*" class="product-photo-file">
+          </div>
+        </article>
         <div id="formMessage" class="msg"></div>
       </section>
 
-      <section class="card">
-        <div class="list-head row list-head-row">
-          <span>Назва</span>
-          <span>Категорія</span>
-          <span>Одиниця</span>
-          <span>Ціна</span>
-          <span></span>
-          <span>Фото</span>
-          <span></span>
-          <span></span>
-        </div>
-        <div id="productsList"></div>
+      <section class="card card--products">
+        <h2>Товари <span id="productsCount" style="color:var(--muted);font-weight:400;font-size:14px;"></span></h2>
+        <div id="productsList" class="products-list"></div>
       </section>
     </div>
   </div>
 
-  <script src="assets/js/admin-auth.js?v=13"></script>
-  <script src="assets/js/catalog.js?v=13"></script>
-  <script src="assets/js/admin.js?v=13"></script>
+  <script src="assets/js/admin-auth.js?v=14"></script>
+  <script src="assets/js/catalog.js?v=14"></script>
+  <script src="assets/js/admin.js?v=14"></script>
 </body>
 </html>
