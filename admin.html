@@ -29,9 +29,10 @@
     p { margin: 0 0 16px; color: var(--muted); }
     .row {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 2fr auto;
+      grid-template-columns: 1.6fr 1fr 1fr 1.4fr 1.2fr auto auto;
       gap: 10px;
       margin-bottom: 10px;
+      align-items: center;
     }
     .card {
       border: 1px solid var(--border);
@@ -90,6 +91,24 @@
       letter-spacing: 0.04em;
       margin-bottom: 8px;
     }
+    .price-view {
+      font-size: 12px;
+      color: var(--ok);
+      margin-top: 4px;
+      display: block;
+    }
+    .thumb {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: block;
+      margin-top: 6px;
+    }
+    .row-actions button {
+      min-width: 96px;
+    }
     @media (max-width: 860px) {
       .row { grid-template-columns: 1fr; }
     }
@@ -113,6 +132,7 @@
         <input id="newCategory" type="text" placeholder="Категорія">
         <input id="newPrice" type="number" min="0" step="0.01" placeholder="Ціна, грн">
         <input id="newImage" type="text" placeholder="Шлях до фото (опц.)">
+        <input id="newImageFile" type="file" accept="image/*">
         <button id="addBtn" class="btn-primary" type="button">Додати</button>
       </div>
       <div id="formMessage" class="msg"></div>
@@ -124,7 +144,7 @@
     </section>
   </div>
 
-  <script src="assets/js/catalog.js?v=4"></script>
-  <script src="assets/js/admin.js?v=4"></script>
+  <script src="assets/js/catalog.js?v=5"></script>
+  <script src="assets/js/admin.js?v=5"></script>
 </body>
 </html>
