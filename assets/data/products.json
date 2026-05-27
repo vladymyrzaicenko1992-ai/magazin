@@ -1,12 +1,5 @@
 [
   {
-    "id": "test-tovar-demo",
-    "name": "Тестовий товар (демо)",
-    "category": "Додатково",
-    "price": 99,
-    "image": "assets/img/products/qw/яйця.jpg"
-  },
-  {
     "id": "var-kartoshka",
     "name": "Вареники з картоплею",
     "category": "Вареники",
