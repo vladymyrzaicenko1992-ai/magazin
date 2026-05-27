@@ -1,60 +1,103 @@
-# Telegram-замовлення
+# Замовлення: GitHub + Google + Telegram
 
-**Бот:** [@Magazine1304_bot](https://t.me/Magazine1304_bot)  
-**Група:** [Заказы](https://t.me/+Oqqf9ywZPIs2ZDhi)  
-**CHAT_ID групи:** `-1003933471474` (вже налаштовано на сервері)
-
-## Як працює зараз
+Без окремого сервера. Ланцюжок:
 
 ```
-Сайт (кошик) → HTTPS API на сервері → Telegram-група «Заказы»
+GitHub Pages (сайт) → Google Apps Script → Telegram-група «Заказы»
 ```
 
-URL API (у `assets/data/config.json`):
+| Компонент | Роль |
+|-----------|------|
+| **GitHub Pages** | Вітрина, кошик, `config.json` |
+| **Google Таблиця + Apps Script** | Каталог, прийом замовлень, відправка в Telegram |
+| **@Magazine1304_bot** | Доставляє повідомлення в групу |
 
-`https://161-35-146-240.nip.io/order.php`
+**Група:** https://t.me/+Oqqf9ywZPIs2ZDhi  
+**CHAT_ID:** `-1003933471474`
 
-Токен бота і chat_id зберігаються **лише на сервері** у `/var/www/magazin-order/config.php` (не в GitHub).
+---
 
-## Перевірка
+## Крок 1 — бот у групі
 
-1. Відкрийте [кошик](https://vse-v-morozilke.shop/cart.html).
-2. Додайте товар, вкажіть ім’я та телефон.
-3. Натисніть **Оформити замовлення**.
-4. У групі Telegram має з’явитися **🛒 НОВЕ ЗАМОВЛЕННЯ**.
+1. Додайте [@Magazine1304_bot](https://t.me/Magazine1304_bot) у групу «Заказы».
+2. Зробіть бота **адміністратором** (може писати повідомлення).
 
-## Google Apps Script (каталог + опційно замовлення)
+---
 
-Каталог товарів як і раніше — через Google Таблицю (`googleWebAppUrl`).
+## Крок 2 — код у Google Таблиці
 
-Щоб замовлення йшли **через Apps Script** замість сервера:
+1. Відкрийте вашу Google Таблицю (ту саму, що для каталогу).
+2. **Розширення → Apps Script**.
+3. **Видаліть старий код** і вставте весь файл з репозиторія:  
+   `scripts/google-apps-script.gs`
+4. **Зберегти** (Ctrl+S).
 
-1. Вставте код з `scripts/google-apps-script.gs` у редактор таблиці.
-2. **Проект → Налаштування → Властивості скрипта:**
-   - `TELEGRAM_BOT_TOKEN`
-   - `TELEGRAM_CHAT_ID` = `-1003933471474`
-3. **Розгорнути → Нове розгортання → Веб-додаток** (доступ: Усі).
-4. У `config.json` приберіть `orderApiUrl` (залишиться лише `googleWebAppUrl`).
+---
 
-### Дізнатися CHAT_ID вручну
+## Крок 3 — секрети (токен НЕ в GitHub)
 
-1. Напишіть у групі будь-яке повідомлення.
-2. Відкрийте (підставте токен від @BotFather):
+1. У Apps Script: **Проєкт → Налаштування проєкту** (іконка шестерні).
+2. Вкладка **Властивості скрипта** → **Додати властивість скрипта**:
 
-   `https://api.telegram.org/bot<TOKEN>/getUpdates`
+| Властивість | Значення |
+|-------------|----------|
+| `TELEGRAM_BOT_TOKEN` | токен від [@BotFather](https://t.me/BotFather) |
+| `TELEGRAM_CHAT_ID` | `-1003933471474` |
 
+Або один раз у редакторі: меню функцій → `setupTelegramProperties` → відредагуйте токен у коді → **▶ Виконати**.
+
+---
+
+## Крок 4 — розгортання (обов’язково «Нова версія»)
+
+1. **Розгорнути** → **Нове розгортання**.
+2. Тип: **Веб-додаток**.
+3. **Виконувати від імені:** Я.
+4. **Хто має доступ:** Усі.
+5. **Розгорнути** → скопіюйте URL (має закінчуватися на `/exec`).
+
+Якщо URL змінився — оновіть `assets/data/config.json` → `googleWebAppUrl` і зробіть `git push`.
+
+---
+
+## Крок 5 — перевірка
+
+У браузері відкрийте (підставте свій URL):
+
+```
+https://script.google.com/macros/s/.../exec?action=ping
+```
+
+Має бути:
+
+```json
+{"ok":true,"orders":true,"telegram":true}
+```
+
+- `telegram: false` — не заповнені Script Properties.
+- `orders` відсутній / помилка — не зробили **Нове розгортання** після вставки коду.
+
+Тест замовлення з комп’ютера (у папці проєкту):
+
+```bash
+node scripts/test-order-gas.mjs
+```
+
+На сайті: [кошик](https://vse-v-morozilke.shop/cart.html) → товар → ім’я, телефон → **Оформити замовлення**.
+
+---
+
+## CHAT_ID вручну (якщо зміните групу)
+
+1. Напишіть у новій групі повідомлення.
+2. Відкрийте: `https://api.telegram.org/bot<TOKEN>/getUpdates`
 3. Знайдіть `"chat":{"id":-100...}`.
 
-Або після налаштування Script Properties:
+Після оновлення Script Properties — знову **Нове розгортання**.
 
-`https://script.google.com/.../exec?action=chats`
-
-## PHP на своєму домені (опційно)
-
-1. `api/config.example.php` → `api/config.php` на сервері з PHP.
-2. У `config.json`: `"orderApiUrl": "https://ваш-домен/api/order.php"`.
+---
 
 ## Безпека
 
-- Не публікуйте токен бота в GitHub.
-- Якщо токен потрапив у чат — `/revoke` у @BotFather і оновіть `config.php` на сервері.
+- Токен бота **тільки** у Script Properties Google, ніколи в GitHub.
+- Якщо токен засвітився — `/revoke` у BotFather, новий токен у Properties, нова версія розгортання.

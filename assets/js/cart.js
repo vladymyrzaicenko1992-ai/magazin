@@ -99,7 +99,7 @@
       const res = await fetch(`assets/data/config.json?v=${Date.now()}`);
       if (!res.ok) return "";
       const cfg = await res.json();
-      return (cfg.orderApiUrl || cfg.googleWebAppUrl || "").trim();
+      return (cfg.googleWebAppUrl || "").trim();
     } catch (_) {
       return "";
     }
@@ -130,7 +130,7 @@
 
     const apiUrl = await getOrderApiUrl();
     if (!apiUrl) {
-      throw new Error("API замовлень не налаштовано");
+      throw new Error("Не налаштовано googleWebAppUrl у assets/data/config.json");
     }
 
     const payload = buildOrderPayload(priced, customer);
@@ -147,10 +147,18 @@
     try {
       data = JSON.parse(text);
     } catch (_) {
-      throw new Error("Сервер не повернув JSON. Оновіть Apps Script (action=order).");
+      throw new Error(
+        "Google Apps Script не відповів JSON. Розгорніть нову версію веб-додатку (див. docs/TELEGRAM_ORDERS.md)."
+      );
     }
     if (!data.ok) {
-      throw new Error(data.error || "Не вдалося відправити замовлення");
+      const err = data.error || "Не вдалося відправити замовлення";
+      if (String(err).indexOf("Unknown action") >= 0) {
+        throw new Error(
+          "У Google ще старий скрипт без замовлень. Вставте scripts/google-apps-script.gs і натисніть Розгорнути → Нова версія."
+        );
+      }
+      throw new Error(err);
     }
     return data;
   }

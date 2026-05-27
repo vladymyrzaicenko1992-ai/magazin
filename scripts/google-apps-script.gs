@@ -17,6 +17,13 @@ function doGet(e) {
     if (action === "get") {
       return jsonOut({ ok: true, products: readProducts() });
     }
+    if (action === "ping") {
+      return jsonOut({
+        ok: true,
+        orders: true,
+        telegram: !!getTelegramConfig_().token && !!getTelegramConfig_().chatId
+      });
+    }
     if (action === "chats") {
       var chats = listTelegramChats_();
       if (chats.error) return jsonOut({ ok: false, error: chats.error });
@@ -65,11 +72,14 @@ function getTelegramConfig_() {
   };
 }
 
-/** Запустіть один раз з редактора, підставивши свої значення. */
+/**
+ * Запустіть один раз з редактора (▶), підставивши токен від @BotFather.
+ * CHAT_ID групи «Заказы»: -1003933471474
+ */
 function setupTelegramProperties() {
   getProps_().setProperties({
-    TELEGRAM_BOT_TOKEN: "PASTE_BOT_TOKEN",
-    TELEGRAM_CHAT_ID: "PASTE_GROUP_CHAT_ID"
+    TELEGRAM_BOT_TOKEN: "PASTE_BOT_TOKEN_FROM_BOTFATHER",
+    TELEGRAM_CHAT_ID: "-1003933471474"
   });
 }
 
