@@ -470,5 +470,15 @@
 </script>
 <script src="assets/js/catalog.js?v=4"></script>
 <script src="assets/js/store.js?v=4"></script>
+<script>
+(function () {
+  setTimeout(function () {
+    var grid = document.getElementById("pgrid");
+    if (!grid || grid.children.length || window.__catalogRetried) return;
+    window.__catalogRetried = true;
+    location.replace(location.pathname + "?_=" + Date.now());
+  }, 2000);
+})();
+</script>
 </body>
 </html>
