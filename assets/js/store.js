@@ -114,5 +114,21 @@
     });
   });
 
+  async function refreshCatalog() {
+    await loadProducts();
+    renderCategories();
+    render();
+  }
+
+  // Covers same-tab and cache-heavy scenarios where storage events may not fire.
+  window.addEventListener("focus", () => {
+    refreshCatalog().catch(() => {});
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      refreshCatalog().catch(() => {});
+    }
+  });
+
   init();
 })();
