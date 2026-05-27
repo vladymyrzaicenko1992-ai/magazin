@@ -18,6 +18,7 @@
   const lbl = document.getElementById("secLbl");
   const socialToast = document.getElementById("socialToast");
   const upsellPop = document.getElementById("upsellPop");
+  const addToast = document.getElementById("addToast");
 
   if (!catsEl || !grid) {
     console.error("Не знайдено контейнери каталогу");
@@ -43,14 +44,22 @@
       .replace(/"/g, "&quot;");
   }
 
+  function isTrendingId(id) {
+    return Meta.TRENDING_IDS.includes(id);
+  }
+
   function filterList(list) {
     const lq = q.toLowerCase().trim();
-    return list.filter(
+    let filtered = list.filter(
       (p) =>
         Meta.isListed(p, categoryMins) &&
         (activeCat === "Усі" || p.c === activeCat) &&
         (!lq || p.n.toLowerCase().includes(lq) || p.c.toLowerCase().includes(lq))
     );
+    if (activeCat === "Усі" && !lq) {
+      filtered = filtered.filter((p) => !isTrendingId(p.id));
+    }
+    return filtered;
   }
 
   function renderCategories() {
@@ -63,12 +72,14 @@
       const b = document.createElement("button");
       b.type = "button";
       b.className = "cat-btn" + (cat === activeCat ? " active" : "");
-      b.textContent = cat === "Усі" ? meta.emoji + " " + meta.label : meta.emoji + " " + meta.label;
+      b.textContent = meta.emoji + " " + meta.label;
       b.addEventListener("click", () => {
         activeCat = cat;
         document.querySelectorAll(".cat-btn").forEach((x) => x.classList.remove("active"));
         b.classList.add("active");
-        if (lbl) lbl.textContent = cat === "Усі" ? "Усі товари" : meta.emoji + " " + meta.label;
+        if (lbl) {
+          lbl.textContent = cat === "Усі" ? "✨ Усі товари" : meta.emoji + " " + meta.label;
+        }
         render();
         const catalog = document.getElementById("catalog");
         if (catalog) catalog.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -90,22 +101,32 @@
       .map((b) => '<span class="pcard-badge ' + b.cls + '">' + escapeHtml(b.text) + "</span>")
       .join("");
 
+    const title = Meta.getDisplayTitle(p);
+    const subtitle = Meta.getDisplaySubtitle(p);
+    const layoutClass = opts.featured ? " pcard--featured" : " pcard--catalog";
     const topClass = opts.featuredTop ? " pcard--top" : "";
-    const featuredClass = opts.featured ? " pcard--featured" : "";
 
     return (
       '<article class="pcard pcard--glass' +
+      layoutClass +
       topClass +
-      featuredClass +
       '" data-id="' +
       escapeHtml(p.id) +
       '">' +
       '<div class="pcard-img">' +
       (img
-        ? '<img src="' + img + '" alt="' + escapeHtml(Meta.getDisplayTitle(p)) + '" loading="lazy">'
+        ? '<img src="' + img + '" alt="" loading="lazy">'
         : '<span class="pcard-ph" aria-hidden="true">🍽️</span>') +
       '<div class="pcard-badges">' +
       badgeHtml +
+      "</div>" +
+      '<div class="pcard-img-overlay">' +
+      '<div class="pcard-name">' +
+      escapeHtml(title) +
+      "</div>" +
+      '<div class="pcard-sub">' +
+      escapeHtml(subtitle) +
+      "</div>" +
       "</div>" +
       '<div class="pcard-img-foot">' +
       '<div class="pcard-price">' +
@@ -114,12 +135,6 @@
       "</div>" +
       "</div>" +
       '<div class="pcard-body">' +
-      '<div class="pcard-name">' +
-      escapeHtml(Meta.getDisplayTitle(p)) +
-      "</div>" +
-      '<div class="pcard-sub">' +
-      escapeHtml(Meta.getDisplaySubtitle(p)) +
-      "</div>" +
       (canOrder
         ? '<button type="button" class="pcard-add' +
           (inCart ? " in-cart" : "") +
@@ -134,6 +149,20 @@
     );
   }
 
+  function flashAddToast(name) {
+    if (!addToast) return;
+    addToast.textContent = "✓ Додано: " + name;
+    addToast.hidden = false;
+    addToast.classList.add("is-visible");
+    clearTimeout(addToast._t);
+    addToast._t = setTimeout(() => {
+      addToast.classList.remove("is-visible");
+      setTimeout(() => {
+        addToast.hidden = true;
+      }, 300);
+    }, 2200);
+  }
+
   function bindCardActions(root) {
     root.querySelectorAll(".pcard-add:not(.pcard-add--muted)").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -143,10 +172,12 @@
         if (!p || !Cart) return;
         const result = Cart.addItem(p, 1);
         if (!result.ok) return;
-        btn.textContent = "✓ У кошику";
-        btn.classList.add("in-cart");
+        btn.classList.add("pcard-add--pop");
+        setTimeout(() => btn.classList.remove("pcard-add--pop"), 400);
+        flashAddToast(p.n);
         showUpsell(p);
         render();
+        renderTrending();
       });
     });
   }
@@ -188,13 +219,38 @@
       return;
     }
 
-    const catLabel = addedProduct.c;
+    const label = Meta.getUpsellLabel(addedProduct);
+    const quickBtns = suggestions
+      .map((s) => {
+        const pr = Meta.getPriceDisplay(s, categoryMins);
+        const short =
+          s.id === "smetana"
+            ? "сметану"
+            : s.id === "maslo-vershk"
+              ? "масло"
+              : s.id === "tvorog"
+                ? "сир"
+                : s.n;
+        return (
+          '<button type="button" class="upsell-quick" data-upsell-id="' +
+          escapeHtml(s.id) +
+          '">➕ Додати ' +
+          escapeHtml(short) +
+          (pr ? " · " + escapeHtml(pr.text) : "") +
+          "</button>"
+        );
+      })
+      .join("");
+
     upsellPop.innerHTML =
       '<div class="upsell-in">' +
       '<button type="button" class="upsell-close" aria-label="Закрити">×</button>' +
-      "<p class=\"upsell-title\">🥛 До " +
-      escapeHtml(catLabel.toLowerCase()) +
-      " часто беруть:</p>" +
+      '<p class="upsell-title">🥛 До ' +
+      escapeHtml(label) +
+      " часто беруть</p>" +
+      '<div class="upsell-quick-row">' +
+      quickBtns +
+      "</div>" +
       '<ul class="upsell-list">' +
       suggestions
         .map((s) => {
@@ -216,12 +272,13 @@
     upsellPop.querySelector(".upsell-close").addEventListener("click", () => {
       upsellPop.hidden = true;
     });
-    upsellPop.querySelectorAll(".upsell-item").forEach((btn) => {
+    upsellPop.querySelectorAll("[data-upsell-id]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.getAttribute("data-upsell-id");
         const p = products.find((x) => x.id === id);
         if (p && Cart) {
           Cart.addItem(p, 1);
+          flashAddToast(p.n);
           upsellPop.hidden = true;
           render();
           renderTrending();
@@ -232,7 +289,7 @@
     clearTimeout(upsellPop._hide);
     upsellPop._hide = setTimeout(() => {
       upsellPop.hidden = true;
-    }, 12000);
+    }, 14000);
   }
 
   function startSocialProof() {
@@ -252,11 +309,10 @@
       socialToast._hide = setTimeout(() => {
         socialToast.classList.remove("is-visible");
       }, 4500);
-      const delay = 8000 + Math.random() * 4000;
-      socialTimer = setTimeout(tick, delay);
+      socialTimer = setTimeout(tick, 8000 + Math.random() * 4000);
     }
 
-    socialTimer = setTimeout(tick, 6000);
+    socialTimer = setTimeout(tick, 5000);
   }
 
   async function init() {
@@ -276,6 +332,17 @@
     search.addEventListener("input", (e) => {
       q = e.target.value;
       render();
+    });
+  }
+
+  const heroCta = document.querySelector(".hero-cta");
+  if (heroCta) {
+    heroCta.addEventListener("click", (e) => {
+      const target = document.getElementById("trendingWrap");
+      if (target && !target.hidden) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     });
   }
 

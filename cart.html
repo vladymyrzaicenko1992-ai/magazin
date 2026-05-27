@@ -311,6 +311,13 @@
       cursor: pointer;
       font-family: inherit;
     }
+    .checkout-tg-hint {
+      font-size: 12px;
+      color: var(--acc2);
+      text-align: center;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
     .btn-order {
       background: linear-gradient(135deg, var(--acc), var(--acc2));
       color: #07202a;
@@ -369,7 +376,7 @@
         <div class="checkout-card">
           <form id="checkoutForm">
             <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off">
-            <p class="checkout-intro">Заповніть дані — замовлення надійде менеджеру в Telegram.</p>
+            <p class="checkout-intro">Заповніть дані — замовлення одразу потрапить менеджеру в <strong>Telegram</strong>.</p>
             <label for="customerName">Ім’я <span class="req">*</span></label>
             <input id="customerName" type="text" required minlength="2" autocomplete="name" placeholder="Олександр">
             <label for="customerPhone">Телефон <span class="req">*</span></label>
@@ -394,13 +401,15 @@
       <button type="submit" form="checkoutForm" class="btn btn-order" id="cartSubmitBtn">
         📲 Оформити замовлення
       </button>
+      <p class="checkout-tg-hint">↓ Замовлення в Telegram · відповімо найближчим часом</p>
       <button type="button" class="btn btn-clear" id="cartClearBtn">Очистити кошик</button>
       <p class="cart-hint">Ціна × кількість у обраних одиницях (шт, кг, л тощо)</p>
     </div>
   </div>
 
-  <script src="assets/js/catalog.js?v=23"></script>
-  <script src="assets/js/cart.js?v=23"></script>
-  <script src="assets/js/cart-page.js?v=23"></script>
+  <script src="assets/js/catalog.js?v=24"></script>
+  <script src="assets/js/cart.js?v=24"></script>
+  <script src="assets/js/store-meta.js?v=24"></script>
+  <script src="assets/js/cart-page.js?v=24"></script>
 </body>
 </html>

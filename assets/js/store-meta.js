@@ -34,23 +34,23 @@
     return CAT_META[category] || { emoji: "🍽️", label: category || "", tagline: "домашнє" };
   }
 
-  /** Назва без повтору категорії в підзаголовку */
   function getDisplayTitle(product) {
     return String(product.n || "").trim();
   }
 
+  /** Підзаголовок: emoji+категорія або «Домашні • …», без повтору повної назви */
   function getDisplaySubtitle(product) {
     const meta = getCatMeta(product.c);
-    return `${meta.emoji} ${meta.label}`;
+    const title = getDisplayTitle(product).toLowerCase();
+    const cat = meta.label.toLowerCase();
+    if (title === cat || title.startsWith(cat + " ") || title.startsWith(cat + "«")) {
+      return `${meta.emoji} ${meta.label}`;
+    }
+    return `Домашні • ${meta.tagline}`;
   }
 
   function getDisplayTagline(product) {
-    const meta = getCatMeta(product.c);
-    const title = getDisplayTitle(product);
-    if (title.toLowerCase() === meta.label.toLowerCase()) {
-      return `Домашні • ${meta.tagline}`;
-    }
-    return meta.tagline;
+    return getDisplaySubtitle(product);
   }
 
   function getBadges(product) {
@@ -80,6 +80,18 @@
       seen.add(b.text);
       return true;
     }).slice(0, 2);
+  }
+
+  function getUpsellLabel(product) {
+    const map = {
+      Пельмені: "пельменів",
+      Хінкалі: "хінкалі",
+      Вареники: "вареників",
+      Котлети: "котлет",
+      Млинці: "млинців",
+      Молочка: "набору"
+    };
+    return map[product.c] || product.c.toLowerCase();
   }
 
   function getUpsellIds(product, allProducts) {
@@ -130,6 +142,7 @@
     getDisplayTitle,
     getDisplaySubtitle,
     getDisplayTagline,
+    getUpsellLabel,
     getBadges,
     getUpsellIds,
     buildCategoryMins,

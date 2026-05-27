@@ -94,7 +94,7 @@
       row.className = "cart-row";
       const catLine =
         window.MagazinStoreMeta && item.c
-          ? window.MagazinStoreMeta.getDisplaySubtitle({ c: item.c })
+          ? window.MagazinStoreMeta.getDisplaySubtitle({ n: item.n, c: item.c })
           : item.c;
       row.innerHTML = `
         <div class="cart-row-top">
