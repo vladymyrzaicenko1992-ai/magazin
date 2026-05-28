@@ -181,15 +181,14 @@
       void cartTopSum.offsetWidth;
       cartTopSum.classList.add("is-pulse");
     }
-    const orderItemsCount = document.getElementById("orderItemsCount");
-    const orderSumApprox = document.getElementById("orderSumApprox");
-    if (orderItemsCount) {
-      orderItemsCount.textContent = `${items.length} ${itemsWord(items.length)}`;
-    }
-    if (orderSumApprox) {
-      orderSumApprox.textContent = (approx ? "≈ " : "") + Math.round(total);
-    }
+    const footItemsLine = document.getElementById("footItemsLine");
+    const footSumLine = document.getElementById("footSumLine");
+    const weightHint = document.getElementById("cartWeightHint");
+    const countLabel = `${items.length} ${itemsWord(items.length)}`;
+    if (footItemsLine) footItemsLine.textContent = countLabel;
+    if (footSumLine) footSumLine.textContent = sumText;
     if (totalEl) totalEl.textContent = (approx ? "≈ " : "") + Cart.formatMoney(total);
+    if (weightHint) weightHint.hidden = !approx;
   }
 
   if (clearBtn) {

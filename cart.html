@@ -353,35 +353,10 @@
       min-height: 18px;
       line-height: 1.4;
     }
-    .order-summary {
-      margin-bottom: 12px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: rgba(0,228,176,.08);
-      border: 1px solid rgba(0,228,176,.22);
-    }
-    .order-summary-title {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: var(--txt2);
-      margin-bottom: 4px;
-    }
-    .order-summary-line {
-      font-size: 15px;
-      color: var(--txt);
-      line-height: 1.45;
-    }
-    .order-summary-line strong {
-      font-family: 'Syne', sans-serif;
-      font-size: 20px;
-      color: var(--acc2);
-    }
     .cart-foot {
       position: fixed;
       left: 0; right: 0; bottom: 0;
-      padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
       background: rgba(8,15,30,.98);
       border-top: 1px solid var(--bdr);
       backdrop-filter: blur(12px);
@@ -389,34 +364,69 @@
       box-shadow: 0 -8px 32px rgba(0,0,0,.35);
     }
     .cart-foot-in { max-width: 680px; margin: 0 auto; }
-    .cart-total-row {
+    .cart-foot-total {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0,228,176,.12), rgba(0,200,240,.06));
+      border: 1px solid rgba(0,228,176,.25);
     }
-    .cart-total-row span { font-size: 14px; color: var(--txt2); }
-    .cart-total-row strong {
-      font-family: 'Syne', sans-serif;
-      font-size: 24px;
+    .cart-foot-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 6px;
+      font-size: 13px;
+      color: var(--txt2);
+      line-height: 1.3;
+      min-width: 0;
+    }
+    .cart-foot-meta #footItemsLine {
+      color: var(--txt);
+      font-weight: 600;
+    }
+    .cart-foot-meta #footSumLine {
       color: var(--acc2);
+      font-weight: 600;
+    }
+    .cart-foot-dot { opacity: .5; }
+    .cart-foot-price {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--acc2);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .cart-foot-pay-lbl {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--txt2);
+      margin-bottom: 2px;
     }
     .btn {
       width: 100%;
       border: none;
       border-radius: 13px;
-      padding: 16px;
+      padding: 14px 16px;
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
     }
     .checkout-tg-hint {
-      font-size: 12px;
-      color: var(--acc2);
+      font-size: 11px;
+      color: var(--txt2);
       text-align: center;
-      margin-top: 8px;
-      line-height: 1.5;
+      margin-top: 6px;
+      line-height: 1.35;
     }
     .btn-order {
       background: linear-gradient(135deg, var(--acc), var(--acc2));
@@ -424,21 +434,25 @@
     }
     .btn-order:disabled { opacity: .5; cursor: not-allowed; }
     .btn-clear {
-      margin-top: 10px;
+      margin-top: 6px;
       background: transparent;
-      border: 1px solid var(--bdr);
+      border: none;
       color: var(--txt2);
       font-weight: 500;
-      font-size: 14px;
-      padding: 11px;
+      font-size: 12px;
+      padding: 8px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
     .cart-hint {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--txt2);
-      margin-top: 10px;
+      margin-top: 4px;
       text-align: center;
-      line-height: 1.5;
+      line-height: 1.4;
+      opacity: .9;
     }
+    .cart-hint[hidden] { display: none; }
     .cart-err { color: #ffc2bc; padding: 20px; }
     @media (max-width: 480px) {
       .cart-row-controls { grid-template-columns: 1fr; }
@@ -473,8 +487,12 @@
     .mob-tab-badge[hidden] { display: none; }
     @media (max-width: 720px) {
       .mob-tabbar { display: block; }
-      .cart-foot { bottom: 64px; }
-      main { padding-bottom: 200px; }
+      .cart-foot { bottom: 64px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); }
+      main { padding-bottom: 168px; }
+      body { padding-bottom: 180px; }
+      .cart-top-summary { display: none; }
+      .cart-foot-price { font-size: 20px; }
+      .btn { padding: 13px 14px; font-size: 15px; }
     }
   </style>
 </head>
@@ -531,20 +549,23 @@
 
   <div class="cart-foot" id="cartFoot" hidden>
     <div class="cart-foot-in">
-      <div class="order-summary" id="orderSummary">
-        <p class="order-summary-title">Ваше замовлення:</p>
-        <p class="order-summary-line"><span id="orderItemsCount">0</span> товарів · <strong id="orderSumApprox">≈ 0</strong> грн</p>
-      </div>
-      <div class="cart-total-row">
-        <span>До сплати</span>
-        <strong id="cartTotal">0.00 грн</strong>
+      <div class="cart-foot-total" aria-label="Підсумок замовлення">
+        <div class="cart-foot-meta">
+          <span id="footItemsLine">0 товарів</span>
+          <span class="cart-foot-dot" aria-hidden="true">·</span>
+          <span id="footSumLine">≈ 0 грн</span>
+        </div>
+        <div>
+          <span class="cart-foot-pay-lbl">До сплати</span>
+          <strong id="cartTotal" class="cart-foot-price">0.00 грн</strong>
+        </div>
       </div>
       <button type="submit" form="checkoutForm" class="btn btn-order" id="cartSubmitBtn">
         📲 Оформити запит менеджеру
       </button>
-      <p class="checkout-tg-hint">↓ Замовлення в Telegram · відповімо найближчим часом</p>
+      <p class="checkout-tg-hint">Telegram · відповімо найближчим часом</p>
       <button type="button" class="btn btn-clear" id="cartClearBtn">Очистити кошик</button>
-      <p class="cart-hint">⚖️ Фінальна сума може відрізнятись через вагові товари.</p>
+      <p class="cart-hint" id="cartWeightHint" hidden>⚖️ Точна вага — під час збору замовлення.</p>
     </div>
   </div>
 
@@ -560,8 +581,8 @@
   </nav>
 
   <script src="assets/js/catalog.js?v=35"></script>
-  <script src="assets/js/cart.js?v=33"></script>
-  <script src="assets/js/store-meta.js?v=33"></script>
-  <script src="assets/js/cart-page.js?v=33"></script>
+  <script src="assets/js/cart.js?v=36"></script>
+  <script src="assets/js/store-meta.js?v=36"></script>
+  <script src="assets/js/cart-page.js?v=36"></script>
 </body>
 </html>
