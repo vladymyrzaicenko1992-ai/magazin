@@ -8,7 +8,20 @@
 
   const Cart = window.MagazinCart;
   const { loadCatalog } = Catalog;
-  const CAT_ORDER = ["Усі", "Вареники", "Млинці", "Додатково", "Котлети", "Пельмені", "Хінкалі", "Молочка"];
+  const CAT_ORDER = [
+    "Усі",
+    "Вареники",
+    "Млинці",
+    "Додатково",
+    "Котлети",
+    "Пельмені",
+    "Хінкалі",
+    "Молочка",
+    "Вода та напої",
+    "Бакалія",
+    "Чай та кава",
+    "Консервація та соуси"
+  ];
 
   const catsEl = document.getElementById("cats");
   const grid = document.getElementById("pgrid");

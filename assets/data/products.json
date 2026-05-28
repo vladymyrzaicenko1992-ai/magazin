@@ -371,5 +371,83 @@
     "category": "Додатково",
     "price": null,
     "image": "assets/img/products/qw/яйця.jpg"
+  },
+  {
+    "id": "voda-avalon",
+    "name": "Вода мінеральна «Avalon»",
+    "category": "Вода та напої",
+    "price": 26
+  },
+  {
+    "id": "voda-karpatska",
+    "name": "Вода мінеральна «Карпатська Джерельна»",
+    "category": "Вода та напої",
+    "price": 18
+  },
+  {
+    "id": "voda-znamenivska",
+    "name": "Вода мінеральна «Знаменівська»",
+    "category": "Вода та напої",
+    "price": 25
+  },
+  {
+    "id": "napiy-krash",
+    "name": "Напій соковмісний «Краш» (в асортименті)",
+    "category": "Вода та напої",
+    "price": 35
+  },
+  {
+    "id": "napiy-bon-gaz-velykyy",
+    "name": "Напій газований «Бон Буассон / Соковинка» (великий)",
+    "category": "Вода та напої",
+    "price": 52
+  },
+  {
+    "id": "napiy-bon-gaz-malyy",
+    "name": "Напій газований «Бон Буассон» (малий)",
+    "category": "Вода та напої",
+    "price": 20
+  },
+  {
+    "id": "kvas-kola",
+    "name": "Квас / Кола (в асортименті)",
+    "category": "Вода та напої",
+    "price": 25
+  },
+  {
+    "id": "makaron-chervona",
+    "name": "Макаронні вироби (червона упаковка)",
+    "category": "Бакалія",
+    "price": 24
+  },
+  {
+    "id": "tsukrova-pudra-dobryk",
+    "name": "Цукрова пудра «Добрик»",
+    "category": "Бакалія",
+    "price": 36
+  },
+  {
+    "id": "chay-curtis-richard",
+    "name": "Чай Curtis / Richard (в асортименті)",
+    "category": "Чай та кава",
+    "price": 1.9
+  },
+  {
+    "id": "ketchup-chumak",
+    "name": "Кетчуп / соус «Чумак» (універсальний)",
+    "category": "Консервація та соуси",
+    "price": 21
+  },
+  {
+    "id": "konservy-rybni-chervona",
+    "name": "Консерви рибні (червона баночка)",
+    "category": "Консервація та соуси",
+    "price": 11
+  },
+  {
+    "id": "konservy-rybni-synia",
+    "name": "Консерви рибні (синя баночка)",
+    "category": "Консервація та соуси",
+    "price": 16
   }
 ]

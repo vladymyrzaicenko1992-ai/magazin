@@ -53,7 +53,11 @@ const CATEGORY_PRESETS = [
   "Котлети",
   "Пельмені",
   "Хінкалі",
-  "Молочка"
+  "Молочка",
+  "Вода та напої",
+  "Бакалія",
+  "Чай та кава",
+  "Консервація та соуси"
 ];
 
 function normalizeUnit(value) {
@@ -154,7 +158,26 @@ const BASE_PRODUCTS = [
   { id: "sirna-masa", n: "Сирна маса з родзинками", c: "Молочка", img: "assets/img/products/molochka/Сирна маса з родзинками .png", price: null },
   { id: "sir-feta", n: "Сир Фета", c: "Молочка", img: "", price: null },
   { id: "maslo-vershk", n: "Масло вершкове", c: "Молочка", img: "", price: null },
-  { id: "yaitsa", n: "Яйця фермерські", c: "Додатково", img: "assets/img/products/qw/яйця.jpg", price: null }
+  { id: "yaitsa", n: "Яйця фермерські", c: "Додатково", img: "assets/img/products/qw/яйця.jpg", price: null },
+  { id: "voda-avalon", n: "Вода мінеральна «Avalon»", c: "Вода та напої", img: "", price: 26 },
+  { id: "voda-karpatska", n: "Вода мінеральна «Карпатська Джерельна»", c: "Вода та напої", img: "", price: 18 },
+  { id: "voda-znamenivska", n: "Вода мінеральна «Знаменівська»", c: "Вода та напої", img: "", price: 25 },
+  { id: "napiy-krash", n: "Напій соковмісний «Краш» (в асортименті)", c: "Вода та напої", img: "", price: 35 },
+  {
+    id: "napiy-bon-gaz-velykyy",
+    n: "Напій газований «Бон Буассон / Соковинка» (великий)",
+    c: "Вода та напої",
+    img: "",
+    price: 52
+  },
+  { id: "napiy-bon-gaz-malyy", n: "Напій газований «Бон Буассон» (малий)", c: "Вода та напої", img: "", price: 20 },
+  { id: "kvas-kola", n: "Квас / Кола (в асортименті)", c: "Вода та напої", img: "", price: 25 },
+  { id: "makaron-chervona", n: "Макаронні вироби (червона упаковка)", c: "Бакалія", img: "", price: 24 },
+  { id: "tsukrova-pudra-dobryk", n: "Цукрова пудра «Добрик»", c: "Бакалія", img: "", price: 36 },
+  { id: "chay-curtis-richard", n: "Чай Curtis / Richard (в асортименті)", c: "Чай та кава", img: "", price: 1.9 },
+  { id: "ketchup-chumak", n: "Кетчуп / соус «Чумак» (універсальний)", c: "Консервація та соуси", img: "", price: 21 },
+  { id: "konservy-rybni-chervona", n: "Консерви рибні (червона баночка)", c: "Консервація та соуси", img: "", price: 11 },
+  { id: "konservy-rybni-synia", n: "Консерви рибні (синя баночка)", c: "Консервація та соуси", img: "", price: 16 }
 ];
 
 function parsePrice(value) {

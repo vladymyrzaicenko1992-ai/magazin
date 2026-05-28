@@ -56,7 +56,20 @@ const PRICE_BY_ID = {
   "kot-pechen": 220,
   "kot-malyshki": 195,
   "sir-feta": 215,
-  "maslo-vershk": 380
+  "maslo-vershk": 380,
+  "voda-avalon": 26,
+  "voda-karpatska": 18,
+  "voda-znamenivska": 25,
+  "napiy-krash": 35,
+  "napiy-bon-gaz-velykyy": 52,
+  "napiy-bon-gaz-malyy": 20,
+  "kvas-kola": 25,
+  "makaron-chervona": 24,
+  "tsukrova-pudra-dobryk": 36,
+  "chay-curtis-richard": 1.9,
+  "ketchup-chumak": 21,
+  "konservy-rybni-chervona": 11,
+  "konservy-rybni-synia": 16
 };
 
 /** У прайсі, але ще не в каталозі (додайте id у PRICE_BY_ID і BASE_PRODUCTS) */
