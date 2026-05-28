@@ -294,13 +294,13 @@ function formatOrderMessage_(name, phone, address, comment, items, total) {
   });
 
   lines.push("");
-  lines.push("💰 Сума: " + (hasEstimated ? "≈ " : "") + Math.round(total * 100) / 100 + " грн");
+  lines.push((hasEstimated ? "≈ Сума: " : "Сума: ") + Math.round(total * 100) / 100 + " грн");
   if (hasEstimated) {
-    lines.push("⚖️ Фінальна сума може відрізнятись через вагові товари.");
+    lines.push("ℹ️ Фінальна сума може відрізнятись через вагові товари.");
   }
   lines.push("");
-  lines.push("👤 Ім'я: " + name);
-  lines.push("📱 Телефон: " + phone);
+  lines.push("Ім'я: " + name);
+  lines.push("Телефон: " + phone);
   if (address) {
     lines.push("📍 Адреса: " + address);
   }

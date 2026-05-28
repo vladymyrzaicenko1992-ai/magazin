@@ -163,15 +163,34 @@
     .hero {
       max-width: 680px;
       margin: 0 auto;
-      padding: 10px 14px 0;
+      padding: 8px 12px 0;
     }
     .hero-visual {
       position: relative;
-      min-height: min(420px, 58vh);
+      min-height: 420px;
       border-radius: 22px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,.1);
-      box-shadow: 0 16px 40px rgba(0,0,0,.45);
+      border: 1px solid rgba(255,140,0,.15);
+      box-shadow: 0 16px 40px rgba(0,0,0,.45), 0 0 60px rgba(255,120,40,.08);
+    }
+    @media (min-width: 721px) {
+      .hero-visual { min-height: 520px; }
+    }
+    .hero-visual::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 10%;
+      right: 10%;
+      height: 40%;
+      z-index: 1;
+      background: radial-gradient(ellipse at center bottom, rgba(255,200,120,.12), transparent 70%);
+      pointer-events: none;
+      animation: heroSteam 6s ease-in-out infinite;
+    }
+    @keyframes heroSteam {
+      0%, 100% { opacity: .5; transform: translateY(0); }
+      50% { opacity: .85; transform: translateY(-8px); }
     }
     .hero-visual img {
       position: absolute;
@@ -184,15 +203,10 @@
     .hero-overlay {
       position: absolute;
       inset: 0;
+      z-index: 1;
       background:
-        linear-gradient(120deg, rgba(255,120,50,.18) 0%, transparent 45%),
-        linear-gradient(
-          to top,
-          rgba(18,10,6,.94) 0%,
-          rgba(12,14,22,.6) 42%,
-          rgba(12,14,22,.28) 70%,
-          rgba(18,12,8,.4) 100%
-        );
+        linear-gradient(120deg, rgba(255,140,0,.12) 0%, transparent 50%),
+        linear-gradient(to top, rgba(0,0,0,.65) 0%, rgba(0,0,0,.35) 45%, rgba(0,0,0,.2) 100%);
       pointer-events: none;
     }
     .hero-food-overlay {
@@ -334,8 +348,7 @@
     }
     .hero-hot[hidden] { display: none; }
     @media (max-width: 420px) {
-      .hero-hot { display: none !important; }
-      .hero-visual { min-height: min(380px, 52vh); }
+      .hero-hot { max-width: 42%; font-size: 9px; }
     }
     .hero-hot-label {
       display: block;
@@ -358,8 +371,8 @@
     /* Набори */
     .bundle-wrap {
       max-width: 680px;
-      margin: 14px auto 0;
-      padding: 0 14px;
+      margin: 10px auto 0;
+      padding: 0 12px;
       scroll-margin-top: 72px;
     }
     .bundle-card {
@@ -401,8 +414,8 @@
     /* Ми поруч */
     .nearby-block {
       max-width: 680px;
-      margin: 12px auto 0;
-      padding: 0 14px;
+      margin: 8px auto 0;
+      padding: 0 12px;
     }
     .nearby-card {
       display: grid;
@@ -433,8 +446,8 @@
 
     /* NOTICE */
     .notice-wrap {
-      max-width: 680px; margin: 12px auto 0;
-      padding: 0 14px;
+      max-width: 680px; margin: 8px auto 0;
+      padding: 0 12px;
     }
     .notice-box {
       background: rgba(0,200,240,.05);
@@ -502,14 +515,18 @@
     }
 
     .cats {
-      display: flex; gap: 7px;
-      overflow-x: auto; scrollbar-width: none;
-      padding: 4px 0 2px;
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 4px 4px 6px;
       -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
     }
     .cats::-webkit-scrollbar { display: none; }
     .cat-btn {
       flex-shrink: 0;
+      scroll-snap-align: start;
       padding: 10px 18px;
       border-radius: 100px;
       border: 1px solid var(--bdr);
@@ -538,8 +555,8 @@
 
     .trending-wrap {
       max-width: 680px;
-      margin: 14px auto 0;
-      padding: 0 14px;
+      margin: 10px auto 0;
+      padding: 0 12px;
       scroll-margin-top: 72px;
     }
     .sec-lbl--hot {
@@ -567,6 +584,9 @@
       padding: 14px 16px;
       font-size: 15px;
       font-weight: 800;
+    }
+    .trending-hero-slot .pcard--top {
+      box-shadow: 0 0 32px rgba(255,140,0,.25), 0 12px 36px rgba(0,0,0,.35);
     }
     .trending-hero-slot .pcard--top::before {
       content: '🔥 ХІТ';
@@ -619,9 +639,9 @@
     .pgrid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 10px;
     }
-    @media(min-width:520px){ .pgrid{ grid-template-columns: repeat(3,1fr); gap: 14px; } }
+    @media(min-width:520px){ .pgrid{ grid-template-columns: repeat(3,1fr); gap: 12px; } }
     .pcard--catalog .pcard-img { aspect-ratio: 4/5; }
 
     .pcard {
@@ -749,14 +769,14 @@
       width: 100%;
       border: none;
       border-radius: 10px;
-      padding: 10px 10px;
-      font-size: 12px;
+      padding: 11px 10px;
+      font-size: 13px;
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
-      background: linear-gradient(135deg, var(--acc), #00a8d4);
-      color: #061018;
-      box-shadow: 0 4px 14px rgba(0,200,240,.35);
+      background: linear-gradient(180deg, #ff8a50 0%, var(--warm) 100%);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(255,112,67,.4);
       transition: transform .12s, box-shadow .12s, filter .12s;
     }
     .pcard-add:hover {
@@ -824,6 +844,95 @@
     .social-ico { font-size: 18px; flex-shrink: 0; }
     .social-toast strong { color: var(--gold); font-weight: 600; }
 
+    .qty-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px 12px calc(80px + env(safe-area-inset-bottom));
+    }
+    .qty-modal[hidden] { display: none; }
+    .qty-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(4px);
+    }
+    .qty-modal-in {
+      position: relative;
+      width: min(400px, 100%);
+      padding: 18px 16px 16px;
+      border-radius: 18px 18px 14px 14px;
+      background: linear-gradient(165deg, #1a1410, #121a28);
+      border: 1px solid rgba(255,140,0,.35);
+      box-shadow: 0 -8px 40px rgba(0,0,0,.5);
+      animation: upsellIn .3s ease;
+    }
+    .qty-modal-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
+      color: var(--txt2);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .qty-modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      padding-right: 36px;
+      margin-bottom: 4px;
+    }
+    .qty-modal-hint {
+      font-size: 12px;
+      color: var(--txt2);
+      margin-bottom: 14px;
+    }
+    .qty-modal-stepper {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid rgba(255,140,0,.3);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .qty-modal-stepper button {
+      width: 48px;
+      border: none;
+      background: rgba(255,140,0,.12);
+      color: var(--gold);
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .qty-modal-stepper input {
+      flex: 1;
+      border: none;
+      background: rgba(0,0,0,.25);
+      color: #fff;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: inherit;
+    }
+    .qty-modal-confirm {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f5d76e, var(--gold));
+      color: #1a1008;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: inherit;
+    }
     .upsell-pop {
       position: fixed;
       bottom: 88px;
@@ -1107,18 +1216,17 @@
     <div class="hero-badges">
       <span class="hero-badge">📍 Дарниця</span>
       <span class="hero-badge hero-badge--open">🟢 Відкрито зараз</span>
-      <span class="hero-badge hero-badge--fresh">🟢 Сьогодні свіже завезення</span>
       <span class="hero-badge">🚶 2 хв від вокзалу</span>
     </div>
     <div class="hero-food-overlay" aria-hidden="true">
-      <div class="hero-food-chip">🥟 Пельмені домашні</div>
+      <div class="hero-food-chip">🥟 Домашні пельмені</div>
       <div class="hero-food-chip">🧈 Свіже масло</div>
       <div class="hero-food-chip">🥟 Вареники ручної ліпки</div>
     </div>
     <div class="hero-body">
       <h1>Справжня домашня заморозка</h1>
       <p class="hero-tagline">Пельмені • Вареники • Котлети • Млинці • Молочка</p>
-      <p class="hero-lead">Навпроти АТБ, біля платформи Дарницького вокзалу.</p>
+      <p class="hero-lead">Біля АТБ та вокзалу Дарниця. Домашні напівфабрикати щодня.</p>
       <p class="hero-social-line" id="heroSocialLine">⭐ Найчастіше беруть вареники та котлети</p>
       <a class="hero-cta" href="#catalog">Переглянути товари</a>
     </div>
@@ -1132,7 +1240,7 @@
     href="https://maps.google.com/?q=50.43462504418194,30.64699041302942"
     target="_blank"
     rel="noopener"
-  >📍 Показати магазин на карті →</a>
+  >📍 Відкрити магазин на Google Maps →</a>
 </section>
 
 <section class="nearby-block" aria-label="Ми поруч">
@@ -1182,6 +1290,20 @@
 
 <div id="addToast" class="add-toast" hidden aria-live="polite"></div>
 <div id="socialToast" class="social-toast" aria-live="polite" hidden></div>
+<div id="qtyModal" class="qty-modal" hidden aria-modal="true" role="dialog" aria-labelledby="qtyModalTitle">
+  <div class="qty-modal-backdrop" data-qty-close></div>
+  <div class="qty-modal-in">
+    <button type="button" class="qty-modal-close" data-qty-close aria-label="Закрити">×</button>
+    <p class="qty-modal-title" id="qtyModalTitle">Кількість</p>
+    <p class="qty-modal-hint" id="qtyModalHint"></p>
+    <div class="qty-modal-stepper">
+      <button type="button" id="qtyModalMinus" aria-label="Менше">−</button>
+      <input type="number" id="qtyModalInput" inputmode="decimal">
+      <button type="button" id="qtyModalPlus" aria-label="Більше">+</button>
+    </div>
+    <button type="button" class="qty-modal-confirm" id="qtyModalConfirm">Готово — у кошик</button>
+  </div>
+</div>
 <div id="upsellPop" class="upsell-pop" hidden></div>
 
 <footer>
@@ -1233,9 +1355,9 @@
   });
 })();
 </script>
-<script src="assets/js/catalog.js?v=31"></script>
-<script src="assets/js/cart.js?v=31"></script>
-<script src="assets/js/store-meta.js?v=31"></script>
-<script src="assets/js/store.js?v=31"></script>
+<script src="assets/js/catalog.js?v=32"></script>
+<script src="assets/js/cart.js?v=32"></script>
+<script src="assets/js/store-meta.js?v=32"></script>
+<script src="assets/js/store.js?v=32"></script>
 </body>
 </html>

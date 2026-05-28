@@ -32,6 +32,15 @@
   const socialToast = document.getElementById("socialToast");
   const upsellPop = document.getElementById("upsellPop");
   const addToast = document.getElementById("addToast");
+  const qtyModal = document.getElementById("qtyModal");
+  const qtyModalTitle = document.getElementById("qtyModalTitle");
+  const qtyModalHint = document.getElementById("qtyModalHint");
+  const qtyModalInput = document.getElementById("qtyModalInput");
+  const qtyModalMinus = document.getElementById("qtyModalMinus");
+  const qtyModalPlus = document.getElementById("qtyModalPlus");
+  const qtyModalConfirm = document.getElementById("qtyModalConfirm");
+  let qtyModalProduct = null;
+  let qtyModalUnit = null;
   const heroHot = document.getElementById("heroHot");
   const heroHotItems = document.getElementById("heroHotItems");
   const heroSocialLine = document.getElementById("heroSocialLine");
@@ -172,7 +181,7 @@
           '" data-id="' +
           escapeHtml(p.id) +
           '">' +
-          (inCart ? "✓ У кошику" : "Додати в кошик") +
+          (inCart ? "✓ У кошику — змінити" : "Додати в кошик") +
           "</button>"
         : '<span class="pcard-add pcard-add--muted" aria-disabled="true">Актуальна ціна у продавця</span>') +
       "</div>" +
@@ -194,6 +203,87 @@
     }, 2200);
   }
 
+  function refreshAfterCartChange() {
+    renderTrending();
+    updateHeroSocial();
+    render();
+  }
+
+  function getUnitForProduct(p) {
+    const inCart = Cart.loadCart().find((x) => x.id === p.id);
+    if (inCart) return Cart.getUnitForItem(inCart);
+    return Cart.getUnitForItem({
+      unit: p.unit,
+      unitMin: p.unitMin,
+      unitStep: p.unitStep
+    });
+  }
+
+  function closeQtyModal() {
+    if (qtyModal) qtyModal.hidden = true;
+    qtyModalProduct = null;
+  }
+
+  function showQtyModal(p) {
+    if (!qtyModal || !Cart || !p) return;
+    const u = getUnitForProduct(p);
+    qtyModalUnit = u;
+    if (!Cart.isInCart(p.id)) {
+      const r = Cart.addItem(p, u.min);
+      if (!r.ok) return;
+    }
+    const item = Cart.loadCart().find((x) => x.id === p.id);
+    let qty = item ? item.qty : u.min;
+    qtyModalProduct = p;
+    if (qtyModalTitle) qtyModalTitle.textContent = p.n;
+    if (qtyModalHint) {
+      const isKg = p.saleType === "kg" || p.unit === "kg";
+      qtyModalHint.textContent = isKg
+        ? "⚖️ Орієнтовна ціна — фінальна після зважування"
+        : "Одиниця: " + u.short;
+    }
+    if (qtyModalInput) {
+      qtyModalInput.min = String(u.min);
+      qtyModalInput.step = String(u.step);
+      qtyModalInput.value = Cart.formatQty(qty, u.id);
+    }
+    qtyModal.hidden = false;
+  }
+
+  function applyQtyModalValue() {
+    if (!qtyModalProduct || !Cart || !qtyModalInput) return;
+    Cart.setQty(qtyModalProduct.id, qtyModalInput.value);
+    closeQtyModal();
+    flashAddToast(qtyModalProduct.n);
+    showUpsell(qtyModalProduct);
+    refreshAfterCartChange();
+  }
+
+  function bindQtyModalOnce() {
+    if (!qtyModal || qtyModal._bound) return;
+    qtyModal._bound = true;
+    qtyModal.querySelectorAll("[data-qty-close]").forEach((el) => {
+      el.addEventListener("click", closeQtyModal);
+    });
+    if (qtyModalMinus) {
+      qtyModalMinus.addEventListener("click", () => {
+        if (!qtyModalInput || !qtyModalUnit) return;
+        const n = Number(qtyModalInput.value) - qtyModalUnit.step;
+        qtyModalInput.value = Cart.formatQty(Math.max(qtyModalUnit.min, n), qtyModalUnit.id);
+      });
+    }
+    if (qtyModalPlus) {
+      qtyModalPlus.addEventListener("click", () => {
+        if (!qtyModalInput || !qtyModalUnit) return;
+        const n = Number(qtyModalInput.value) + qtyModalUnit.step;
+        qtyModalInput.value = Cart.formatQty(n, qtyModalUnit.id);
+      });
+    }
+    if (qtyModalConfirm) {
+      qtyModalConfirm.addEventListener("click", applyQtyModalValue);
+    }
+  }
+
   function bindCardActions(root) {
     root.querySelectorAll(".pcard-add:not(.pcard-add--muted)").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -201,16 +291,7 @@
         const id = btn.getAttribute("data-id");
         const p = products.find((x) => x.id === id);
         if (!p || !Cart) return;
-        const result = Cart.addItem(p, 1);
-        if (!result.ok) return;
-        btn.classList.add("pcard-add--pop");
-        setTimeout(() => btn.classList.remove("pcard-add--pop"), 400);
-        flashAddToast(p.n);
-        showUpsell(p);
-        loadTrendingIds().then(() => {
-          renderTrending();
-          render();
-        });
+        showQtyModal(p);
       });
     });
   }
@@ -323,13 +404,8 @@
         const id = btn.getAttribute("data-upsell-id");
         const p = products.find((x) => x.id === id);
         if (p && Cart) {
-          Cart.addItem(p, 1);
-          flashAddToast(p.n);
           upsellPop.hidden = true;
-          loadTrendingIds().then(() => {
-            renderTrending();
-            render();
-          });
+          showQtyModal(p);
         }
       });
     });
@@ -408,11 +484,7 @@
       btn.disabled = false;
       if (added) {
         flashAddToast("Набір додано в кошик");
-        loadTrendingIds().then(() => {
-          updateHeroSocial();
-          renderTrending();
-          render();
-        });
+        refreshAfterCartChange();
       }
     });
   }
@@ -444,6 +516,7 @@
     try {
       await loadProducts();
       await loadTrendingIds();
+      bindQtyModalOnce();
       renderCategories();
       renderTrending();
       updateHeroSocial();
@@ -485,20 +558,14 @@
   });
 
   window.addEventListener("magazin-cart-changed", () => {
-    if (products.length) {
-      renderTrending();
-      updateHeroSocial();
-      renderBundles();
-      render();
-    }
+    if (products.length) refreshAfterCartChange();
   });
 
   window.addEventListener("pageshow", () => {
     if (products.length) {
-      renderTrending();
       updateHeroSocial();
       renderBundles();
-      render();
+      refreshAfterCartChange();
     }
   });
 
