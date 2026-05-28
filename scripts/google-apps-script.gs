@@ -46,8 +46,8 @@ var TELEGRAM_SHEET = "telegram";
 /** Chat_id групи «Заказы» — за замовчуванням */
 var DEFAULT_CHAT_ID = "-1003933471474";
 
-/** Не зберігайте токен у Git. Краще: лист telegram B1 або Script Properties */
-var TELEGRAM_BOT_TOKEN = "";
+/** Токен @Magazine1304_bot — після /revoke оновіть тут і зробіть Нове розгортання */
+var TELEGRAM_BOT_TOKEN = "8809482654:AAH6dFjlNa4ju6DIEM1D9KHwRO4HkDDPoI4";
 
 var DEFAULT_UNIT_METRICS = {
   pcs: { label: "шт", step: 1, min: 1 },

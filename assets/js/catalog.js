@@ -304,12 +304,22 @@ async function fetchSiteConfig() {
 }
 
 async function getGoogleWebAppUrl() {
+  const cfg = await fetchSiteConfig();
+  const fromConfig = (cfg.googleWebAppUrl || "").trim();
+  if (fromConfig) {
+    try {
+      const fromBrowser = (localStorage.getItem(GOOGLE_URL_KEY) || "").trim();
+      if (fromBrowser && fromBrowser !== fromConfig) {
+        localStorage.setItem(GOOGLE_URL_KEY, fromConfig);
+      }
+    } catch (_) {}
+    return fromConfig;
+  }
   try {
     const fromBrowser = localStorage.getItem(GOOGLE_URL_KEY);
     if (fromBrowser && fromBrowser.trim()) return fromBrowser.trim();
   } catch (_) {}
-  const cfg = await fetchSiteConfig();
-  return (cfg.googleWebAppUrl || "").trim();
+  return "";
 }
 
 function setGoogleWebAppUrl(url) {
@@ -454,16 +464,21 @@ function formatPrice(price) {
 
 function toProductsJson(products) {
   return products.map((p) => {
+    const saleType = getPrimarySaleType(p);
+    const unit = unitFromSaleType(saleType);
+    const metrics = getUnitMetrics(unit);
     const row = {
       id: p.id,
       name: p.n,
       category: p.c,
-      sale_type: p.saleType,
-      unit: p.unit,
-      unit_min: p.unitMin,
-      unit_step: p.unitStep
+      sale_type: saleType,
+      unit,
+      unit_min:
+        p.unitMin !== null && p.unitMin !== undefined ? p.unitMin : metrics.min,
+      unit_step:
+        p.unitStep !== null && p.unitStep !== undefined ? p.unitStep : metrics.step
     };
-    if (p.price !== null) row.price = p.price;
+    if (p.price !== null && p.price !== undefined) row.price = p.price;
     if (p.img) row.image = p.img;
     return row;
   });
@@ -516,6 +531,7 @@ window.MagazinCatalog = {
   clearDeletedIds,
   restoreAllProducts,
   loadDeletedIds,
+  fetchSiteConfig,
   getGoogleWebAppUrl,
   setGoogleWebAppUrl,
   fetchFromGoogle,

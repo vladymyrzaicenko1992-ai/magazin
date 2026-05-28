@@ -188,6 +188,28 @@
       color: var(--text);
       font-weight: 700;
     }
+    .unit-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(0, 212, 154, 0.15);
+      color: var(--ok);
+      vertical-align: middle;
+    }
+    .admin-loading {
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      background: rgba(0, 200, 240, 0.1);
+      color: var(--accent);
+      font-size: 14px;
+    }
+    .admin-search {
+      margin-bottom: 12px;
+    }
     .product-row--img {
       grid-template-columns: 1fr auto;
       align-items: end;
@@ -413,13 +435,18 @@
 
       <section class="card card--products">
         <h2>Товари <span id="productsCount" style="color:var(--muted);font-weight:400;font-size:14px;"></span></h2>
+        <p style="font-size:13px;color:var(--muted);margin:0 0 10px;">
+          Одиниця зберігається в Google у колонках <code>sale_type</code>, <code>unit</code>, <code>unit_min</code>, <code>unit_step</code> (лист <strong>products</strong>).
+        </p>
+        <input id="adminSearch" class="admin-search" type="search" placeholder="Пошук товару за назвою, категорією або id…" autocomplete="off">
+        <div id="adminLoading" class="admin-loading" hidden>Завантаження…</div>
         <div id="productsList" class="products-list"></div>
       </section>
     </div>
   </div>
 
-  <script src="assets/js/admin-auth.js?v=33"></script>
-  <script src="assets/js/catalog.js?v=33"></script>
-  <script src="assets/js/admin.js?v=33"></script>
+  <script src="assets/js/admin-auth.js?v=35"></script>
+  <script src="assets/js/catalog.js?v=35"></script>
+  <script src="assets/js/admin.js?v=35"></script>
 </body>
 </html>
