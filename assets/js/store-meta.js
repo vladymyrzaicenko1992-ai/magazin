@@ -17,6 +17,20 @@
   /** Резерв, якщо Google ще не повернув топ за 7 днів */
   const TRENDING_IDS = ["pel-dom", "var-kartoshka", "kot-babush", "hink-dom"];
 
+  /** Готові набори для блоку «Часто беруть разом» */
+  const BUNDLE_PRESETS = [
+    {
+      id: "set-pelmeni",
+      title: "🥟 Набір до пельменів",
+      itemIds: ["pel-dom", "smetana", "maslo-vershk"]
+    },
+    {
+      id: "set-vareniki",
+      title: "🥟 Набір до вареників",
+      itemIds: ["var-kartoshka", "smetana"]
+    }
+  ];
+
   const UPSELL_BY_CATEGORY = {
     Пельмені: ["smetana", "maslo-vershk"],
     Хінкалі: ["smetana"],
@@ -140,9 +154,17 @@
     return getPriceDisplay(product, categoryMins) !== null;
   }
 
+  function dailySocialCount() {
+    const d = new Date();
+    const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    return 11 + (seed % 14);
+  }
+
   window.MagazinStoreMeta = {
     CAT_META,
     TRENDING_IDS,
+    BUNDLE_PRESETS,
+    dailySocialCount,
     getCatMeta,
     getDisplayTitle,
     getDisplaySubtitle,

@@ -32,6 +32,11 @@
   const socialToast = document.getElementById("socialToast");
   const upsellPop = document.getElementById("upsellPop");
   const addToast = document.getElementById("addToast");
+  const heroHot = document.getElementById("heroHot");
+  const heroHotItems = document.getElementById("heroHotItems");
+  const heroSocialLine = document.getElementById("heroSocialLine");
+  const bundleWrap = document.getElementById("bundleWrap");
+  const bundleCard = document.getElementById("bundleCard");
 
   if (!catsEl || !grid) {
     console.error("Не знайдено контейнери каталогу");
@@ -229,6 +234,7 @@
       .map((p, i) => buildCardHtml(p, { featured: true, featuredTop: i === 0 }))
       .join("");
     bindCardActions(trendingGrid);
+    updateHeroSocial();
   }
 
   function render() {
@@ -327,6 +333,83 @@
     }, 14000);
   }
 
+  function peopleLabel(n) {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return "людина";
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "людини";
+    return "людей";
+  }
+
+  function updateHeroSocial() {
+    if (heroSocialLine) {
+      const n = Meta.dailySocialCount();
+      heroSocialLine.textContent = `🔥 Сьогодні вже замовили ${n} ${peopleLabel(n)}`;
+    }
+    if (!heroHot || !heroHotItems) return;
+    const hot = trendingIds
+      .map((id) => products.find((p) => p.id === id))
+      .filter((p) => p && Meta.isListed(p, categoryMins))
+      .slice(0, 3);
+    if (!hot.length) {
+      heroHot.hidden = true;
+      return;
+    }
+    const short = hot.map((p) => {
+      const n = p.n.split("«")[0].trim();
+      return n.length > 22 ? n.slice(0, 20) + "…" : n;
+    });
+    heroHotItems.textContent = short.join(" • ");
+    heroHot.hidden = false;
+  }
+
+  function renderBundles() {
+    if (!bundleWrap || !bundleCard || !Meta.BUNDLE_PRESETS) return;
+    const presets = Meta.BUNDLE_PRESETS.map((preset) => {
+      const items = preset.itemIds
+        .map((id) => products.find((p) => p.id === id))
+        .filter((p) => p && Meta.isListed(p, categoryMins));
+      return { preset, items };
+    }).filter((x) => x.items.length >= 2);
+
+    if (!presets.length) {
+      bundleWrap.hidden = true;
+      return;
+    }
+
+    const block = presets[0];
+    const names = block.items.map((p) => escapeHtml(p.n)).join('<span> + </span>');
+    bundleCard.innerHTML =
+      '<p class="bundle-title">' +
+      escapeHtml(block.preset.title) +
+      "</p>" +
+      '<p class="bundle-items">' +
+      names +
+      "</p>" +
+      '<button type="button" class="bundle-add" id="bundleAddBtn">Додати набір у кошик</button>';
+
+    bundleWrap.hidden = false;
+    const btn = document.getElementById("bundleAddBtn");
+    if (!btn || !Cart) return;
+    btn.addEventListener("click", () => {
+      btn.disabled = true;
+      let added = 0;
+      block.items.forEach((p) => {
+        const r = Cart.addItem(p, 1);
+        if (r && r.ok) added += 1;
+      });
+      btn.disabled = false;
+      if (added) {
+        flashAddToast("Набір додано в кошик");
+        loadTrendingIds().then(() => {
+          updateHeroSocial();
+          renderTrending();
+          render();
+        });
+      }
+    });
+  }
+
   function startSocialProof() {
     if (!socialToast) return;
     const pool = products.filter((p) => Meta.isListed(p, categoryMins) && Meta.parsePrice(p) !== null);
@@ -356,6 +439,8 @@
       await loadTrendingIds();
       renderCategories();
       renderTrending();
+      updateHeroSocial();
+      renderBundles();
       render();
       startSocialProof();
     } catch (err) {
@@ -374,8 +459,8 @@
   const heroCta = document.querySelector(".hero-cta");
   if (heroCta) {
     heroCta.addEventListener("click", (e) => {
-      const target = document.getElementById("trendingWrap");
-      if (target && !target.hidden) {
+      const target = document.getElementById("catalog");
+      if (target) {
         e.preventDefault();
         target.scrollIntoView({ behavior: "smooth", block: "start" });
       }
@@ -385,6 +470,8 @@
   window.addEventListener("magazin-cart-changed", () => {
     if (products.length) {
       renderTrending();
+      updateHeroSocial();
+      renderBundles();
       render();
     }
   });
@@ -392,6 +479,8 @@
   window.addEventListener("pageshow", () => {
     if (products.length) {
       renderTrending();
+      updateHeroSocial();
+      renderBundles();
       render();
     }
   });

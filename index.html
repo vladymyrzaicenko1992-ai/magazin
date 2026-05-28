@@ -162,97 +162,213 @@
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
 
-    /* HERO */
+    /* HERO — живий міні-маркет */
     .hero {
-      max-width: 680px; margin: 0 auto;
-      padding: 36px 18px 0;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 10px 14px 0;
     }
-    .hero-copy {
+    .hero-visual {
       position: relative;
-      border-radius: calc(var(--r) + 4px);
+      min-height: min(420px, 58vh);
+      border-radius: 22px;
       overflow: hidden;
-      padding: 22px 18px 24px;
-      background:
-        linear-gradient(165deg, rgba(8,15,30,.88) 0%, rgba(8,15,30,.45) 42%, rgba(8,15,30,.82) 100%),
-        url('assets/img/hero-storefront.png') center 42% / cover no-repeat;
-      border: 1px solid var(--bdr);
-      box-shadow: 0 18px 48px rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 16px 40px rgba(0,0,0,.45);
     }
-    .hero-copy > * { position: relative; z-index: 1; }
-    .hero-kicker {
-      font-size: 11px; font-weight: 500;
-      letter-spacing: .1em; text-transform: uppercase;
-      color: var(--acc2); margin-bottom: 13px;
-      text-shadow: 0 1px 12px rgba(0,0,0,.45);
+    .hero-visual img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 42%;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(6,10,18,.92) 0%,
+        rgba(6,10,18,.55) 38%,
+        rgba(6,10,18,.25) 68%,
+        rgba(6,10,18,.35) 100%
+      );
+      pointer-events: none;
+    }
+    .hero-badges {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .hero-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: rgba(8,15,30,.72);
+      border: 1px solid rgba(255,255,255,.14);
+      color: #fff;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .hero-badge--open {
+      border-color: rgba(0,228,176,.45);
+      color: #b8ffe8;
+    }
+    .hero-body {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      padding: 18px 16px 16px;
     }
     .hero h1 {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(30px, 9vw, 48px);
-      font-weight: 800; line-height: 1.06;
+      font-size: clamp(26px, 7.5vw, 38px);
+      font-weight: 800;
+      line-height: 1.08;
       color: #fff;
-      text-shadow: 0 2px 24px rgba(0,0,0,.45);
+      text-shadow: 0 2px 20px rgba(0,0,0,.55);
+      max-width: 18ch;
     }
-    .hero h1 em {
-      font-style: normal;
-      background: linear-gradient(95deg, var(--acc) 0%, var(--acc2) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: none;
-      filter: drop-shadow(0 2px 14px rgba(0,0,0,.35));
+    .hero-tagline {
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,240,220,.95);
+      letter-spacing: .01em;
+      text-shadow: 0 1px 12px rgba(0,0,0,.5);
     }
     .hero-lead {
-      margin-top: 12px;
-      font-size: 15px; line-height: 1.55;
-      color: rgba(228,240,250,.92);
-      max-width: 520px;
-      text-shadow: 0 1px 10px rgba(0,0,0,.4);
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(228,240,250,.88);
+      text-shadow: 0 1px 10px rgba(0,0,0,.45);
+    }
+    .hero-social-line {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gold);
+      text-shadow: 0 1px 8px rgba(0,0,0,.4);
     }
     .hero-cta {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      margin-top: 18px;
-      padding: 14px 22px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--gold) 0%, #f5d76e 45%, var(--acc2) 100%);
-      color: #0a1528;
-      font-weight: 700;
+      margin-top: 14px;
+      padding: 13px 22px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f5d76e 0%, var(--gold) 55%, #d4a832 100%);
+      color: #1a1208;
+      font-weight: 800;
       font-size: 15px;
       text-decoration: none;
-      box-shadow: 0 8px 28px rgba(232,197,71,.35);
-      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 6px 0 #9a7a28, 0 10px 24px rgba(0,0,0,.35);
+      transition: transform .12s, box-shadow .12s;
     }
     .hero-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(232,197,71,.45);
+      transform: translateY(-1px);
+      box-shadow: 0 7px 0 #9a7a28, 0 14px 28px rgba(0,0,0,.4);
     }
-
-    /* LOCATION */
-    .loc-card {
-      margin-top: 20px;
-      background: rgba(255,112,67,.07);
-      border: 1px solid rgba(255,112,67,.2);
-      border-radius: var(--r);
-      padding: 14px 16px;
-      display: flex; gap: 12px;
+    .hero-cta:active {
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 #9a7a28, 0 6px 16px rgba(0,0,0,.3);
     }
-    .loc-pin { font-size: 22px; flex-shrink: 0; }
-    .loc-body { font-size: 14px; line-height: 1.65; color: var(--txt); }
-    .loc-body strong { color: var(--warm); }
-    .loc-body a {
-      display: inline-flex; align-items: center; gap: 4px;
-      margin-top: 6px;
-      font-size: 13px; color: var(--acc);
+    .hero-hot {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      z-index: 2;
+      max-width: 46%;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(8,15,30,.78);
+      border: 1px solid rgba(232,197,71,.35);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font-size: 10px;
+      line-height: 1.4;
+      color: rgba(228,240,250,.92);
+    }
+    .hero-hot[hidden] { display: none; }
+    @media (max-width: 420px) {
+      .hero-hot { display: none !important; }
+      .hero-visual { min-height: min(380px, 52vh); }
+    }
+    .hero-hot-label {
+      display: block;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 3px;
+    }
+    .hero-map-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--warm);
       text-decoration: none;
     }
-    .loc-body a:hover { text-decoration: underline; }
+    .hero-map-link:hover { text-decoration: underline; }
+
+    /* Набори */
+    .bundle-wrap {
+      max-width: 680px;
+      margin: 14px auto 0;
+      padding: 0 14px;
+      scroll-margin-top: 72px;
+    }
+    .bundle-card {
+      background: linear-gradient(145deg, rgba(255,112,67,.12), rgba(232,197,71,.08));
+      border: 1px solid rgba(255,112,67,.28);
+      border-radius: var(--r);
+      padding: 14px 14px 12px;
+    }
+    .bundle-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .bundle-items {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--txt);
+      margin-bottom: 12px;
+    }
+    .bundle-items span { opacity: .65; }
+    .bundle-add {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 11px;
+      background: linear-gradient(180deg, var(--warm) 0%, #e85a38 100%);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(255,112,67,.35);
+    }
+    .bundle-add:hover { filter: brightness(1.06); }
+    .bundle-add:disabled { opacity: .55; cursor: wait; }
 
     /* NOTICE */
     .notice-wrap {
-      max-width: 680px; margin: 18px auto 0;
-      padding: 0 18px;
+      max-width: 680px; margin: 12px auto 0;
+      padding: 0 14px;
     }
     .notice-box {
       background: rgba(0,200,240,.05);
@@ -266,8 +382,8 @@
 
     /* Пошук (не в закріпі) */
     .ctrl-wrap {
-      max-width: 680px; margin: 22px auto 0;
-      padding: 0 18px;
+      max-width: 680px; margin: 14px auto 0;
+      padding: 0 14px;
     }
     .search-wrap { position: relative; margin-bottom: 0; }
     .search-wrap svg {
@@ -332,8 +448,8 @@
 
     .trending-wrap {
       max-width: 680px;
-      margin: 20px auto 0;
-      padding: 0 18px;
+      margin: 14px auto 0;
+      padding: 0 14px;
       scroll-margin-top: 72px;
     }
     .sec-lbl--hot {
@@ -363,8 +479,9 @@
 
     /* GRID */
     .grid-wrap {
-      max-width: 680px; margin: 18px auto 0;
-      padding: 0 18px 56px;
+      max-width: 680px; margin: 12px auto 0;
+      padding: 0 14px 56px;
+      scroll-margin-top: 120px;
     }
     .sec-lbl {
       font-size: 11px; font-weight: 500;
@@ -771,7 +888,7 @@
     <div class="logo-box">❄️</div>
     <div class="logo-txt">
       Усе в морозильці
-      <small>цифрова вітрина</small>
+      <small>біля вокзалу Дарниця</small>
     </div>
     <div class="topbar-end">
       <div class="open-badge">Відкрито</div>
@@ -785,27 +902,39 @@
 </div>
 
 <section class="hero">
-  <div class="hero-copy">
-    <div class="hero-kicker">Київ · Дарницький вокзал</div>
-    <h1>Усе в <em>морозильці</em></h1>
-    <p class="hero-lead">
-      Домашні напівфабрикати біля Дарницького вокзалу<br>
-      Пельмені • вареники • котлети • млинці
-    </p>
-    <a class="hero-cta" href="#trendingWrap">👇 Обрати товари</a>
-  </div>
-
-  <div class="loc-card">
-    <div class="loc-pin">📍</div>
-    <div class="loc-body">
-      <strong>Вокзал Дарниця, навпроти АТБ — 2 хвилини пішки від платформи.</strong>
-      <br>
-      <a href="https://maps.google.com/?q=50.43462504418194,30.64699041302942" target="_blank" rel="noopener">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-        Показати на карті →
-      </a>
+  <div class="hero-visual">
+    <img
+      src="assets/img/hero-storefront.png"
+      alt="Магазин «Усе в морозильці» біля Дарницького вокзалу — холодильники та напої"
+      width="1200"
+      height="800"
+      loading="eager"
+      fetchpriority="high"
+    >
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="hero-badges">
+      <span class="hero-badge">📍 Дарниця</span>
+      <span class="hero-badge hero-badge--open">🟢 Відкрито зараз</span>
+      <span class="hero-badge">🚶 2 хв від вокзалу</span>
+    </div>
+    <div class="hero-body">
+      <h1>Справжня домашня заморозка</h1>
+      <p class="hero-tagline">Пельмені • Вареники • Котлети • Млинці • Молочка</p>
+      <p class="hero-lead">Навпроти АТБ, біля платформи Дарницького вокзалу.</p>
+      <p class="hero-social-line" id="heroSocialLine">⭐ Найчастіше беруть вареники та котлети</p>
+      <a class="hero-cta" href="#catalog">Переглянути товари</a>
+    </div>
+    <div class="hero-hot" id="heroHot" hidden>
+      <span class="hero-hot-label">🔥 Сьогодні беруть</span>
+      <span id="heroHotItems"></span>
     </div>
   </div>
+  <a
+    class="hero-map-link"
+    href="https://maps.google.com/?q=50.43462504418194,30.64699041302942"
+    target="_blank"
+    rel="noopener"
+  >📍 Показати магазин на карті →</a>
 </section>
 
 <div class="notice-wrap">
@@ -817,6 +946,11 @@
 <div class="trending-wrap" id="trendingWrap" hidden>
   <div class="sec-lbl sec-lbl--hot">🔥 Зараз часто обирають <span style="font-weight:400;opacity:.75">(топ за 7 днів)</span></div>
   <div class="pgrid pgrid--trending" id="trendingGrid"></div>
+</div>
+
+<div class="bundle-wrap" id="bundleWrap" hidden>
+  <div class="sec-lbl">🛒 Часто беруть разом</div>
+  <div class="bundle-card" id="bundleCard"></div>
 </div>
 
 <nav class="catalog-nav" aria-label="Категорії">
@@ -881,9 +1015,9 @@
   });
 })();
 </script>
-<script src="assets/js/catalog.js?v=29"></script>
-<script src="assets/js/cart.js?v=29"></script>
-<script src="assets/js/store-meta.js?v=29"></script>
-<script src="assets/js/store.js?v=29"></script>
+<script src="assets/js/catalog.js?v=30"></script>
+<script src="assets/js/cart.js?v=30"></script>
+<script src="assets/js/store-meta.js?v=30"></script>
+<script src="assets/js/store.js?v=30"></script>
 </body>
 </html>
