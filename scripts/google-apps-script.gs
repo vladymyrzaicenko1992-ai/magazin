@@ -12,6 +12,13 @@ var SHEET_NAME = "products";
 var ORDERS_SHEET = "orders";
 var CART_ADDS_SHEET = "cart_adds";
 var STATS_7D_SHEET = "stats_7d";
+var UNIT_METRICS_SHEET = "unit_metrics";
+
+var DEFAULT_UNIT_METRICS = {
+  pcs: { label: "шт", step: 1, min: 1 },
+  kg: { label: "кг", step: 0.1, min: 0.1 },
+  pack: { label: "уп", step: 1, min: 1 }
+};
 
 function doGet(e) {
   try {
@@ -365,17 +372,90 @@ function getOrdersSheet_() {
   return sheet;
 }
 
+function unitFromSaleType_(saleType) {
+  var st = String(saleType || "pcs").trim().toLowerCase();
+  if (st === "kg") return "kg";
+  if (st === "pack") return "pack";
+  return "pcs";
+}
+
+function ensureUnitMetricsSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(UNIT_METRICS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(UNIT_METRICS_SHEET);
+    sheet.appendRow(["unit", "label", "step", "min"]);
+    sheet.appendRow(["pcs", "шт", 1, 1]);
+    sheet.appendRow(["kg", "кг", 0.1, 0.1]);
+    sheet.appendRow(["pack", "уп", 1, 1]);
+  }
+  return sheet;
+}
+
+function getUnitMetricsMap_() {
+  ensureUnitMetricsSheet_();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(UNIT_METRICS_SHEET);
+  var data = sheet.getDataRange().getValues();
+  var map = {};
+  for (var key in DEFAULT_UNIT_METRICS) {
+    if (DEFAULT_UNIT_METRICS.hasOwnProperty(key)) {
+      map[key] = DEFAULT_UNIT_METRICS[key];
+    }
+  }
+  if (data.length < 2) return map;
+  var headers = data[0].map(function (h) {
+    return String(h).toLowerCase().trim();
+  });
+  var iUnit = headers.indexOf("unit");
+  var iLabel = headers.indexOf("label");
+  var iStep = headers.indexOf("step");
+  var iMin = headers.indexOf("min");
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var unit = String(row[iUnit >= 0 ? iUnit : 0] || "").trim().toLowerCase();
+    if (!unit) continue;
+    map[unit] = {
+      label: String(row[iLabel >= 0 ? iLabel : 1] || unit),
+      step: Number(row[iStep >= 0 ? iStep : 2]) || 1,
+      min: Number(row[iMin >= 0 ? iMin : 3]) || 1
+    };
+  }
+  return map;
+}
+
+function metricsForUnit_(unit, unitMin, unitStep) {
+  var map = getUnitMetricsMap_();
+  var m = map[unit] || DEFAULT_UNIT_METRICS.pcs;
+  var min = unitMin === "" || unitMin === null || unitMin === undefined ? m.min : Number(unitMin);
+  var step = unitStep === "" || unitStep === null || unitStep === undefined ? m.step : Number(unitStep);
+  if (!min || isNaN(min)) min = m.min;
+  if (!step || isNaN(step)) step = m.step;
+  return { min: min, step: step, label: m.label || unit };
+}
+
 function getSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(["id", "name", "category", "price", "image", "unit", "sale_type", "sale_options"]);
+    sheet.appendRow([
+      "id",
+      "name",
+      "category",
+      "price",
+      "image",
+      "sale_type",
+      "unit",
+      "unit_min",
+      "unit_step"
+    ]);
   }
+  ensureUnitMetricsSheet_();
   return sheet;
 }
 
 function readProducts() {
+  ensureUnitMetricsSheet_();
   var sheet = getSheet_();
   var data = sheet.getDataRange().getValues();
   if (data.length < 2) return [];
@@ -391,6 +471,8 @@ function readProducts() {
     image: headers.indexOf("image"),
     unit: headers.indexOf("unit"),
     saleType: headers.indexOf("sale_type"),
+    unitMin: headers.indexOf("unit_min"),
+    unitStep: headers.indexOf("unit_step"),
     saleOptions: headers.indexOf("sale_options")
   };
 
@@ -401,43 +483,66 @@ function readProducts() {
     if (!id) continue;
     var priceVal = idx.price >= 0 ? row[idx.price] : "";
     var unitVal = idx.unit >= 0 ? String(row[idx.unit] || "").trim().toLowerCase() : "";
-    if (!unitVal) unitVal = "pcs";
     var saleTypeVal = idx.saleType >= 0 ? String(row[idx.saleType] || "").trim().toLowerCase() : "";
-    var saleOptionsVal = idx.saleOptions >= 0 ? String(row[idx.saleOptions] || "").trim().toLowerCase() : "";
+    if (!saleTypeVal && idx.saleOptions >= 0) {
+      saleTypeVal = String(row[idx.saleOptions] || "")
+        .split(",")[0]
+        .trim()
+        .toLowerCase();
+    }
+    if (!saleTypeVal) {
+      saleTypeVal = unitVal === "kg" ? "kg" : unitVal === "pack" ? "pack" : "pcs";
+    }
+    var unit = unitFromSaleType_(saleTypeVal);
+    if (unitVal && unitVal !== unit) unit = unitFromSaleType_(saleTypeVal);
+    var unitMinVal = idx.unitMin >= 0 ? row[idx.unitMin] : "";
+    var unitStepVal = idx.unitStep >= 0 ? row[idx.unitStep] : "";
+    var metrics = metricsForUnit_(unit, unitMinVal, unitStepVal);
     out.push({
       id: String(id),
       name: String(row[idx.name >= 0 ? idx.name : 1] || ""),
       category: String(row[idx.category >= 0 ? idx.category : 2] || ""),
       price: priceVal === "" || priceVal === null ? null : Number(priceVal),
       image: String(row[idx.image >= 0 ? idx.image : 4] || ""),
-      unit: unitVal,
-      sale_type: saleTypeVal || (unitVal === "kg" ? "kg" : unitVal === "pack" ? "pack" : "pcs"),
-      sale_options: saleOptionsVal || (saleTypeVal || (unitVal === "kg" ? "kg" : unitVal === "pack" ? "pack" : "pcs"))
+      sale_type: saleTypeVal,
+      unit: unit,
+      unit_min: metrics.min,
+      unit_step: metrics.step
     });
   }
   return out;
 }
 
 function writeProducts(products) {
+  ensureUnitMetricsSheet_();
   var sheet = getSheet_();
   sheet.clear();
-  sheet.appendRow(["id", "name", "category", "price", "image", "unit", "sale_type", "sale_options"]);
+  sheet.appendRow([
+    "id",
+    "name",
+    "category",
+    "price",
+    "image",
+    "sale_type",
+    "unit",
+    "unit_min",
+    "unit_step"
+  ]);
   products.forEach(function (p) {
-    var unit = String(p.unit || "pcs").trim().toLowerCase();
-    if (!unit) unit = "pcs";
     var saleType = String(p.sale_type || p.saleType || "").trim().toLowerCase();
+    var unit = unitFromSaleType_(saleType || p.unit);
     if (!saleType) saleType = unit === "kg" ? "kg" : unit === "pack" ? "pack" : "pcs";
-    var saleOptions = String(p.sale_options || p.saleOptions || "").trim().toLowerCase();
-    if (!saleOptions) saleOptions = saleType;
+    var metrics = metricsForUnit_(unit, p.unit_min, p.unit_step);
     sheet.appendRow([
       p.id || "",
       p.name || p.n || "",
       p.category || p.c || "",
       p.price === null || p.price === undefined || p.price === "" ? "" : p.price,
       p.image || p.img || "",
-      unit,
       saleType,
-      saleOptions
+      unit,
+      metrics.min,
+      metrics.step
     ]);
   });
 }
@@ -448,7 +553,7 @@ function getCartAddsSheet_() {
   var sheet = ss.getSheetByName(CART_ADDS_SHEET);
   if (!sheet) {
     sheet = ss.insertSheet(CART_ADDS_SHEET);
-    sheet.appendRow(["timestamp", "product_id", "product_name", "qty"]);
+    sheet.appendRow(["timestamp", "product_id", "product_name", "qty", "unit", "sale_type"]);
   }
   return sheet;
 }
@@ -470,7 +575,14 @@ function trackCartAdd_(body) {
   var qty = Number(body.qty);
   if (!qty || qty < 1) qty = 1;
 
-  getCartAddsSheet_().appendRow([new Date(), id, name, qty]);
+  var unit = String(body.unit || "").trim().toLowerCase();
+  var saleType = String(body.sale_type || body.saleType || "").trim().toLowerCase();
+  if (!saleType && unit) {
+    saleType = unit === "kg" ? "kg" : unit === "pack" ? "pack" : "pcs";
+  }
+  if (!unit && saleType) unit = unitFromSaleType_(saleType);
+
+  getCartAddsSheet_().appendRow([new Date(), id, name, qty, unit, saleType]);
   refreshStats7dSheet_();
 
   return { ok: true };

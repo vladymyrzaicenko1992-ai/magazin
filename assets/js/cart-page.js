@@ -31,21 +31,8 @@
       .replace(/"/g, "&quot;");
   }
 
-  function unitButtonsHtml(item) {
-    const allowed = Cart.allowedUnitsFromSaleTypes(item.saleTypes || item.saleType);
-    const unitIds = allowed.length ? allowed : [item.unit || "pcs"];
-    return unitIds
-      .map((id) => {
-        const u = Cart.getUnit(id);
-        const icon = id === "kg" ? "⚖️" : id === "pack" ? "📦" : "🥟";
-        return `<button type="button" class="unit-chip${id === item.unit ? " active" : ""}" data-unit="${escapeHtml(id)}">${icon} ${escapeHtml(u.short)}</button>`;
-      })
-      .join("");
-  }
-
   function isEstimatedItem(item) {
-    const saleTypes = Cart.normalizeSaleTypes(item.saleTypes || item.saleType, item.unit);
-    return saleTypes.includes("kg");
+    return item.saleType === "kg" || item.unit === "kg";
   }
 
   function syncFromCatalog() {
@@ -58,7 +45,11 @@
         n: fresh.n || row.n,
         c: fresh.c || row.c,
         price: price !== null ? price : row.price,
-        saleTypes: fresh.saleTypes || row.saleTypes
+        unit: fresh.unit,
+        saleType: fresh.saleType,
+        saleTypes: fresh.saleTypes,
+        unitMin: fresh.unitMin,
+        unitStep: fresh.unitStep
       });
     });
     Cart.saveCart(items);
@@ -99,8 +90,9 @@
 
     listEl.innerHTML = "";
     items.forEach((item) => {
-      const u = Cart.getUnit(item.unit);
+      const u = Cart.getUnitForItem(item);
       const line = Cart.lineTotal(item);
+      const unitBadge = Cart.unitLabelForItem(item);
       const row = document.createElement("article");
       row.className = "cart-row";
       const catLine =
@@ -117,10 +109,7 @@
           <button type="button" class="cart-remove" data-id="${escapeHtml(item.id)}" aria-label="Видалити">×</button>
         </div>
         <div class="cart-row-controls">
-          <label class="field-label">
-            <span>Тип продажу</span>
-            <div class="unit-chips" data-id="${escapeHtml(item.id)}">${unitButtonsHtml(item)}</div>
-          </label>
+          <div class="cart-unit-fixed" aria-label="Одиниця продажу">${escapeHtml(unitBadge)}</div>
           <label class="field-label field-qty">
             <span>Кількість</span>
             <div class="qty-stepper">
@@ -140,13 +129,6 @@
             : ""
         }
       `;
-      row.querySelectorAll(".unit-chip").forEach((chip) => {
-        chip.addEventListener("click", () => {
-          Cart.setUnit(item.id, chip.dataset.unit);
-          items = Cart.loadCart();
-          render();
-        });
-      });
 
       row.querySelector('[data-action="minus"]').addEventListener("click", () => {
         Cart.changeQty(item.id, -1);

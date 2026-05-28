@@ -109,8 +109,7 @@
 
     const canOrder = priceInfo.canOrder && Cart;
     const inCart = canOrder && Cart.isInCart(p.id);
-    const saleTypes = Catalog.normalizeSaleTypes(p.saleTypes || p.sale_type, p.c, p.unit);
-    const isWeight = saleTypes.includes("kg");
+    const isWeight = p.saleType === "kg" || p.unit === "kg";
     const saleText = isWeight ? "⚖️ продається на вагу" : "✅ фіксована фасовка";
     const badges = Meta.getBadges(p);
     const badgeHtml = badges

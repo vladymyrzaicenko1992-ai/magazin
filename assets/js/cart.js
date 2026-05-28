@@ -41,6 +41,24 @@
     return UNITS.find((u) => u.id === unitId) || UNITS[0];
   }
 
+  function getUnitForItem(item) {
+    const base = { ...getUnit(item && item.unit) };
+    const min = item && item.unitMin;
+    const step = item && item.unitStep;
+    if (min != null && Number.isFinite(Number(min))) base.min = Number(min);
+    if (step != null && Number.isFinite(Number(step))) base.step = Number(step);
+    return base;
+  }
+
+  function resolveProductUnit(product) {
+    const Catalog = window.MagazinCatalog;
+    if (Catalog && Catalog.getPrimarySaleType) {
+      return Catalog.unitFromSaleType(Catalog.getPrimarySaleType(product));
+    }
+    const saleTypes = normalizeSaleTypes(product.saleTypes || product.sale_type, product.unit);
+    return unitFromSaleType(saleTypes[0]);
+  }
+
   function loadCart() {
     try {
       let raw = localStorage.getItem(CART_KEY);
@@ -60,20 +78,32 @@
 
   function normalizeItem(item) {
     if (!item || !item.id) return null;
-    const u = getUnit(item.unit || "pcs");
-    let qty = Number(item.qty);
-    if (!Number.isFinite(qty) || qty <= 0) qty = u.min;
-    if (u.dec === 0) qty = Math.max(u.min, Math.round(qty));
-    else qty = Math.max(u.min, Math.round(qty * 10) / 10);
-    return {
+    const saleTypes = normalizeSaleTypes(
+      item.saleTypes || item.saleType || item.sale_type,
+      item.unit
+    );
+    const saleType = item.saleType || saleTypes[0] || "pcs";
+    const unit = item.unit || unitFromSaleType(saleType);
+    const draft = {
       id: item.id,
       n: item.n || "",
       c: item.c || "",
       price: parsePrice(item.price),
-      qty,
-      unit: u.id,
-      saleTypes: normalizeSaleTypes(item.saleTypes || item.saleType || item.sale_type, u.id)
+      qty: item.qty,
+      unit,
+      saleType,
+      saleTypes: [saleType],
+      unitMin: item.unitMin,
+      unitStep: item.unitStep
     };
+    const u = getUnitForItem(draft);
+    let qty = Number(item.qty);
+    if (!Number.isFinite(qty) || qty <= 0) qty = u.min;
+    if (u.dec === 0) qty = Math.max(u.min, Math.round(qty));
+    else qty = Math.max(u.min, Math.round(qty * 10) / 10);
+    draft.qty = qty;
+    draft.unit = u.id;
+    return draft;
   }
 
   function saveCart(items) {
@@ -119,15 +149,27 @@
     const idx = cart.findIndex((x) => x.id === product.id);
     const addQty = Math.max(1, Number(qty) || 1);
 
+    const Catalog = window.MagazinCatalog;
+    const saleType =
+      Catalog && Catalog.getPrimarySaleType
+        ? Catalog.getPrimarySaleType(product)
+        : normalizeSaleTypes(product.saleTypes || product.sale_type, product.unit)[0];
+    const unit = resolveProductUnit(product);
+    const metrics =
+      Catalog && Catalog.getUnitMetrics
+        ? Catalog.getUnitMetrics(unit)
+        : { min: getUnit(unit).min, step: getUnit(unit).step };
+
     if (idx >= 0) {
       cart[idx].qty += addQty;
       cart[idx].price = price;
       cart[idx].n = product.n;
-      cart[idx].saleTypes = normalizeSaleTypes(product.saleTypes || product.sale_type, cart[idx].unit);
+      cart[idx].unit = unit;
+      cart[idx].saleType = saleType;
+      cart[idx].saleTypes = [saleType];
+      cart[idx].unitMin = product.unitMin != null ? product.unitMin : metrics.min;
+      cart[idx].unitStep = product.unitStep != null ? product.unitStep : metrics.step;
     } else {
-      const saleTypes = normalizeSaleTypes(product.saleTypes || product.sale_type, product.unit);
-      const defaultUnit =
-        unitFromSaleType(saleTypes[0]) || (product.unit && getUnit(product.unit).id ? getUnit(product.unit).id : "pcs");
       cart.push(
         normalizeItem({
           id: product.id,
@@ -135,8 +177,11 @@
           c: product.c,
           price,
           qty: addQty,
-          unit: defaultUnit,
-          saleTypes
+          unit,
+          saleType,
+          saleTypes: [saleType],
+          unitMin: product.unitMin != null ? product.unitMin : metrics.min,
+          unitStep: product.unitStep != null ? product.unitStep : metrics.step
         })
       );
     }
@@ -156,7 +201,7 @@
     const cart = loadCart();
     const item = cart.find((x) => x.id === id);
     if (!item) return;
-    const u = getUnit(item.unit);
+    const u = getUnitForItem(item);
     let n = Number(String(qty).replace(",", "."));
     if (!Number.isFinite(n) || n < u.min) {
       removeItem(id);
@@ -168,24 +213,11 @@
     saveCart(cart);
   }
 
-  function setUnit(id, unitId) {
-    const cart = loadCart();
-    const item = cart.find((x) => x.id === id);
-    if (!item) return;
-    const allowed = allowedUnitsFromSaleTypes(item.saleTypes);
-    if (allowed.length && !allowed.includes(unitId)) return;
-    const u = getUnit(unitId);
-    item.unit = u.id;
-    if (item.qty < u.min) item.qty = u.min;
-    if (u.dec === 0) item.qty = Math.max(u.min, Math.round(item.qty));
-    saveCart(cart);
-  }
-
   function changeQty(id, delta) {
     const cart = loadCart();
     const item = cart.find((x) => x.id === id);
     if (!item) return;
-    const u = getUnit(item.unit);
+    const u = getUnitForItem(item);
     setQty(id, (item.qty || u.min) + delta * u.step);
   }
 
@@ -210,8 +242,17 @@
   }
 
   function lineLabel(item) {
-    const u = getUnit(item.unit);
+    const u = getUnitForItem(item);
     return `${formatQty(item.qty, item.unit)} ${u.short}`;
+  }
+
+  function unitLabelForItem(item) {
+    const Catalog = window.MagazinCatalog;
+    if (Catalog && Catalog.SALE_TYPES && item.saleType) {
+      const st = Catalog.SALE_TYPES.find((s) => s.id === item.saleType);
+      if (st) return st.label;
+    }
+    return getUnitForItem(item).short;
   }
 
   function loadCustomer() {
@@ -248,17 +289,18 @@
       comment: customer.comment || "",
       website: "",
       items: items.map((it) => {
-        const u = getUnit(it.unit);
-        const saleTypes = normalizeSaleTypes(it.saleTypes, it.unit);
+        const u = getUnitForItem(it);
+        const saleType = it.saleType || normalizeSaleTypes(it.saleTypes, it.unit)[0] || "pcs";
         return {
           id: it.id,
           name: it.n,
           qty: it.qty,
           unit: u.id,
           unitLabel: u.short,
-          saleType: saleTypes[0] || "pcs",
-          saleOptions: saleTypes.join(","),
-          estimated: saleTypes.includes("kg"),
+          saleType,
+          unitMin: it.unitMin,
+          unitStep: it.unitStep,
+          estimated: saleType === "kg" || it.unit === "kg",
           price: it.price,
           lineTotal: lineTotal(it)
         };
@@ -324,6 +366,8 @@
     CART_KEY,
     UNITS,
     getUnit,
+    getUnitForItem,
+    unitLabelForItem,
     loadCart,
     saveCart,
     isInCart,
@@ -331,7 +375,6 @@
     getPositionsCount,
     addItem,
     setQty,
-    setUnit,
     changeQty,
     removeItem,
     clearCart,
@@ -346,8 +389,7 @@
     updateBadge,
     parsePrice,
     normalizeItem,
-    normalizeSaleTypes,
-    allowedUnitsFromSaleTypes
+    normalizeSaleTypes
   };
 
   updateBadge();

@@ -59,38 +59,45 @@ function normalizeSaleTypes(value, category, unit) {
   return Catalog.normalizeSaleTypes(value, category, unit);
 }
 
+function primarySaleType(selected) {
+  if (selected && typeof selected === "object" && selected.saleType) {
+    return Catalog.getPrimarySaleType(selected);
+  }
+  return Catalog.getPrimarySaleType({
+    sale_type: selected,
+    saleTypes: Array.isArray(selected) ? selected : String(selected || "").split(",")
+  });
+}
+
 function saleTypesButtonsHtml(selected) {
-  const active = normalizeSaleTypes(selected);
+  const active = primarySaleType(selected);
   return Catalog.SALE_TYPES.map((s) => {
-    const on = active.includes(s.id);
+    const on = s.id === active;
     return `<button type="button" class="sale-chip${on ? " active" : ""}" data-sale-type="${escapeHtml(s.id)}">${escapeHtml(s.label)}</button>`;
   }).join("");
 }
 
 function bindSaleTypeButtons(container, initial, onChange) {
-  if (!container) return { get: () => [] };
-  let current = normalizeSaleTypes(initial);
+  if (!container) return { get: () => ["pcs"] };
+  let current = primarySaleType(initial);
   container.innerHTML = saleTypesButtonsHtml(current);
   function render() {
     container.querySelectorAll("[data-sale-type]").forEach((btn) => {
       const id = btn.getAttribute("data-sale-type");
-      btn.classList.toggle("active", current.includes(id));
+      btn.classList.toggle("active", id === current);
     });
   }
   container.querySelectorAll("[data-sale-type]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-sale-type");
-      if (current.includes(id)) current = current.filter((x) => x !== id);
-      else current.push(id);
-      if (!current.length) current = ["pcs"];
+      current = btn.getAttribute("data-sale-type") || "pcs";
       render();
-      if (onChange) onChange(current);
+      if (onChange) onChange([current]);
     });
   });
   return {
-    get: () => current.slice(),
+    get: () => [current],
     set: (value) => {
-      current = normalizeSaleTypes(value);
+      current = primarySaleType(value);
       render();
     }
   };
@@ -225,8 +232,12 @@ function bindRowInputs(row, item) {
 
     item.n = nameInput.value.trim();
     item.c = catInput.value.trim();
-    item.saleTypes = normalizeSaleTypes(saleTypesState.get(), item.c, item.unit);
-    item.unit = Catalog.SALE_TYPES.find((s) => s.id === item.saleTypes[0])?.unit || Catalog.normalizeUnit(item.unit);
+    item.saleType = primarySaleType(saleTypesState.get());
+    item.saleTypes = [item.saleType];
+    item.unit = Catalog.unitFromSaleType(item.saleType);
+    const metrics = Catalog.getUnitMetrics(item.unit);
+    if (item.unitMin == null) item.unitMin = metrics.min;
+    if (item.unitStep == null) item.unitStep = metrics.step;
     item.img = imgInput.value.trim();
     item.price = Catalog.parsePrice(priceInput.value);
     saveProducts();
@@ -301,7 +312,7 @@ function renderProducts() {
             <select data-field="c">${categoryOptionsHtml(item.c, categories)}</select>
           </label>
           <label class="field">
-            <span class="field-label">Тип продажу</span>
+            <span class="field-label">Одиниця продажу</span>
             <div class="sale-types" data-field="sale-types"></div>
           </label>
           <label class="field">
@@ -345,14 +356,11 @@ function renderProducts() {
 if (addBtn) addBtn.addEventListener("click", async () => {
   const name = newNameEl.value.trim();
   const category = newCategoryEl.value.trim();
-  const saleTypes = normalizeSaleTypes(
-    newSaleTypesEl && newSaleTypesEl._saleTypesState
-      ? newSaleTypesEl._saleTypesState.get()
-      : "pcs",
-    category,
-    "pcs"
+  const saleType = primarySaleType(
+    newSaleTypesEl && newSaleTypesEl._saleTypesState ? newSaleTypesEl._saleTypesState.get() : "pcs"
   );
-  const unit = Catalog.SALE_TYPES.find((s) => s.id === saleTypes[0])?.unit || "pcs";
+  const unit = Catalog.unitFromSaleType(saleType);
+  const metrics = Catalog.getUnitMetrics(unit);
   let image = newImageEl.value.trim();
   const price = Catalog.parsePrice(newPriceEl.value);
 
@@ -374,7 +382,18 @@ if (addBtn) addBtn.addEventListener("click", async () => {
     image = await fileToDataUrl(newFile);
   }
 
-  products.unshift({ id, n: name, c: category, unit, saleTypes, img: image, price });
+  products.unshift({
+    id,
+    n: name,
+    c: category,
+    unit,
+    saleType,
+    saleTypes: [saleType],
+    unitMin: metrics.min,
+    unitStep: metrics.step,
+    img: image,
+    price
+  });
   saveProducts();
   renderProducts();
   try {

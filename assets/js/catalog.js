@@ -20,6 +20,32 @@ const SALE_TYPES = [
   { id: "pack", label: "📦 уп", unit: "pack" }
 ];
 
+const UNIT_METRICS = {
+  pcs: { short: "шт", step: 1, min: 1 },
+  kg: { short: "кг", step: 0.1, min: 0.1 },
+  pack: { short: "уп", step: 1, min: 1 }
+};
+
+function unitFromSaleType(saleType) {
+  const id = String(saleType || "pcs").toLowerCase();
+  if (id === "kg") return "kg";
+  if (id === "pack") return "pack";
+  return "pcs";
+}
+
+function getPrimarySaleType(product) {
+  const raw = product?.sale_type || product?.saleType;
+  if (raw && SALE_TYPES.some((s) => s.id === String(raw).toLowerCase())) {
+    return String(raw).toLowerCase();
+  }
+  const types = normalizeSaleTypes(product?.saleTypes || product?.sale_options, product?.c, product?.unit);
+  return types[0] || unitFromSaleType(product?.unit);
+}
+
+function getUnitMetrics(unitId) {
+  return UNIT_METRICS[unitId] || UNIT_METRICS.pcs;
+}
+
 const CATEGORY_PRESETS = [
   "Вареники",
   "Млинці",
@@ -140,7 +166,11 @@ function parsePrice(value) {
 function normalizeProduct(item) {
   if (!item || !item.id) return null;
   const c = item.c || item.category || "";
-  const unit = normalizeUnit(item.unit);
+  const saleType = getPrimarySaleType(item);
+  const unit = unitFromSaleType(saleType);
+  const metrics = getUnitMetrics(unit);
+  const unitMin = parsePrice(item.unit_min ?? item.unitMin);
+  const unitStep = parsePrice(item.unit_step ?? item.unitStep);
   return {
     id: item.id,
     n: item.n || item.name || "",
@@ -148,7 +178,10 @@ function normalizeProduct(item) {
     img: item.img || item.image || "",
     price: parsePrice(item.price),
     unit,
-    saleTypes: normalizeSaleTypes(item.saleTypes || item.sale_type || item.saleType || item.sale_options, c, unit)
+    saleType,
+    saleTypes: [saleType],
+    unitMin: unitMin !== null ? unitMin : metrics.min,
+    unitStep: unitStep !== null ? unitStep : metrics.step
   };
 }
 
@@ -163,8 +196,11 @@ function mergeById(base, overrides) {
       ...item,
       img: item.img || prev.img,
       price: item.price !== null ? item.price : prev.price,
-      unit: item.unit ? normalizeUnit(item.unit) : normalizeUnit(prev.unit),
-      saleTypes: normalizeSaleTypes(item.saleTypes, item.c, item.unit || prev.unit)
+      unit: item.unit ? unitFromSaleType(item.saleType || item.unit) : prev.unit,
+      saleType: item.saleType || prev.saleType,
+      saleTypes: [item.saleType || prev.saleType],
+      unitMin: item.unitMin !== null && item.unitMin !== undefined ? item.unitMin : prev.unitMin,
+      unitStep: item.unitStep !== null && item.unitStep !== undefined ? item.unitStep : prev.unitStep
     });
   }
   return Array.from(map.values());
@@ -281,11 +317,15 @@ async function fetchTrending(url, limit, days) {
 async function trackCartAdd(url, product, qty) {
   const id = product && product.id;
   if (!url || !id) return;
+  const saleType = getPrimarySaleType(product);
+  const unit = unitFromSaleType(saleType);
   const payload = JSON.stringify({
     action: "trackAdd",
     id,
     name: product.n || product.name || "",
-    qty: qty || 1
+    qty: qty || 1,
+    unit,
+    sale_type: saleType
   });
   try {
     await fetch(url, {
@@ -383,14 +423,14 @@ function formatPrice(price) {
 
 function toProductsJson(products) {
   return products.map((p) => {
-    const saleTypes = normalizeSaleTypes(p.saleTypes, p.c, p.unit);
     const row = {
       id: p.id,
       name: p.n,
       category: p.c,
-      unit: normalizeUnit(p.unit),
-      sale_type: saleTypes[0],
-      sale_options: saleTypes.join(",")
+      sale_type: p.saleType,
+      unit: p.unit,
+      unit_min: p.unitMin,
+      unit_step: p.unitStep
     };
     if (p.price !== null) row.price = p.price;
     if (p.img) row.image = p.img;
@@ -423,9 +463,13 @@ window.MagazinCatalog = {
   BASE_PRODUCTS,
   PRODUCT_UNITS,
   SALE_TYPES,
+  UNIT_METRICS,
   CATEGORY_PRESETS,
   normalizeUnit,
   normalizeSaleTypes,
+  getPrimarySaleType,
+  unitFromSaleType,
+  getUnitMetrics,
   getCategoryList,
   parsePrice,
   normalizeProduct,
