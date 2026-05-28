@@ -355,11 +355,18 @@
   }
 
   function updateBadge() {
-    const el = document.getElementById("cartBadge");
-    if (!el) return;
     const n = getPositionsCount();
-    el.textContent = String(n);
-    el.hidden = n < 1;
+    const text = String(n);
+    const el = document.getElementById("cartBadge");
+    if (el) {
+      el.textContent = text;
+      el.hidden = n < 1;
+    }
+    const mob = document.getElementById("mobCartBadge");
+    if (mob) {
+      mob.textContent = text;
+      mob.hidden = n < 1;
+    }
   }
 
   window.MagazinCart = {

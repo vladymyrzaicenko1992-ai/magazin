@@ -35,6 +35,18 @@
     return item.saleType === "kg" || item.unit === "kg";
   }
 
+  function itemsWord(n) {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return "товар";
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "товари";
+    return "товарів";
+  }
+
+  function cartHasEstimated(list) {
+    return list.some((item) => isEstimatedItem(item));
+  }
+
   function syncFromCatalog() {
     items = Cart.loadCart().map((row) => {
       const fresh = productsById.get(row.id);
@@ -157,7 +169,17 @@
       listEl.appendChild(row);
     });
 
-    if (totalEl) totalEl.textContent = Cart.formatMoney(Cart.cartTotal(items));
+    const total = Cart.cartTotal(items);
+    const approx = cartHasEstimated(items);
+    const orderItemsCount = document.getElementById("orderItemsCount");
+    const orderSumApprox = document.getElementById("orderSumApprox");
+    if (orderItemsCount) {
+      orderItemsCount.textContent = `${items.length} ${itemsWord(items.length)}`;
+    }
+    if (orderSumApprox) {
+      orderSumApprox.textContent = (approx ? "≈ " : "") + Math.round(total);
+    }
+    if (totalEl) totalEl.textContent = (approx ? "≈ " : "") + Cart.formatMoney(total);
   }
 
   if (clearBtn) {

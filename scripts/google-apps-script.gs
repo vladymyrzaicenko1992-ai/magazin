@@ -276,16 +276,7 @@ function formatOrderMessage_(name, phone, address, comment, items, total) {
   var tz = Session.getScriptTimeZone() || "Europe/Kyiv";
   var time = Utilities.formatDate(new Date(), tz, "dd.MM.yyyy HH:mm");
 
-  var lines = [
-    "🛒 НОВЕ ЗАМОВЛЕННЯ",
-    "",
-    "👤 Ім'я: " + name,
-    "📱 Телефон: " + phone
-  ];
-  if (address) {
-    lines.push("📍 Адреса: " + address);
-  }
-  lines.push("━━━━━━━━━━");
+  var lines = ["🛒 Нове замовлення", ""];
 
   var hasEstimated = false;
   items.forEach(function (it) {
@@ -293,29 +284,31 @@ function formatOrderMessage_(name, phone, address, comment, items, total) {
     var title = it.name || it.n || "Товар";
     var unit = it.unitLabel || it.unit || "шт";
     var lineSum = it.lineTotal;
-    var price = it.price;
     var estimated = !!it.estimated;
     if (estimated) hasEstimated = true;
     var row = "• " + title + " — " + qty + " " + unit;
-    if (price !== undefined && price !== null && price !== "") {
-      row += " × " + (estimated ? "≈ " : "") + price + " грн";
-    }
     if (lineSum !== undefined && lineSum !== null && lineSum !== "") {
       row += " = " + (estimated ? "≈ " : "") + Math.round(lineSum * 100) / 100 + " грн";
     }
     lines.push(row);
   });
 
-  lines.push("━━━━━━━━━━");
-  lines.push("💰 Сума: " + Math.round(total * 100) / 100 + " грн");
+  lines.push("");
+  lines.push("💰 Сума: " + (hasEstimated ? "≈ " : "") + Math.round(total * 100) / 100 + " грн");
   if (hasEstimated) {
-    lines.push("⚖️ Фінальна вага та сума уточнюється під час збору замовлення.");
+    lines.push("⚖️ Фінальна сума може відрізнятись через вагові товари.");
+  }
+  lines.push("");
+  lines.push("👤 Ім'я: " + name);
+  lines.push("📱 Телефон: " + phone);
+  if (address) {
+    lines.push("📍 Адреса: " + address);
   }
   if (comment) {
     lines.push("💬 " + comment);
   }
   lines.push("🕒 " + time);
-  lines.push("", "🌐 vse-v-morozilke.shop");
+  lines.push("🌐 vse-v-morozilke.shop");
 
   return lines.join("\n");
 }

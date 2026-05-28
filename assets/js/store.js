@@ -127,9 +127,7 @@
 
     const canOrder = priceInfo.canOrder && Cart;
     const inCart = canOrder && Cart.isInCart(p.id);
-    const isWeight = p.saleType === "kg" || p.unit === "kg";
-    const saleText = isWeight ? "⚖️ продається на вагу" : "✅ фіксована фасовка";
-    const badges = Meta.getBadges(p);
+    const badges = Meta.getBadges(p, { isTrending: opts.isTrending });
     const badgeHtml = badges
       .map((b) => '<span class="pcard-badge ' + b.cls + '">' + escapeHtml(b.text) + "</span>")
       .join("");
@@ -160,9 +158,6 @@
       '<div class="pcard-sub">' +
       escapeHtml(subtitle) +
       "</div>" +
-      '<div class="pcard-sale">' +
-      escapeHtml(saleText) +
-      "</div>" +
       "</div>" +
       '<div class="pcard-img-foot">' +
       '<div class="pcard-price">' +
@@ -177,7 +172,7 @@
           '" data-id="' +
           escapeHtml(p.id) +
           '">' +
-          (inCart ? "✓ У кошику" : "Обрати кількість") +
+          (inCart ? "✓ У кошику" : "Додати в кошик") +
           "</button>"
         : '<span class="pcard-add pcard-add--muted" aria-disabled="true">Актуальна ціна у продавця</span>') +
       "</div>" +
@@ -230,9 +225,21 @@
       return;
     }
     trendingWrap.hidden = false;
-    trendingGrid.innerHTML = trending
-      .map((p, i) => buildCardHtml(p, { featured: true, featuredTop: i === 0 }))
-      .join("");
+    const [hero, ...rest] = trending;
+    let html = "";
+    if (hero) {
+      html +=
+        '<div class="trending-hero-slot">' +
+        buildCardHtml(hero, { featured: true, featuredTop: true, isTrending: true }) +
+        "</div>";
+    }
+    if (rest.length) {
+      html +=
+        '<div class="pgrid pgrid--trending-rest">' +
+        rest.map((p) => buildCardHtml(p, { featured: true, isTrending: true })).join("") +
+        "</div>";
+    }
+    trendingGrid.innerHTML = html;
     bindCardActions(trendingGrid);
     updateHeroSocial();
   }
@@ -466,6 +473,16 @@
       }
     });
   }
+
+  document.querySelectorAll('.mob-tab[href="#catalog"]').forEach((tab) => {
+    tab.addEventListener("click", (e) => {
+      const target = document.getElementById("catalog");
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  });
 
   window.addEventListener("magazin-cart-changed", () => {
     if (products.length) {

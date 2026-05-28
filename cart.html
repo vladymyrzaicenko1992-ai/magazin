@@ -296,6 +296,31 @@
       min-height: 18px;
       line-height: 1.4;
     }
+    .order-summary {
+      margin-bottom: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(0,228,176,.08);
+      border: 1px solid rgba(0,228,176,.22);
+    }
+    .order-summary-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--txt2);
+      margin-bottom: 4px;
+    }
+    .order-summary-line {
+      font-size: 15px;
+      color: var(--txt);
+      line-height: 1.45;
+    }
+    .order-summary-line strong {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      color: var(--acc2);
+    }
     .cart-foot {
       position: fixed;
       left: 0; right: 0; bottom: 0;
@@ -361,6 +386,39 @@
     @media (max-width: 480px) {
       .cart-row-controls { grid-template-columns: 1fr; }
     }
+    .mob-tabbar {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 70;
+      padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+      background: rgba(8,15,30,.98);
+      border-top: 1px solid var(--bdr);
+    }
+    .mob-tabbar-in {
+      max-width: 680px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+    }
+    .mob-tab {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 8px 6px; border-radius: 12px; text-decoration: none;
+      color: var(--txt2); font-size: 10px; font-weight: 600;
+    }
+    .mob-tab span:first-child { font-size: 20px; }
+    .mob-tab.active { color: var(--txt); background: rgba(255,180,100,.12); }
+    .mob-tab--cart { position: relative; }
+    .mob-tab-badge {
+      position: absolute; top: 2px; right: 18%;
+      min-width: 16px; height: 16px; border-radius: 999px;
+      background: var(--warm); color: #fff; font-size: 9px; font-weight: 700;
+      line-height: 16px; text-align: center;
+    }
+    .mob-tab-badge[hidden] { display: none; }
+    @media (max-width: 720px) {
+      .mob-tabbar { display: block; }
+      .cart-foot { bottom: 64px; }
+      main { padding-bottom: 200px; }
+    }
   </style>
 </head>
 <body>
@@ -386,7 +444,7 @@
 
     <div id="cartContent">
       <p class="sec-title">🛒 Ваш набір</p>
-      <p class="checkout-intro" style="margin-bottom:8px">Оберіть тип продажу та кількість. Для вагових позицій сума попередня (≈).</p>
+      <p class="checkout-intro" style="margin-bottom:8px">Змініть кількість нижче. Для вагових товарів сума попередня (≈).</p>
       <div id="cartList"></div>
 
       <div id="cartCheckout" hidden>
@@ -412,8 +470,12 @@
 
   <div class="cart-foot" id="cartFoot" hidden>
     <div class="cart-foot-in">
+      <div class="order-summary" id="orderSummary">
+        <p class="order-summary-title">Ваше замовлення:</p>
+        <p class="order-summary-line"><span id="orderItemsCount">0</span> товарів · <strong id="orderSumApprox">≈ 0</strong> грн</p>
+      </div>
       <div class="cart-total-row">
-        <span>Загальна сума</span>
+        <span>До сплати</span>
         <strong id="cartTotal">0.00 грн</strong>
       </div>
       <button type="submit" form="checkoutForm" class="btn btn-order" id="cartSubmitBtn">
@@ -421,13 +483,24 @@
       </button>
       <p class="checkout-tg-hint">↓ Замовлення в Telegram · відповімо найближчим часом</p>
       <button type="button" class="btn btn-clear" id="cartClearBtn">Очистити кошик</button>
-      <p class="cart-hint">⚖️ Деякі товари фасуються вручну, тому фінальна вага та сума можуть незначно відрізнятися.</p>
+      <p class="cart-hint">⚖️ Фінальна сума може відрізнятись через вагові товари.</p>
     </div>
   </div>
 
-  <script src="assets/js/catalog.js?v=29"></script>
-  <script src="assets/js/cart.js?v=29"></script>
-  <script src="assets/js/store-meta.js?v=29"></script>
-  <script src="assets/js/cart-page.js?v=29"></script>
+  <nav class="mob-tabbar" aria-label="Навігація">
+    <div class="mob-tabbar-in">
+      <a class="mob-tab" href="index.html"><span>🏠</span>Головна</a>
+      <a class="mob-tab" href="index.html#catalog"><span>🥟</span>Каталог</a>
+      <a class="mob-tab mob-tab--cart active" href="cart.html">
+        <span>🛒</span>Кошик
+        <span class="mob-tab-badge" id="mobCartBadge" hidden>0</span>
+      </a>
+    </div>
+  </nav>
+
+  <script src="assets/js/catalog.js?v=31"></script>
+  <script src="assets/js/cart.js?v=31"></script>
+  <script src="assets/js/store-meta.js?v=31"></script>
+  <script src="assets/js/cart-page.js?v=31"></script>
 </body>
 </html>

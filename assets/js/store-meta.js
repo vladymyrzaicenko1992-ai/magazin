@@ -21,7 +21,7 @@
   const BUNDLE_PRESETS = [
     {
       id: "set-pelmeni",
-      title: "🥟 Набір до пельменів",
+      title: "Що взяти до пельменів?",
       itemIds: ["pel-dom", "smetana", "maslo-vershk"]
     },
     {
@@ -72,21 +72,27 @@
     return getDisplaySubtitle(product);
   }
 
-  function getBadges(product) {
+  function getBadges(product, opts) {
+    opts = opts || {};
     const badges = [];
     const n = String(product.n || "").toLowerCase();
     const c = product.c;
 
-    if (HIT_IDS.has(product.id) || TRENDING_IDS.includes(product.id)) {
+    if (opts.isTrending) {
+      badges.push({ text: "🔥 Часто беруть", cls: "badge-hot" });
+    } else if (HIT_IDS.has(product.id) || TRENDING_IDS.includes(product.id)) {
       badges.push({ text: "🔥 Хіт", cls: "badge-hot" });
     }
     if (c === "Пельмені" || c === "Хінкалі") {
       badges.push({ text: "⚡ 7 хв", cls: "badge-fast" });
     }
+    if (c === "Вареники" || c === "Пельмені") {
+      badges.push({ text: "🥟 Ручна ліпка", cls: "badge-hand" });
+    }
     if (n.includes("домашн") || n.includes("бабус")) {
       badges.push({ text: "👨‍👩‍👧 Для сімʼї", cls: "badge-fam" });
     }
-    if (n.includes("вершков") || n.includes("сметан")) {
+    if (n.includes("вершков") || n.includes("сметан") || n.includes("масло")) {
       badges.push({ text: "🧈 Вершкові", cls: "badge-cream" });
     }
     if (n.includes("соковит")) {
@@ -98,7 +104,7 @@
       if (seen.has(b.text)) return false;
       seen.add(b.text);
       return true;
-    }).slice(0, 2);
+    }).slice(0, 3);
   }
 
   function getUpsellLabel(product) {
