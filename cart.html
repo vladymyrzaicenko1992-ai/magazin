@@ -32,8 +32,65 @@
       content: '';
       position: fixed; inset: 0; z-index: -1;
       background:
-        radial-gradient(ellipse 70% 40% at 0% 0%, rgba(0,200,240,.08), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(255,120,50,.1), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 0% 100%, rgba(0,200,240,.06), transparent 50%),
         var(--deep);
+    }
+    .cart-top-summary {
+      margin-bottom: 16px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,112,67,.15), rgba(0,228,176,.08));
+      border: 1px solid rgba(255,160,90,.25);
+      box-shadow: 0 8px 28px rgba(0,0,0,.25);
+    }
+    .cart-top-summary h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--txt2);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 6px;
+    }
+    .cart-top-summary .cart-top-line {
+      font-size: 18px;
+      line-height: 1.4;
+    }
+    .cart-top-summary .cart-top-sum {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--acc2);
+      margin-top: 4px;
+      transition: transform .25s ease;
+    }
+    .cart-top-summary .cart-top-sum.is-pulse {
+      animation: totalPulse .45s ease;
+    }
+    @keyframes totalPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+    .cart-row-thumb {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(0,0,0,.3);
+      border: 1px solid rgba(255,160,90,.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    .cart-row-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.1) contrast(1.05);
     }
     .top {
       position: sticky; top: 0; z-index: 10;
@@ -443,8 +500,12 @@
     </div>
 
     <div id="cartContent">
-      <p class="sec-title">🛒 Ваш набір</p>
-      <p class="checkout-intro" style="margin-bottom:8px">Змініть кількість нижче. Для вагових товарів сума попередня (≈).</p>
+      <div class="cart-top-summary" id="cartTopSummary">
+        <h2>Ваше замовлення</h2>
+        <p class="cart-top-line"><span id="cartTopCount">0 товарів</span></p>
+        <p class="cart-top-sum" id="cartTopSum">≈ 0 грн</p>
+        <p class="checkout-intro" style="margin-top:10px;margin-bottom:0;font-size:12px">📍 Дарниця · 2 хв від вокзалу · майже готово 👌</p>
+      </div>
       <div id="cartList"></div>
 
       <div id="cartCheckout" hidden>
@@ -498,9 +559,9 @@
     </div>
   </nav>
 
-  <script src="assets/js/catalog.js?v=32"></script>
-  <script src="assets/js/cart.js?v=32"></script>
-  <script src="assets/js/store-meta.js?v=32"></script>
-  <script src="assets/js/cart-page.js?v=32"></script>
+  <script src="assets/js/catalog.js?v=33"></script>
+  <script src="assets/js/cart.js?v=33"></script>
+  <script src="assets/js/store-meta.js?v=33"></script>
+  <script src="assets/js/cart-page.js?v=33"></script>
 </body>
 </html>

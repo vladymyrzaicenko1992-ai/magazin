@@ -145,6 +145,10 @@
     const subtitle = Meta.getDisplaySubtitle(p);
     const layoutClass = opts.featured ? " pcard--featured" : " pcard--catalog";
     const topClass = opts.featuredTop ? " pcard--top" : "";
+    const compact = opts.compact !== false && !opts.featured;
+    const subBlock = compact
+      ? ""
+      : '<div class="pcard-sub">' + escapeHtml(subtitle) + "</div>";
 
     return (
       '<article class="pcard pcard--glass' +
@@ -164,9 +168,7 @@
       '<div class="pcard-name">' +
       escapeHtml(title) +
       "</div>" +
-      '<div class="pcard-sub">' +
-      escapeHtml(subtitle) +
-      "</div>" +
+      subBlock +
       "</div>" +
       '<div class="pcard-img-foot">' +
       '<div class="pcard-price">' +
@@ -205,7 +207,8 @@
 
   function refreshAfterCartChange() {
     renderTrending();
-    updateHeroSocial();
+    renderTodayPicks();
+    updateLiveStrip();
     render();
   }
 
@@ -322,7 +325,46 @@
     }
     trendingGrid.innerHTML = html;
     bindCardActions(trendingGrid);
-    updateHeroSocial();
+    updateLiveStrip();
+    renderTodayPicks();
+  }
+
+  function renderTodayPicks() {
+    const wrap = document.getElementById("todayPicks");
+    if (!wrap) return;
+    const picks = trendingIds
+      .slice(0, 3)
+      .map((id) => products.find((p) => p.id === id))
+      .filter((p) => p && Meta.isListed(p, categoryMins));
+    if (!picks.length) {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+    wrap.innerHTML =
+      '<p class="today-picks-lbl">🔥 Сьогодні беруть</p><div class="today-picks-row">' +
+      picks
+        .map((p) => {
+          const pr = Meta.getPriceDisplay(p, categoryMins);
+          const short = p.n.length > 28 ? p.n.slice(0, 26) + "…" : p.n;
+          return (
+            '<button type="button" class="today-pick" data-id="' +
+            escapeHtml(p.id) +
+            '"><span class="today-pick-name">' +
+            escapeHtml(short) +
+            '</span><span class="today-pick-price">' +
+            escapeHtml(pr ? pr.text : "") +
+            "</span></button>"
+          );
+        })
+        .join("") +
+      "</div>";
+    wrap.querySelectorAll(".today-pick").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const p = products.find((x) => x.id === btn.getAttribute("data-id"));
+        if (p) showQtyModal(p);
+      });
+    });
   }
 
   function render() {
@@ -334,7 +376,7 @@
       return;
     }
 
-    grid.innerHTML = list.map((p) => buildCardHtml(p)).join("");
+    grid.innerHTML = list.map((p) => buildCardHtml(p, { compact: true })).join("");
     bindCardActions(grid);
   }
 
@@ -346,7 +388,11 @@
       return;
     }
 
-    const label = Meta.getUpsellLabel(addedProduct);
+    const label = Meta.getUpsellTitle(addedProduct);
+    const showBundle =
+      addedProduct.c === "Пельмені" &&
+      Meta.BUNDLE_PRESETS &&
+      Meta.BUNDLE_PRESETS.some((b) => b.id === "set-pelmeni");
     const quickBtns = suggestions
       .map((s) => {
         const pr = Meta.getPriceDisplay(s, categoryMins);
@@ -372,9 +418,12 @@
     upsellPop.innerHTML =
       '<div class="upsell-in">' +
       '<button type="button" class="upsell-close" aria-label="Закрити">×</button>' +
-      '<p class="upsell-title">🥛 До ' +
+      '<p class="upsell-title">🥛 ' +
       escapeHtml(label) +
-      " часто беруть</p>" +
+      "</p>" +
+      (showBundle
+        ? '<button type="button" class="upsell-bundle" data-bundle="set-pelmeni">+ Додати набір (сметана + масло)</button>'
+        : "") +
       '<div class="upsell-quick-row">' +
       quickBtns +
       "</div>" +
@@ -399,6 +448,20 @@
     upsellPop.querySelector(".upsell-close").addEventListener("click", () => {
       upsellPop.hidden = true;
     });
+    const bundleBtn = upsellPop.querySelector("[data-bundle]");
+    if (bundleBtn) {
+      bundleBtn.addEventListener("click", () => {
+        const preset = Meta.BUNDLE_PRESETS.find((b) => b.id === "set-pelmeni");
+        if (!preset) return;
+        preset.itemIds.forEach((id) => {
+          const p = products.find((x) => x.id === id);
+          if (p && Cart) Cart.addItem(p, 1);
+        });
+        upsellPop.hidden = true;
+        flashAddToast("Набір додано");
+        refreshAfterCartChange();
+      });
+    }
     upsellPop.querySelectorAll("[data-upsell-id]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.getAttribute("data-upsell-id");
@@ -424,10 +487,22 @@
     return "людей";
   }
 
-  function updateHeroSocial() {
+  function updateLiveStrip() {
+    const live = Meta.getLiveStats();
+    const ordersEl = document.getElementById("liveOrders");
+    const viewingEl = document.getElementById("liveViewing");
+    const updatedEl = document.getElementById("liveUpdated");
+    if (ordersEl) {
+      ordersEl.textContent = `🔥 Сьогодні замовили: ${live.ordersToday} ${peopleLabel(live.ordersToday)}`;
+    }
+    if (viewingEl) {
+      viewingEl.textContent = `👀 Зараз дивляться: ${live.viewing}`;
+    }
+    if (updatedEl) {
+      updatedEl.textContent = `🕒 Оновлено: ${live.updatedMinAgo} хв тому`;
+    }
     if (heroSocialLine) {
-      const n = Meta.dailySocialCount();
-      heroSocialLine.textContent = `🔥 Сьогодні вже замовили ${n} ${peopleLabel(n)}`;
+      heroSocialLine.textContent = `🔥 Сьогодні вже замовили ${live.ordersToday} ${peopleLabel(live.ordersToday)}`;
     }
     if (!heroHot || !heroHotItems) return;
     const hot = trendingIds
@@ -519,7 +594,8 @@
       bindQtyModalOnce();
       renderCategories();
       renderTrending();
-      updateHeroSocial();
+      renderTodayPicks();
+      updateLiveStrip();
       renderBundles();
       render();
       startSocialProof();

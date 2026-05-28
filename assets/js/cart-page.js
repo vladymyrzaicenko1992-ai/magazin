@@ -105,17 +105,15 @@
       const u = Cart.getUnitForItem(item);
       const line = Cart.lineTotal(item);
       const unitBadge = Cart.unitLabelForItem(item);
+      const fresh = productsById.get(item.id);
+      const img = fresh && fresh.img ? encodeURI(fresh.img) : "";
       const row = document.createElement("article");
       row.className = "cart-row";
-      const catLine =
-        window.MagazinStoreMeta && item.c
-          ? window.MagazinStoreMeta.getDisplaySubtitle({ n: item.n, c: item.c })
-          : item.c;
       row.innerHTML = `
         <div class="cart-row-top">
+          <div class="cart-row-thumb">${img ? `<img src="${img}" alt="">` : "🍽️"}</div>
           <div class="cart-row-main">
             <div class="cart-row-name">${escapeHtml(item.n)}</div>
-            <div class="cart-row-cat">${escapeHtml(catLine)}</div>
             <div class="cart-row-price">${isEstimatedItem(item) ? "≈ " : ""}${Cart.formatMoney(item.price)} <span>/ ${escapeHtml(u.short)}</span></div>
           </div>
           <button type="button" class="cart-remove" data-id="${escapeHtml(item.id)}" aria-label="Видалити">×</button>
@@ -171,6 +169,18 @@
 
     const total = Cart.cartTotal(items);
     const approx = cartHasEstimated(items);
+    const sumText = (approx ? "≈ " : "") + Math.round(total) + " грн";
+    const cartTopCount = document.getElementById("cartTopCount");
+    const cartTopSum = document.getElementById("cartTopSum");
+    if (cartTopCount) {
+      cartTopCount.textContent = `${items.length} ${itemsWord(items.length)}`;
+    }
+    if (cartTopSum) {
+      cartTopSum.textContent = sumText;
+      cartTopSum.classList.remove("is-pulse");
+      void cartTopSum.offsetWidth;
+      cartTopSum.classList.add("is-pulse");
+    }
     const orderItemsCount = document.getElementById("orderItemsCount");
     const orderSumApprox = document.getElementById("orderSumApprox");
     if (orderItemsCount) {

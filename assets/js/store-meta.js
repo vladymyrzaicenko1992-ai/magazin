@@ -161,9 +161,26 @@
   }
 
   function dailySocialCount() {
+    return getLiveStats().ordersToday;
+  }
+
+  function getLiveStats() {
     const d = new Date();
     const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-    return 11 + (seed % 14);
+    const hour = d.getHours();
+    return {
+      ordersToday: 9 + (seed % 11) + Math.floor(hour / 3),
+      viewing: 2 + ((seed + hour) % 4),
+      updatedMinAgo: 8 + ((seed * 7 + hour * 3) % 22)
+    };
+  }
+
+  function getUpsellTitle(product) {
+    const c = product.c;
+    if (c === "Пельмені") return "До пельменів часто беруть";
+    if (c === "Вареники") return "До вареників часто беруть";
+    if (c === "Котлети") return "До котлет часто беруть";
+    return "До " + getUpsellLabel(product) + " часто беруть";
   }
 
   window.MagazinStoreMeta = {
@@ -171,6 +188,8 @@
     TRENDING_IDS,
     BUNDLE_PRESETS,
     dailySocialCount,
+    getLiveStats,
+    getUpsellTitle,
     getCatMeta,
     getDisplayTitle,
     getDisplaySubtitle,

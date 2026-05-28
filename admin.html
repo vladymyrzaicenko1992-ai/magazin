@@ -74,6 +74,39 @@
       border-radius: 999px;
       font-size: 13px;
     }
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 600px) {
+      .dash-grid { grid-template-columns: 1fr; }
+    }
+    .dash-stat {
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(0,0,0,.2);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .dash-val {
+      display: block;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--ok);
+    }
+    .dash-lbl {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .dash-trending {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
     .toolbar {
       display: flex;
       gap: 8px;
@@ -304,6 +337,22 @@
         <button id="restoreBtn" type="button">Відновити всі товари</button>
       </div>
 
+      <section class="card" id="adminDashboard">
+        <h2>📊 Панель сьогодні</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Міні-CRM: замовлення, топ і статус Telegram.</p>
+        <div id="dashGrid" class="dash-grid">
+          <div class="dash-stat"><span class="dash-val" id="dashOrders">—</span><span class="dash-lbl">Замовлень сьогодні</span></div>
+          <div class="dash-stat"><span class="dash-val" id="dashProducts">—</span><span class="dash-lbl">Товарів у каталозі</span></div>
+          <div class="dash-stat"><span class="dash-val" id="dashTelegram">—</span><span class="dash-lbl">Telegram</span></div>
+        </div>
+        <p class="dash-top-title" style="margin-top:14px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">🔥 Топ за 7 днів</p>
+        <ul id="dashTrending" class="dash-trending"></ul>
+        <p id="dashErr" class="msg" style="margin-top:8px"></p>
+        <div class="toolbar" style="margin-top:10px;">
+          <button type="button" id="dashRefreshBtn">Оновити панель</button>
+        </div>
+      </section>
+
       <section class="card">
         <h2>Google Диск (таблиця)</h2>
         <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">
@@ -369,8 +418,8 @@
     </div>
   </div>
 
-  <script src="assets/js/admin-auth.js?v=29"></script>
-  <script src="assets/js/catalog.js?v=29"></script>
-  <script src="assets/js/admin.js?v=29"></script>
+  <script src="assets/js/admin-auth.js?v=33"></script>
+  <script src="assets/js/catalog.js?v=33"></script>
+  <script src="assets/js/admin.js?v=33"></script>
 </body>
 </html>

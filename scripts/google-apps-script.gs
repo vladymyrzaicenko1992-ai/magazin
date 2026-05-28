@@ -53,6 +53,9 @@ function doGet(e) {
       var limit = parseInt(e.parameter.limit, 10) || 5;
       return jsonOut(getTrending_(days, limit));
     }
+    if (action === "dashboard") {
+      return jsonOut(getDashboard_());
+    }
     return jsonOut({ ok: false, error: "Unknown action" });
   } catch (err) {
     return jsonOut({ ok: false, error: String(err) });
@@ -345,6 +348,42 @@ function logOrder_(name, phone, address, comment, items, total) {
   } catch (err) {
     Logger.log("logOrder: " + err);
   }
+}
+
+function countOrdersToday_() {
+  try {
+    var sheet = getOrdersSheet_();
+    var data = sheet.getDataRange().getValues();
+    if (data.length < 2) return 0;
+    var tz = Session.getScriptTimeZone() || "Europe/Kyiv";
+    var today = Utilities.formatDate(new Date(), tz, "yyyy-MM-dd");
+    var n = 0;
+    for (var i = 1; i < data.length; i++) {
+      var ts = data[i][0];
+      if (!ts) continue;
+      var day = Utilities.formatDate(new Date(ts), tz, "yyyy-MM-dd");
+      if (day === today) n++;
+    }
+    return n;
+  } catch (err) {
+    return 0;
+  }
+}
+
+function getDashboard_() {
+  var cfg = getTelegramConfig_();
+  var trending = getTrending_(7, 5);
+  var top = (trending.trending || []).map(function (r) {
+    return { id: r.id, name: r.name, adds: r.count || 0 };
+  });
+  return {
+    ok: true,
+    ordersToday: countOrdersToday_(),
+    productsCount: readProducts().length,
+    telegram: !!cfg.token && !!cfg.chatId,
+    telegramSource: cfg.source || "",
+    trending: top
+  };
 }
 
 function getOrdersSheet_() {

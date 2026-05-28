@@ -326,6 +326,14 @@ async function fetchFromGoogle(url) {
   return (data.products || []).map(normalizeProduct).filter(Boolean);
 }
 
+async function fetchDashboard(url) {
+  const endpoint = `${url}${url.includes("?") ? "&" : "?"}action=dashboard&ts=${Date.now()}`;
+  const res = await fetch(endpoint);
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "Помилка dashboard");
+  return data;
+}
+
 async function fetchTrending(url, limit, days) {
   const lim = limit || 5;
   const d = days || 7;
@@ -512,6 +520,7 @@ window.MagazinCatalog = {
   setGoogleWebAppUrl,
   fetchFromGoogle,
   fetchTrending,
+  fetchDashboard,
   trackCartAdd,
   saveToGoogle
 };

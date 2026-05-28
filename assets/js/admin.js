@@ -483,6 +483,55 @@ if (loadGoogleBtn) {
   });
 }
 
+async function loadDashboard() {
+  const ordersEl = document.getElementById("dashOrders");
+  const productsEl = document.getElementById("dashProducts");
+  const telegramEl = document.getElementById("dashTelegram");
+  const trendingEl = document.getElementById("dashTrending");
+  const errEl = document.getElementById("dashErr");
+  if (!ordersEl) return;
+
+  if (productsEl) productsEl.textContent = String(products.length);
+
+  const url = await Catalog.getGoogleWebAppUrl();
+  if (!url) {
+    if (telegramEl) telegramEl.textContent = "—";
+    if (errEl) errEl.textContent = "Підключіть Google URL для статистики замовлень і топу.";
+    return;
+  }
+
+  try {
+    const data = await Catalog.fetchDashboard(url);
+    if (ordersEl) ordersEl.textContent = String(data.ordersToday ?? 0);
+    if (productsEl && data.productsCount != null) {
+      productsEl.textContent = String(data.productsCount);
+    }
+    if (telegramEl) {
+      telegramEl.textContent = data.telegram ? "✅ OK" : "❌ Ні";
+      telegramEl.style.color = data.telegram ? "var(--ok)" : "var(--danger)";
+    }
+    if (trendingEl) {
+      const list = data.trending || [];
+      trendingEl.innerHTML = list.length
+        ? list
+            .map(
+              (r, i) =>
+                `<li><strong>${i + 1}.</strong> ${escapeHtml(r.name || r.id)} — ${r.adds || 0} додавань</li>`
+            )
+            .join("")
+        : "<li>Поки немає статистики «Додати в кошик»</li>";
+    }
+    if (errEl) errEl.textContent = "";
+  } catch (err) {
+    if (errEl) errEl.textContent = "Панель: " + err.message;
+  }
+}
+
+const dashRefreshBtn = document.getElementById("dashRefreshBtn");
+if (dashRefreshBtn) {
+  dashRefreshBtn.addEventListener("click", () => loadDashboard());
+}
+
 async function init() {
   bindAddPhotoPreview();
   products = await Catalog.loadCatalog();
@@ -492,6 +541,7 @@ async function init() {
   if (googleWebAppUrlEl && url) googleWebAppUrlEl.value = url;
   if (url) setGoogleMessage("Google підключено");
   else setGoogleMessage("Google не підключено — дані лише в браузері");
+  await loadDashboard();
 }
 
 function bootAdmin() {

@@ -642,30 +642,32 @@
       gap: 10px;
     }
     @media(min-width:520px){ .pgrid{ grid-template-columns: repeat(3,1fr); gap: 12px; } }
-    .pcard--catalog .pcard-img { aspect-ratio: 4/5; }
+    .pcard--catalog .pcard-img { aspect-ratio: 3/4; min-height: 140px; }
+    .pcard--catalog .pcard-img img {
+      filter: saturate(1.12) contrast(1.06) brightness(1.03);
+    }
+    .pcard--catalog .pcard-body { padding: 8px 10px 10px; }
 
     .pcard {
-      background: var(--cb);
-      border: 1px solid var(--bdr);
-      border-radius: var(--r);
+      background: linear-gradient(165deg, rgba(42,28,18,.45), rgba(12,18,28,.5));
+      border: 1px solid rgba(255,160,90,.12);
+      border-radius: calc(var(--r) + 2px);
       overflow: hidden;
-      transition: transform .2s, border-color .2s, box-shadow .2s;
+      transition: transform .22s ease, border-color .22s, box-shadow .22s;
       animation: fadeup .32s both;
+      box-shadow: 0 8px 24px rgba(0,0,0,.28);
     }
     .pcard--glass {
-      background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow: 0 8px 32px rgba(0,0,0,.22);
+      background: linear-gradient(165deg, rgba(48,32,20,.55), rgba(14,20,32,.45));
     }
     .pcard--featured.pcard--top {
       border: 2px solid rgba(232,197,71,.65);
       box-shadow: 0 0 24px rgba(232,197,71,.2), 0 12px 36px rgba(0,0,0,.3);
     }
     .pcard:hover {
-      transform: translateY(-4px);
-      border-color: rgba(0,200,240,.3);
-      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      transform: translateY(-6px) scale(1.01);
+      border-color: rgba(255,160,80,.45);
+      box-shadow: 0 16px 40px rgba(255,100,40,.18), 0 12px 32px rgba(0,0,0,.4);
     }
     @keyframes fadeup { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
@@ -961,6 +963,81 @@
       margin-bottom: 10px;
       padding-right: 24px;
     }
+    .upsell-bundle {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 12px 14px;
+      border: none;
+      border-radius: 11px;
+      background: linear-gradient(180deg, #ff8a50, var(--warm));
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .live-strip {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,220,180,.9);
+      background: rgba(30,18,10,.6);
+      border-bottom: 1px solid rgba(255,140,0,.15);
+    }
+    .live-strip span {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.25);
+    }
+    .today-picks {
+      max-width: 680px;
+      margin: 8px auto 0;
+      padding: 0 12px;
+    }
+    .today-picks-lbl {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .today-picks-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+    .today-picks-row::-webkit-scrollbar { display: none; }
+    .today-pick {
+      flex-shrink: 0;
+      min-width: 140px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,160,90,.3);
+      background: rgba(40,24,12,.65);
+      color: var(--txt);
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .today-pick-name {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .today-pick-price {
+      display: block;
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--acc2);
+      font-weight: 700;
+    }
     .upsell-quick-row {
       display: flex;
       flex-direction: column;
@@ -1202,6 +1279,12 @@
 </header>
 </div>
 
+<div class="live-strip" id="liveStrip" aria-live="polite">
+  <span id="liveOrders">🔥 Сьогодні замовили…</span>
+  <span id="liveViewing">👀 Зараз дивляться…</span>
+  <span id="liveUpdated">🕒 Оновлено…</span>
+</div>
+
 <section class="hero">
   <div class="hero-visual">
     <img
@@ -1224,9 +1307,9 @@
       <div class="hero-food-chip">🥟 Вареники ручної ліпки</div>
     </div>
     <div class="hero-body">
-      <h1>Справжня домашня заморозка</h1>
-      <p class="hero-tagline">Пельмені • Вареники • Котлети • Млинці • Молочка</p>
-      <p class="hero-lead">Біля АТБ та вокзалу Дарниця. Домашні напівфабрикати щодня.</p>
+      <h1>Швидко взяв — вдома приготував</h1>
+      <p class="hero-tagline">Домашня заморозка біля Дарниці · 2 хв від вокзалу</p>
+      <p class="hero-lead">Пельмені • Вареники • Котлети • Млинці · навпроти АТБ</p>
       <p class="hero-social-line" id="heroSocialLine">⭐ Найчастіше беруть вареники та котлети</p>
       <a class="hero-cta" href="#catalog">Переглянути товари</a>
     </div>
@@ -1242,6 +1325,8 @@
     rel="noopener"
   >📍 Відкрити магазин на Google Maps →</a>
 </section>
+
+<div class="today-picks" id="todayPicks" hidden></div>
 
 <section class="nearby-block" aria-label="Ми поруч">
   <div class="nearby-card">
@@ -1355,9 +1440,9 @@
   });
 })();
 </script>
-<script src="assets/js/catalog.js?v=32"></script>
-<script src="assets/js/cart.js?v=32"></script>
-<script src="assets/js/store-meta.js?v=32"></script>
-<script src="assets/js/store.js?v=32"></script>
+<script src="assets/js/catalog.js?v=33"></script>
+<script src="assets/js/cart.js?v=33"></script>
+<script src="assets/js/store-meta.js?v=33"></script>
+<script src="assets/js/store.js?v=33"></script>
 </body>
 </html>
