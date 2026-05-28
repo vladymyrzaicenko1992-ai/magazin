@@ -134,6 +134,27 @@
     .product-row--meta {
       grid-template-columns: 1fr 1fr 0.85fr;
     }
+    .sale-types {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .sale-chip {
+      width: auto;
+      border-radius: 999px;
+      padding: 7px 11px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .sale-chip.active {
+      border-color: rgba(0, 200, 240, .55);
+      background: rgba(0, 200, 240, .18);
+      color: var(--text);
+      font-weight: 700;
+    }
     .product-row--img {
       grid-template-columns: 1fr auto;
       align-items: end;
@@ -274,7 +295,7 @@
   <div id="adminApp" hidden>
     <div class="wrap">
       <h1>Адмін-панель товарів</h1>
-      <p>Додавайте товари, змінюйте ціни, <strong>категорію</strong> та <strong>одиницю</strong> (шт, кг, л…) — у кошику вона підставиться автоматично. Для збереження для всіх пристроїв підключіть <strong>Google Таблицю</strong>.</p>
+      <p>Додавайте товари, змінюйте ціну, <strong>тип продажу</strong> (кг/шт/уп) і фото. Для збереження для всіх пристроїв підключіть <strong>Google Таблицю</strong>.</p>
       <div class="toolbar">
         <a class="btn-ghost" href="index.html">← Повернутись на вітрину</a>
         <button id="adminLogoutBtn" type="button">Вийти</button>
@@ -314,8 +335,8 @@
                 <select id="newCategory"></select>
               </label>
               <label class="field">
-                <span class="field-label">Одиниця</span>
-                <select id="newUnit"></select>
+                <span class="field-label">Тип продажу</span>
+                <div id="newSaleTypes" class="sale-types"></div>
               </label>
               <label class="field">
                 <span class="field-label">Ціна, грн</span>
@@ -348,8 +369,8 @@
     </div>
   </div>
 
-  <script src="assets/js/admin-auth.js?v=15"></script>
-  <script src="assets/js/catalog.js?v=15"></script>
-  <script src="assets/js/admin.js?v=15"></script>
+  <script src="assets/js/admin-auth.js?v=16"></script>
+  <script src="assets/js/catalog.js?v=16"></script>
+  <script src="assets/js/admin.js?v=16"></script>
 </body>
 </html>

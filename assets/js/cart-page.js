@@ -31,11 +31,21 @@
       .replace(/"/g, "&quot;");
   }
 
-  function unitOptionsHtml(selected) {
-    return Cart.UNITS.map(
-      (u) =>
-        `<option value="${u.id}"${u.id === selected ? " selected" : ""}>${escapeHtml(u.label)} (${u.short})</option>`
-    ).join("");
+  function unitButtonsHtml(item) {
+    const allowed = Cart.allowedUnitsFromSaleTypes(item.saleTypes || item.saleType);
+    const unitIds = allowed.length ? allowed : [item.unit || "pcs"];
+    return unitIds
+      .map((id) => {
+        const u = Cart.getUnit(id);
+        const icon = id === "kg" ? "⚖️" : id === "pack" ? "📦" : "🥟";
+        return `<button type="button" class="unit-chip${id === item.unit ? " active" : ""}" data-unit="${escapeHtml(id)}">${icon} ${escapeHtml(u.short)}</button>`;
+      })
+      .join("");
+  }
+
+  function isEstimatedItem(item) {
+    const saleTypes = Cart.normalizeSaleTypes(item.saleTypes || item.saleType, item.unit);
+    return saleTypes.includes("kg");
   }
 
   function syncFromCatalog() {
@@ -47,7 +57,8 @@
         ...row,
         n: fresh.n || row.n,
         c: fresh.c || row.c,
-        price: price !== null ? price : row.price
+        price: price !== null ? price : row.price,
+        saleTypes: fresh.saleTypes || row.saleTypes
       });
     });
     Cart.saveCart(items);
@@ -101,14 +112,14 @@
           <div class="cart-row-main">
             <div class="cart-row-name">${escapeHtml(item.n)}</div>
             <div class="cart-row-cat">${escapeHtml(catLine)}</div>
-            <div class="cart-row-price">${Cart.formatMoney(item.price)} <span>/ ${escapeHtml(u.short)}</span></div>
+            <div class="cart-row-price">${isEstimatedItem(item) ? "≈ " : ""}${Cart.formatMoney(item.price)} <span>/ ${escapeHtml(u.short)}</span></div>
           </div>
           <button type="button" class="cart-remove" data-id="${escapeHtml(item.id)}" aria-label="Видалити">×</button>
         </div>
         <div class="cart-row-controls">
           <label class="field-label">
-            <span>Одиниця</span>
-            <select class="unit-select" data-id="${escapeHtml(item.id)}">${unitOptionsHtml(item.unit)}</select>
+            <span>Тип продажу</span>
+            <div class="unit-chips" data-id="${escapeHtml(item.id)}">${unitButtonsHtml(item)}</div>
           </label>
           <label class="field-label field-qty">
             <span>Кількість</span>
@@ -123,12 +134,18 @@
             <span class="cart-line-sum">${Cart.formatMoney(line)}</span>
           </div>
         </div>
+        ${
+          isEstimatedItem(item)
+            ? '<p class="cart-estimated-note">⚖️ Точна вага та фінальна сума уточнюється під час збору замовлення.</p>'
+            : ""
+        }
       `;
-
-      row.querySelector(".unit-select").addEventListener("change", (e) => {
-        Cart.setUnit(item.id, e.target.value);
-        items = Cart.loadCart();
-        render();
+      row.querySelectorAll(".unit-chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          Cart.setUnit(item.id, chip.dataset.unit);
+          items = Cart.loadCart();
+          render();
+        });
       });
 
       row.querySelector('[data-action="minus"]').addEventListener("click", () => {

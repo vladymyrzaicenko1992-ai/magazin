@@ -11,6 +11,31 @@
     { id: "ml", label: "Мілілітри", short: "мл", step: 100, min: 100, dec: 0 },
     { id: "pack", label: "Упаковки", short: "уп", step: 1, min: 1, dec: 0 }
   ];
+  const SALE_TYPE_TO_UNIT = { kg: "kg", pcs: "pcs", pack: "pack" };
+
+  function normalizeSaleTypes(value, fallbackUnit) {
+    const raw = Array.isArray(value)
+      ? value
+      : String(value || "")
+          .split(",")
+          .map((x) => x.trim())
+          .filter(Boolean);
+    const out = raw
+      .map((x) => String(x).toLowerCase())
+      .filter((x) => SALE_TYPE_TO_UNIT[x]);
+    if (out.length) return Array.from(new Set(out));
+    if (fallbackUnit === "kg") return ["kg"];
+    if (fallbackUnit === "pack") return ["pack"];
+    return ["pcs"];
+  }
+
+  function unitFromSaleType(type) {
+    return SALE_TYPE_TO_UNIT[type] || "pcs";
+  }
+
+  function allowedUnitsFromSaleTypes(saleTypes) {
+    return normalizeSaleTypes(saleTypes).map(unitFromSaleType);
+  }
 
   function getUnit(unitId) {
     return UNITS.find((u) => u.id === unitId) || UNITS[0];
@@ -46,7 +71,8 @@
       c: item.c || "",
       price: parsePrice(item.price),
       qty,
-      unit: u.id
+      unit: u.id,
+      saleTypes: normalizeSaleTypes(item.saleTypes || item.saleType || item.sale_type, u.id)
     };
   }
 
@@ -97,9 +123,11 @@
       cart[idx].qty += addQty;
       cart[idx].price = price;
       cart[idx].n = product.n;
+      cart[idx].saleTypes = normalizeSaleTypes(product.saleTypes || product.sale_type, cart[idx].unit);
     } else {
+      const saleTypes = normalizeSaleTypes(product.saleTypes || product.sale_type, product.unit);
       const defaultUnit =
-        product.unit && getUnit(product.unit).id ? getUnit(product.unit).id : "pcs";
+        unitFromSaleType(saleTypes[0]) || (product.unit && getUnit(product.unit).id ? getUnit(product.unit).id : "pcs");
       cart.push(
         normalizeItem({
           id: product.id,
@@ -107,7 +135,8 @@
           c: product.c,
           price,
           qty: addQty,
-          unit: defaultUnit
+          unit: defaultUnit,
+          saleTypes
         })
       );
     }
@@ -143,6 +172,8 @@
     const cart = loadCart();
     const item = cart.find((x) => x.id === id);
     if (!item) return;
+    const allowed = allowedUnitsFromSaleTypes(item.saleTypes);
+    if (allowed.length && !allowed.includes(unitId)) return;
     const u = getUnit(unitId);
     item.unit = u.id;
     if (item.qty < u.min) item.qty = u.min;
@@ -218,12 +249,16 @@
       website: "",
       items: items.map((it) => {
         const u = getUnit(it.unit);
+        const saleTypes = normalizeSaleTypes(it.saleTypes, it.unit);
         return {
           id: it.id,
           name: it.n,
           qty: it.qty,
           unit: u.id,
           unitLabel: u.short,
+          saleType: saleTypes[0] || "pcs",
+          saleOptions: saleTypes.join(","),
+          estimated: saleTypes.includes("kg"),
           price: it.price,
           lineTotal: lineTotal(it)
         };
@@ -310,7 +345,9 @@
     submitOrder,
     updateBadge,
     parsePrice,
-    normalizeItem
+    normalizeItem,
+    normalizeSaleTypes,
+    allowedUnitsFromSaleTypes
   };
 
   updateBadge();

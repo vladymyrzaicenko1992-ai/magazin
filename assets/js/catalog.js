@@ -14,6 +14,12 @@ const PRODUCT_UNITS = [
   { id: "pack", label: "Упаковки (уп)" }
 ];
 
+const SALE_TYPES = [
+  { id: "kg", label: "⚖️ кг", unit: "kg" },
+  { id: "pcs", label: "🥟 шт", unit: "pcs" },
+  { id: "pack", label: "📦 уп", unit: "pack" }
+];
+
 const CATEGORY_PRESETS = [
   "Вареники",
   "Млинці",
@@ -27,6 +33,29 @@ const CATEGORY_PRESETS = [
 function normalizeUnit(value) {
   const id = String(value || "pcs").trim().toLowerCase();
   return PRODUCT_UNITS.some((u) => u.id === id) ? id : "pcs";
+}
+
+function inferSaleTypes(category) {
+  if (category === "Котлети") return ["kg", "pcs"];
+  if (category === "Пельмені" || category === "Вареники" || category === "Хінкалі") return ["pack"];
+  if (category === "Молочка") return ["kg", "pack"];
+  return ["pcs"];
+}
+
+function normalizeSaleTypes(value, category, fallbackUnit) {
+  const raw = Array.isArray(value)
+    ? value
+    : String(value || "")
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean);
+  const normalized = raw
+    .map((x) => String(x).toLowerCase())
+    .filter((x) => SALE_TYPES.some((s) => s.id === x));
+  if (normalized.length) return Array.from(new Set(normalized));
+  if (fallbackUnit === "kg") return ["kg"];
+  if (fallbackUnit === "pack") return ["pack"];
+  return inferSaleTypes(category || "");
 }
 
 function getCategoryList(products) {
@@ -110,13 +139,16 @@ function parsePrice(value) {
 
 function normalizeProduct(item) {
   if (!item || !item.id) return null;
+  const c = item.c || item.category || "";
+  const unit = normalizeUnit(item.unit);
   return {
     id: item.id,
     n: item.n || item.name || "",
-    c: item.c || item.category || "",
+    c,
     img: item.img || item.image || "",
     price: parsePrice(item.price),
-    unit: normalizeUnit(item.unit)
+    unit,
+    saleTypes: normalizeSaleTypes(item.saleTypes || item.sale_type || item.saleType || item.sale_options, c, unit)
   };
 }
 
@@ -131,7 +163,8 @@ function mergeById(base, overrides) {
       ...item,
       img: item.img || prev.img,
       price: item.price !== null ? item.price : prev.price,
-      unit: item.unit ? normalizeUnit(item.unit) : normalizeUnit(prev.unit)
+      unit: item.unit ? normalizeUnit(item.unit) : normalizeUnit(prev.unit),
+      saleTypes: normalizeSaleTypes(item.saleTypes, item.c, item.unit || prev.unit)
     });
   }
   return Array.from(map.values());
@@ -350,11 +383,14 @@ function formatPrice(price) {
 
 function toProductsJson(products) {
   return products.map((p) => {
+    const saleTypes = normalizeSaleTypes(p.saleTypes, p.c, p.unit);
     const row = {
       id: p.id,
       name: p.n,
       category: p.c,
-      unit: normalizeUnit(p.unit)
+      unit: normalizeUnit(p.unit),
+      sale_type: saleTypes[0],
+      sale_options: saleTypes.join(",")
     };
     if (p.price !== null) row.price = p.price;
     if (p.img) row.image = p.img;
@@ -386,8 +422,10 @@ window.MagazinCatalog = {
   GOOGLE_URL_KEY,
   BASE_PRODUCTS,
   PRODUCT_UNITS,
+  SALE_TYPES,
   CATEGORY_PRESETS,
   normalizeUnit,
+  normalizeSaleTypes,
   getCategoryList,
   parsePrice,
   normalizeProduct,

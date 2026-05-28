@@ -280,24 +280,30 @@ function formatOrderMessage_(name, phone, address, comment, items, total) {
   }
   lines.push("━━━━━━━━━━");
 
+  var hasEstimated = false;
   items.forEach(function (it) {
     var qty = it.qty || it.quantity || 1;
     var title = it.name || it.n || "Товар";
     var unit = it.unitLabel || it.unit || "шт";
     var lineSum = it.lineTotal;
     var price = it.price;
+    var estimated = !!it.estimated;
+    if (estimated) hasEstimated = true;
     var row = "• " + title + " — " + qty + " " + unit;
     if (price !== undefined && price !== null && price !== "") {
-      row += " × " + price + " грн";
+      row += " × " + (estimated ? "≈ " : "") + price + " грн";
     }
     if (lineSum !== undefined && lineSum !== null && lineSum !== "") {
-      row += " = " + Math.round(lineSum * 100) / 100 + " грн";
+      row += " = " + (estimated ? "≈ " : "") + Math.round(lineSum * 100) / 100 + " грн";
     }
     lines.push(row);
   });
 
   lines.push("━━━━━━━━━━");
   lines.push("💰 Сума: " + Math.round(total * 100) / 100 + " грн");
+  if (hasEstimated) {
+    lines.push("⚖️ Фінальна вага та сума уточнюється під час збору замовлення.");
+  }
   if (comment) {
     lines.push("💬 " + comment);
   }
@@ -364,7 +370,7 @@ function getSheet_() {
   var sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(["id", "name", "category", "price", "image", "unit"]);
+    sheet.appendRow(["id", "name", "category", "price", "image", "unit", "sale_type", "sale_options"]);
   }
   return sheet;
 }
@@ -383,7 +389,9 @@ function readProducts() {
     category: headers.indexOf("category"),
     price: headers.indexOf("price"),
     image: headers.indexOf("image"),
-    unit: headers.indexOf("unit")
+    unit: headers.indexOf("unit"),
+    saleType: headers.indexOf("sale_type"),
+    saleOptions: headers.indexOf("sale_options")
   };
 
   var out = [];
@@ -394,13 +402,17 @@ function readProducts() {
     var priceVal = idx.price >= 0 ? row[idx.price] : "";
     var unitVal = idx.unit >= 0 ? String(row[idx.unit] || "").trim().toLowerCase() : "";
     if (!unitVal) unitVal = "pcs";
+    var saleTypeVal = idx.saleType >= 0 ? String(row[idx.saleType] || "").trim().toLowerCase() : "";
+    var saleOptionsVal = idx.saleOptions >= 0 ? String(row[idx.saleOptions] || "").trim().toLowerCase() : "";
     out.push({
       id: String(id),
       name: String(row[idx.name >= 0 ? idx.name : 1] || ""),
       category: String(row[idx.category >= 0 ? idx.category : 2] || ""),
       price: priceVal === "" || priceVal === null ? null : Number(priceVal),
       image: String(row[idx.image >= 0 ? idx.image : 4] || ""),
-      unit: unitVal
+      unit: unitVal,
+      sale_type: saleTypeVal || (unitVal === "kg" ? "kg" : unitVal === "pack" ? "pack" : "pcs"),
+      sale_options: saleOptionsVal || (saleTypeVal || (unitVal === "kg" ? "kg" : unitVal === "pack" ? "pack" : "pcs"))
     });
   }
   return out;
@@ -409,17 +421,23 @@ function readProducts() {
 function writeProducts(products) {
   var sheet = getSheet_();
   sheet.clear();
-  sheet.appendRow(["id", "name", "category", "price", "image", "unit"]);
+  sheet.appendRow(["id", "name", "category", "price", "image", "unit", "sale_type", "sale_options"]);
   products.forEach(function (p) {
     var unit = String(p.unit || "pcs").trim().toLowerCase();
     if (!unit) unit = "pcs";
+    var saleType = String(p.sale_type || p.saleType || "").trim().toLowerCase();
+    if (!saleType) saleType = unit === "kg" ? "kg" : unit === "pack" ? "pack" : "pcs";
+    var saleOptions = String(p.sale_options || p.saleOptions || "").trim().toLowerCase();
+    if (!saleOptions) saleOptions = saleType;
     sheet.appendRow([
       p.id || "",
       p.name || p.n || "",
       p.category || p.c || "",
       p.price === null || p.price === undefined || p.price === "" ? "" : p.price,
       p.image || p.img || "",
-      unit
+      unit,
+      saleType,
+      saleOptions
     ]);
   });
 }

@@ -4,7 +4,7 @@ const listEl = document.getElementById("productsList");
 const formMessageEl = document.getElementById("formMessage");
 const newNameEl = document.getElementById("newName");
 const newCategoryEl = document.getElementById("newCategory");
-const newUnitEl = document.getElementById("newUnit");
+const newSaleTypesEl = document.getElementById("newSaleTypes");
 const newPriceEl = document.getElementById("newPrice");
 const newImageEl = document.getElementById("newImage");
 const newImageFileEl = document.getElementById("newImageFile");
@@ -55,12 +55,45 @@ function categoryOptionsHtml(selected, categories) {
     .join("");
 }
 
-function unitOptionsHtml(selected) {
-  const sel = Catalog.normalizeUnit(selected);
-  return Catalog.PRODUCT_UNITS.map(
-    (u) =>
-      `<option value="${escapeHtml(u.id)}"${u.id === sel ? " selected" : ""}>${escapeHtml(u.label)}</option>`
-  ).join("");
+function normalizeSaleTypes(value, category, unit) {
+  return Catalog.normalizeSaleTypes(value, category, unit);
+}
+
+function saleTypesButtonsHtml(selected) {
+  const active = normalizeSaleTypes(selected);
+  return Catalog.SALE_TYPES.map((s) => {
+    const on = active.includes(s.id);
+    return `<button type="button" class="sale-chip${on ? " active" : ""}" data-sale-type="${escapeHtml(s.id)}">${escapeHtml(s.label)}</button>`;
+  }).join("");
+}
+
+function bindSaleTypeButtons(container, initial, onChange) {
+  if (!container) return { get: () => [] };
+  let current = normalizeSaleTypes(initial);
+  container.innerHTML = saleTypesButtonsHtml(current);
+  function render() {
+    container.querySelectorAll("[data-sale-type]").forEach((btn) => {
+      const id = btn.getAttribute("data-sale-type");
+      btn.classList.toggle("active", current.includes(id));
+    });
+  }
+  container.querySelectorAll("[data-sale-type]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-sale-type");
+      if (current.includes(id)) current = current.filter((x) => x !== id);
+      else current.push(id);
+      if (!current.length) current = ["pcs"];
+      render();
+      if (onChange) onChange(current);
+    });
+  });
+  return {
+    get: () => current.slice(),
+    set: (value) => {
+      current = normalizeSaleTypes(value);
+      render();
+    }
+  };
 }
 
 function fillAddFormSelects() {
@@ -70,8 +103,10 @@ function fillAddFormSelects() {
       Catalog.getCategoryList(products)
     );
   }
-  if (newUnitEl) {
-    newUnitEl.innerHTML = unitOptionsHtml(newUnitEl.value || "pcs");
+  if (newSaleTypesEl) {
+    const initial = normalizeSaleTypes(newSaleTypesEl.dataset.value || "pcs");
+    const state = bindSaleTypeButtons(newSaleTypesEl, initial);
+    newSaleTypesEl._saleTypesState = state;
   }
 }
 
@@ -166,7 +201,7 @@ function bindAddPhotoPreview() {
 function bindRowInputs(row, item) {
   const nameInput = row.querySelector('[data-field="n"]');
   const catInput = row.querySelector('[data-field="c"]');
-  const unitInput = row.querySelector('[data-field="unit"]');
+  const saleTypesWrap = row.querySelector('[data-field="sale-types"]');
   const priceInput = row.querySelector('[data-field="price"]');
   const imgInput = row.querySelector('[data-field="img"]');
   const imgFileInput = row.querySelector('[data-field="img-file"]');
@@ -175,6 +210,11 @@ function bindRowInputs(row, item) {
   const priceView = row.querySelector('[data-field="price-view"]');
   const saveBtn = row.querySelector('[data-action="save"]');
   const delBtn = row.querySelector('[data-action="delete"]');
+  const saleTypesState = bindSaleTypeButtons(
+    saleTypesWrap,
+    item.saleTypes || item.saleType || item.sale_type || item.unit || "pcs",
+    () => markCardDirty()
+  );
 
   updatePhotoPreview(photoFrame, imgPreview, item.img);
 
@@ -185,7 +225,8 @@ function bindRowInputs(row, item) {
 
     item.n = nameInput.value.trim();
     item.c = catInput.value.trim();
-    item.unit = Catalog.normalizeUnit(unitInput.value);
+    item.saleTypes = normalizeSaleTypes(saleTypesState.get(), item.c, item.unit);
+    item.unit = Catalog.SALE_TYPES.find((s) => s.id === item.saleTypes[0])?.unit || Catalog.normalizeUnit(item.unit);
     item.img = imgInput.value.trim();
     item.price = Catalog.parsePrice(priceInput.value);
     saveProducts();
@@ -210,7 +251,6 @@ function bindRowInputs(row, item) {
   if (saveBtn) saveBtn.addEventListener("click", () => { persistRow(); });
   nameInput.addEventListener("change", markCardDirty);
   catInput.addEventListener("change", markCardDirty);
-  unitInput.addEventListener("change", markCardDirty);
   imgInput.addEventListener("input", () => {
     updatePhotoPreview(photoFrame, imgPreview, imgInput.value);
     markCardDirty();
@@ -261,8 +301,8 @@ function renderProducts() {
             <select data-field="c">${categoryOptionsHtml(item.c, categories)}</select>
           </label>
           <label class="field">
-            <span class="field-label">Одиниця</span>
-            <select data-field="unit">${unitOptionsHtml(item.unit)}</select>
+            <span class="field-label">Тип продажу</span>
+            <div class="sale-types" data-field="sale-types"></div>
           </label>
           <label class="field">
             <span class="field-label">Ціна, грн</span>
@@ -290,6 +330,12 @@ function renderProducts() {
         <input type="file" accept="image/*" data-field="img-file" class="product-photo-file">
       </div>
     `;
+    const saleContainer = card.querySelector('[data-field="sale-types"]');
+    if (saleContainer) {
+      saleContainer.innerHTML = saleTypesButtonsHtml(
+        item.saleTypes || item.saleType || item.sale_type || item.unit
+      );
+    }
     bindRowInputs(card, item);
     listEl.appendChild(card);
   });
@@ -299,7 +345,14 @@ function renderProducts() {
 if (addBtn) addBtn.addEventListener("click", async () => {
   const name = newNameEl.value.trim();
   const category = newCategoryEl.value.trim();
-  const unit = Catalog.normalizeUnit(newUnitEl && newUnitEl.value);
+  const saleTypes = normalizeSaleTypes(
+    newSaleTypesEl && newSaleTypesEl._saleTypesState
+      ? newSaleTypesEl._saleTypesState.get()
+      : "pcs",
+    category,
+    "pcs"
+  );
+  const unit = Catalog.SALE_TYPES.find((s) => s.id === saleTypes[0])?.unit || "pcs";
   let image = newImageEl.value.trim();
   const price = Catalog.parsePrice(newPriceEl.value);
 
@@ -321,7 +374,7 @@ if (addBtn) addBtn.addEventListener("click", async () => {
     image = await fileToDataUrl(newFile);
   }
 
-  products.unshift({ id, n: name, c: category, unit, img: image, price });
+  products.unshift({ id, n: name, c: category, unit, saleTypes, img: image, price });
   saveProducts();
   renderProducts();
   try {
@@ -333,6 +386,7 @@ if (addBtn) addBtn.addEventListener("click", async () => {
   newNameEl.value = "";
   newImageEl.value = "";
   newPriceEl.value = "";
+  if (newSaleTypesEl && newSaleTypesEl._saleTypesState) newSaleTypesEl._saleTypesState.set(["pcs"]);
   if (newImageFileEl) newImageFileEl.value = "";
   updatePhotoPreview(newPhotoFrame, newPhotoPreview, "");
   setMessage("Товар додано");

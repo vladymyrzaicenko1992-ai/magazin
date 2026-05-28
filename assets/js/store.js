@@ -109,6 +109,9 @@
 
     const canOrder = priceInfo.canOrder && Cart;
     const inCart = canOrder && Cart.isInCart(p.id);
+    const saleTypes = Catalog.normalizeSaleTypes(p.saleTypes || p.sale_type, p.c, p.unit);
+    const isWeight = saleTypes.includes("kg");
+    const saleText = isWeight ? "⚖️ продається на вагу" : "✅ фіксована фасовка";
     const badges = Meta.getBadges(p);
     const badgeHtml = badges
       .map((b) => '<span class="pcard-badge ' + b.cls + '">' + escapeHtml(b.text) + "</span>")
@@ -140,6 +143,9 @@
       '<div class="pcard-sub">' +
       escapeHtml(subtitle) +
       "</div>" +
+      '<div class="pcard-sale">' +
+      escapeHtml(saleText) +
+      "</div>" +
       "</div>" +
       '<div class="pcard-img-foot">' +
       '<div class="pcard-price">' +
@@ -154,7 +160,7 @@
           '" data-id="' +
           escapeHtml(p.id) +
           '">' +
-          (inCart ? "✓ У кошику" : "➕ Додати") +
+          (inCart ? "✓ У кошику" : "Обрати кількість") +
           "</button>"
         : '<span class="pcard-add pcard-add--muted" aria-disabled="true">Актуальна ціна у продавця</span>') +
       "</div>" +
