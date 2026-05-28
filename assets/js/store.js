@@ -41,7 +41,7 @@
     const url = await Catalog.getGoogleWebAppUrl();
     if (!url) return;
     try {
-      const rows = await Catalog.fetchTrending(url, 5, 7);
+      const rows = await Catalog.fetchTrending(url, 4, 7);
       const ids = rows.map((r) => r.id).filter(Boolean);
       if (ids.length) trendingIds = ids;
     } catch (err) {

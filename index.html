@@ -342,20 +342,23 @@
       margin-bottom: 12px;
     }
     .pgrid--trending {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 4px;
-      -webkit-overflow-scrolling: touch;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
     }
-    .pgrid--trending::-webkit-scrollbar { display: none; }
     .pgrid--trending .pcard {
-      flex: 0 0 156px;
-      min-width: 156px;
+      min-width: 0;
+      width: 100%;
     }
-    @media(min-width:440px){
-      .pgrid--trending .pcard { flex: 0 0 172px; min-width: 172px; }
+    .pgrid--trending .pcard-img-overlay .pcard-name {
+      font-size: 11px;
+    }
+    .pgrid--trending .pcard-img-foot .pcard-price {
+      font-size: 12px;
+    }
+    .pgrid--trending .pcard-add {
+      padding: 8px 6px;
+      font-size: 10px;
     }
 
     /* GRID */
@@ -873,9 +876,9 @@
   });
 })();
 </script>
-<script src="assets/js/catalog.js?v=25"></script>
-<script src="assets/js/cart.js?v=25"></script>
-<script src="assets/js/store-meta.js?v=25"></script>
-<script src="assets/js/store.js?v=25"></script>
+<script src="assets/js/catalog.js?v=26"></script>
+<script src="assets/js/cart.js?v=26"></script>
+<script src="assets/js/store-meta.js?v=26"></script>
+<script src="assets/js/store.js?v=26"></script>
 </body>
 </html>

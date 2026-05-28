@@ -11,7 +11,7 @@
   };
 
   /** Резерв, якщо Google ще не повернув топ за 7 днів */
-  const TRENDING_IDS = ["pel-dom", "var-kartoshka", "kot-babush", "hink-dom", "smetana"];
+  const TRENDING_IDS = ["pel-dom", "var-kartoshka", "kot-babush", "hink-dom"];
 
   const UPSELL_BY_CATEGORY = {
     Пельмені: ["smetana", "maslo-vershk"],
