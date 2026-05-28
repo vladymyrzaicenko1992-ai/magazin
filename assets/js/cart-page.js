@@ -218,7 +218,7 @@
         if (formErr) formErr.textContent = err.message || "Помилка відправки";
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = "Оформити замовлення";
+          submitBtn.textContent = "Оформити запит менеджеру";
         }
       }
     });
