@@ -1,11 +1,39 @@
 /**
- * Google Таблиця + Telegram-замовлення.
+ * =============================================================================
+ *  УСЕ В МОРОЗИЛЦІ — Google Apps Script (веб-додаток для сайту)
+ * =============================================================================
  *
- * Telegram — один із двох способів:
- * 1) Лист «telegram» у цій же таблиці: B1 = токен бота, B2 = chat_id (-1003933471474)
- * 2) Script Properties: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+ * Підключення: Розширення → Apps Script → вставити цей файл → Зберегти.
  *
- * Після зміни коду: Розгорнути → Нова версія веб-додатку.
+ * РОЗГОРТАННЯ (обовʼязково після кожної зміни коду):
+ *   Розгорнути → Керувати розгортаннями → Нове розгортання
+ *   Тип: Веб-додаток
+ *   Виконувати від імені: Я
+ *   Хто має доступ: Усі (навіть анонімні)
+ *
+ * URL вставити в assets/data/config.json → googleWebAppUrl
+ *
+ * TELEGRAM (один із варіантів):
+ *   1) Лист «telegram»: B1 = токен від @BotFather, B2 = chat_id групи (-100…)
+ *   2) Script Properties: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+ *   3) Один раз ▶ authorizeTelegram (дозвіл UrlFetchApp)
+ *
+ * API (GET):
+ *   ?action=get          — каталог products
+ *   ?action=ping         — перевірка Telegram
+ *   ?action=trending     — топ додавань у кошик (&days=7&limit=5)
+ *   ?action=dashboard    — панель адміна (замовлення сьогодні, топ)
+ *   ?action=initTelegram — створити лист telegram
+ *   ?action=chats        — список chat_id з getUpdates
+ *
+ * API (POST JSON):
+ *   action: save      + products[]  — зберегти каталог
+ *   action: order     + name, phone, items[], total  — замовлення → Telegram
+ *   action: trackAdd  + id, name, qty, unit, sale_type  — статистика кошика
+ *
+ * Листи таблиці (створюються автоматично):
+ *   products, orders, cart_adds, stats_7d, unit_metrics, telegram
+ * =============================================================================
  */
 
 var SHEET_NAME = "products";
@@ -13,6 +41,13 @@ var ORDERS_SHEET = "orders";
 var CART_ADDS_SHEET = "cart_adds";
 var STATS_7D_SHEET = "stats_7d";
 var UNIT_METRICS_SHEET = "unit_metrics";
+var TELEGRAM_SHEET = "telegram";
+
+/** Chat_id групи «Заказы» — за замовчуванням */
+var DEFAULT_CHAT_ID = "-1003933471474";
+
+/** Не зберігайте токен у Git. Краще: лист telegram B1 або Script Properties */
+var TELEGRAM_BOT_TOKEN = "";
 
 var DEFAULT_UNIT_METRICS = {
   pcs: { label: "шт", step: 1, min: 1 },
@@ -20,6 +55,7 @@ var DEFAULT_UNIT_METRICS = {
   pack: { label: "уп", step: 1, min: 1 }
 };
 
+// ----------------------------------------------------------------------------- doGet / doPost
 function doGet(e) {
   try {
     var action = (e && e.parameter && e.parameter.action) || "get";
@@ -40,7 +76,7 @@ function doGet(e) {
       return jsonOut({
         ok: true,
         message:
-          "Лист «telegram» готовий. Вставте токен від @BotFather у клітинку B1. Chat_id уже в B2."
+          "Лист «telegram» готовий. B1 = токен бота, B2 = chat_id групи."
       });
     }
     if (action === "chats") {
@@ -90,14 +126,10 @@ function jsonOut(obj) {
   );
 }
 
+// ----------------------------------------------------------------------------- Telegram
 function getProps_() {
   return PropertiesService.getScriptProperties();
 }
-
-var TELEGRAM_SHEET = "telegram";
-var DEFAULT_CHAT_ID = "-1003933471474";
-/** Токен @Magazine1304_bot — після /revoke оновіть тут і зробіть Нове розгортання */
-var TELEGRAM_BOT_TOKEN = "8809482654:AAH6dFjlNa4ju6DIEM1D9KHwRO4HkDDPoI4";
 
 function getTelegramConfig_() {
   var p = getProps_();
@@ -123,10 +155,10 @@ function getTelegramConfig_() {
     };
   }
 
-  token = token || fromSheet.token || TELEGRAM_BOT_TOKEN;
+  token = token || fromSheet.token || String(TELEGRAM_BOT_TOKEN || "").trim();
   chatId = chatId || fromSheet.chatId || DEFAULT_CHAT_ID;
   if (token && chatId) {
-    return { token: token, chatId: chatId, source: "code" };
+    return { token: token, chatId: chatId, source: token === TELEGRAM_BOT_TOKEN ? "code" : "sheet" };
   }
 
   return { token: "", chatId: "", source: "none" };
@@ -134,8 +166,7 @@ function getTelegramConfig_() {
 
 function readTelegramFromSheet_() {
   try {
-    var sheet =
-      SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TELEGRAM_SHEET);
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TELEGRAM_SHEET);
     if (!sheet) return { token: "", chatId: "" };
     return {
       token: String(sheet.getRange("B1").getValue() || "").trim(),
@@ -147,57 +178,51 @@ function readTelegramFromSheet_() {
   }
 }
 
-/** Створює лист telegram (▶ або ?action=initTelegram після розгортання). */
 function createTelegramSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(TELEGRAM_SHEET);
-  if (!sheet) {
-    sheet = ss.insertSheet(TELEGRAM_SHEET);
-  }
+  if (!sheet) sheet = ss.insertSheet(TELEGRAM_SHEET);
   sheet.clear();
   sheet.getRange("A1").setValue("TELEGRAM_BOT_TOKEN");
   sheet.getRange("B1").setValue("");
   sheet.getRange("A2").setValue("TELEGRAM_CHAT_ID");
   sheet.getRange("B2").setValue(DEFAULT_CHAT_ID);
-  sheet.getRange("A4").setValue("Токен: @BotFather → /mybots → API Token");
-  sheet.getRange("A5").setValue("Після B1 збережіть таблицю. Розгортання не потрібне.");
+  sheet.getRange("A4").setValue("Токен: @BotFather → /newbot або /mybots → API Token");
+  sheet.getRange("A5").setValue("Бот має бути в групі «Заказы» як адмін.");
   return sheet;
 }
 
-/** Опційно: записує токен з TELEGRAM_BOT_TOKEN у Script Properties */
+/** ▶ Run один раз: записує токен/chat_id у Script Properties (підставте TOKEN нижче перед Run) */
 function setupTelegramProperties() {
+  var token = String(TELEGRAM_BOT_TOKEN || readTelegramFromSheet_().token || "").trim();
+  if (!token) {
+    throw new Error("Вкажіть токен у B1 листа telegram або в TELEGRAM_BOT_TOKEN у коді.");
+  }
   getProps_().setProperties({
-    TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN,
+    TELEGRAM_BOT_TOKEN: token,
     TELEGRAM_CHAT_ID: DEFAULT_CHAT_ID
   });
-  Logger.log("Telegram OK у Properties. ping?action=ping");
+  Logger.log("OK: Telegram у Properties. Перевірте ?action=ping");
 }
 
-/**
- * ОДИН РАЗ: виберіть authorizeTelegram у списку → ▶ Виконати.
- * З’явиться вікно «Потрібен доступ» → Дозволити / Allow.
- * Після цього замовлення з сайту підуть у Telegram.
- */
+/** ▶ Run один раз — дозвіл на відправку в Telegram */
 function authorizeTelegram() {
   var cfg = getTelegramConfig_();
   if (!cfg.token || !cfg.chatId) {
-    throw new Error("Немає токена або chat_id. Перевірте TELEGRAM_BOT_TOKEN у коді.");
+    throw new Error("Немає токена або chat_id. Заповніть лист telegram (B1, B2).");
   }
   sendTelegramMessage_(
     cfg.token,
     cfg.chatId,
     "✅ Дозвіл UrlFetchApp надано. Замовлення з vse-v-morozilke.shop працюють."
   );
-  Logger.log("OK: тестове повідомлення надіслано в групу «Заказы».");
+  Logger.log("OK: тест надіслано в Telegram.");
 }
 
 function listTelegramChats_() {
   var cfg = getTelegramConfig_();
   if (!cfg.token) return { error: "TELEGRAM_BOT_TOKEN не налаштовано" };
-  var url =
-    "https://api.telegram.org/bot" +
-    cfg.token +
-    "/getUpdates?limit=50";
+  var url = "https://api.telegram.org/bot" + cfg.token + "/getUpdates?limit=50";
   var res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
   var data = JSON.parse(res.getContentText());
   if (!data.ok) return { error: data.description || "getUpdates failed" };
@@ -219,6 +244,24 @@ function listTelegramChats_() {
   return out;
 }
 
+function sendTelegramMessage_(token, chatId, text) {
+  var url = "https://api.telegram.org/bot" + token + "/sendMessage";
+  var res = UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify({
+      chat_id: chatId,
+      text: text
+    }),
+    muteHttpExceptions: true
+  });
+  var data = JSON.parse(res.getContentText());
+  if (!data.ok) {
+    throw new Error(data.description || "Telegram sendMessage failed");
+  }
+}
+
+// ----------------------------------------------------------------------------- Orders
 function placeOrder_(body) {
   if (body.website) {
     return { ok: false, error: "Spam" };
@@ -249,10 +292,8 @@ function placeOrder_(body) {
     return {
       ok: false,
       error:
-        "Telegram не налаштовано. У Apps Script: функція setupTelegramProperties → вставте токен у TOKEN → ▶ Run. " +
-        "Або Script Properties: TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID=" +
-        DEFAULT_CHAT_ID +
-        ". Розгортання: «Виконувати від імені: Я»."
+        "Telegram не налаштовано. Заповніть лист telegram (B1 токен, B2 chat_id) " +
+        "і запустіть authorizeTelegram. Розгортання: «Виконувати від імені: Я»."
     };
   }
 
@@ -265,13 +306,12 @@ function placeOrder_(body) {
       return {
         ok: false,
         error:
-          "Немає дозволу на Telegram. У Apps Script запустіть ▶ функцію authorizeTelegram і натисніть «Дозволити». Розгортання: виконувати від імені «Я»."
+          "Немає дозволу на Telegram. Запустіть ▶ authorizeTelegram → Дозволити."
       };
     }
     throw err;
   }
   logOrder_(name, phone, address, comment, items, total);
-
   return { ok: true };
 }
 
@@ -280,8 +320,8 @@ function formatOrderMessage_(name, phone, address, comment, items, total) {
   var time = Utilities.formatDate(new Date(), tz, "dd.MM.yyyy HH:mm");
 
   var lines = ["🛒 Нове замовлення", ""];
-
   var hasEstimated = false;
+
   items.forEach(function (it) {
     var qty = it.qty || it.quantity || 1;
     var title = it.name || it.n || "Товар";
@@ -304,39 +344,17 @@ function formatOrderMessage_(name, phone, address, comment, items, total) {
   lines.push("");
   lines.push("Ім'я: " + name);
   lines.push("Телефон: " + phone);
-  if (address) {
-    lines.push("📍 Адреса: " + address);
-  }
-  if (comment) {
-    lines.push("💬 " + comment);
-  }
+  if (address) lines.push("📍 Адреса: " + address);
+  if (comment) lines.push("💬 " + comment);
   lines.push("🕒 " + time);
   lines.push("🌐 vse-v-morozilke.shop");
 
   return lines.join("\n");
 }
 
-function sendTelegramMessage_(token, chatId, text) {
-  var url = "https://api.telegram.org/bot" + token + "/sendMessage";
-  var res = UrlFetchApp.fetch(url, {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify({
-      chat_id: chatId,
-      text: text
-    }),
-    muteHttpExceptions: true
-  });
-  var data = JSON.parse(res.getContentText());
-  if (!data.ok) {
-    throw new Error(data.description || "Telegram sendMessage failed");
-  }
-}
-
 function logOrder_(name, phone, address, comment, items, total) {
   try {
-    var sheet = getOrdersSheet_();
-    sheet.appendRow([
+    getOrdersSheet_().appendRow([
       new Date(),
       name,
       phone,
@@ -350,6 +368,24 @@ function logOrder_(name, phone, address, comment, items, total) {
   }
 }
 
+function getOrdersSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(ORDERS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(ORDERS_SHEET);
+    sheet.appendRow([
+      "timestamp",
+      "name",
+      "phone",
+      "address",
+      "items_json",
+      "total",
+      "comment"
+    ]);
+  }
+  return sheet;
+}
+
 function countOrdersToday_() {
   try {
     var sheet = getOrdersSheet_();
@@ -361,8 +397,7 @@ function countOrdersToday_() {
     for (var i = 1; i < data.length; i++) {
       var ts = data[i][0];
       if (!ts) continue;
-      var day = Utilities.formatDate(new Date(ts), tz, "yyyy-MM-dd");
-      if (day === today) n++;
+      if (Utilities.formatDate(new Date(ts), tz, "yyyy-MM-dd") === today) n++;
     }
     return n;
   } catch (err) {
@@ -386,24 +421,7 @@ function getDashboard_() {
   };
 }
 
-function getOrdersSheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(ORDERS_SHEET);
-  if (!sheet) {
-    sheet = ss.insertSheet(ORDERS_SHEET);
-    sheet.appendRow([
-      "timestamp",
-      "name",
-      "phone",
-      "address",
-      "items_json",
-      "total",
-      "comment"
-    ]);
-  }
-  return sheet;
-}
-
+// ----------------------------------------------------------------------------- Products
 function unitFromSaleType_(saleType) {
   var st = String(saleType || "pcs").trim().toLowerCase();
   if (st === "kg") return "kg";
@@ -514,7 +532,6 @@ function readProducts() {
     var id = row[idx.id >= 0 ? idx.id : 0];
     if (!id) continue;
     var priceVal = idx.price >= 0 ? row[idx.price] : "";
-    var unitVal = idx.unit >= 0 ? String(row[idx.unit] || "").trim().toLowerCase() : "";
     var saleTypeVal = idx.saleType >= 0 ? String(row[idx.saleType] || "").trim().toLowerCase() : "";
     if (!saleTypeVal && idx.saleOptions >= 0) {
       saleTypeVal = String(row[idx.saleOptions] || "")
@@ -523,10 +540,10 @@ function readProducts() {
         .toLowerCase();
     }
     if (!saleTypeVal) {
+      var unitVal = idx.unit >= 0 ? String(row[idx.unit] || "").trim().toLowerCase() : "";
       saleTypeVal = unitVal === "kg" ? "kg" : unitVal === "pack" ? "pack" : "pcs";
     }
     var unit = unitFromSaleType_(saleTypeVal);
-    if (unitVal && unitVal !== unit) unit = unitFromSaleType_(saleTypeVal);
     var unitMinVal = idx.unitMin >= 0 ? row[idx.unitMin] : "";
     var unitStepVal = idx.unitStep >= 0 ? row[idx.unitStep] : "";
     var metrics = metricsForUnit_(unit, unitMinVal, unitStepVal);
@@ -560,7 +577,7 @@ function writeProducts(products) {
     "unit_min",
     "unit_step"
   ]);
-  products.forEach(function (p) {
+  (products || []).forEach(function (p) {
     var saleType = String(p.sale_type || p.saleType || "").trim().toLowerCase();
     var unit = unitFromSaleType_(saleType || p.unit);
     if (!saleType) saleType = unit === "kg" ? "kg" : unit === "pack" ? "pack" : "pcs";
@@ -579,13 +596,22 @@ function writeProducts(products) {
   });
 }
 
-/** Лог кожного «Додати в кошик» + зведення топу за 7 днів на листі stats_7d */
+// ----------------------------------------------------------------------------- Cart stats
 function getCartAddsSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(CART_ADDS_SHEET);
   if (!sheet) {
     sheet = ss.insertSheet(CART_ADDS_SHEET);
     sheet.appendRow(["timestamp", "product_id", "product_name", "qty", "unit", "sale_type"]);
+    return sheet;
+  }
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var h = headers.map(function (x) {
+    return String(x).toLowerCase().trim();
+  });
+  if (h.indexOf("unit") < 0) {
+    sheet.getRange(1, headers.length + 1).setValue("unit");
+    sheet.getRange(1, headers.length + 2).setValue("sale_type");
   }
   return sheet;
 }
@@ -616,7 +642,6 @@ function trackCartAdd_(body) {
 
   getCartAddsSheet_().appendRow([new Date(), id, name, qty, unit, saleType]);
   refreshStats7dSheet_();
-
   return { ok: true };
 }
 
