@@ -381,9 +381,14 @@
           Без Google дані зберігаються лише в цьому браузері. Підключіть таблицю — тоді ціни з’являться на головній сторінці для всіх.
           <a href="docs/GOOGLE_DRIVE.md" target="_blank" rel="noopener">Інструкція</a>
         </p>
+        <p class="units-columns-hint" style="font-size:12px;color:var(--accent);margin-bottom:10px;line-height:1.45;">
+          <strong>Одиниці в листі <code>products</code>:</strong> колонки <code>sale_type</code> (kg / pcs / pack),
+          <code>unit</code>, <code>unit_min</code>, <code>unit_step</code> — не в окремому стовпці «одиниці».
+        </p>
         <input id="googleWebAppUrl" type="url" placeholder="URL веб-додатку Apps Script (script.google.com/.../exec)">
         <div class="toolbar" style="margin-top:10px;">
           <button id="saveGoogleUrlBtn" type="button">Зберегти URL</button>
+          <button id="repairGoogleBtn" type="button">Очистити дублі в таблиці</button>
           <button id="syncGoogleBtn" type="button" class="btn-primary">Синхронізувати в Google</button>
           <button id="loadGoogleBtn" type="button">Завантажити з Google</button>
         </div>
@@ -446,7 +451,7 @@
   </div>
 
   <script src="assets/js/admin-auth.js?v=35"></script>
-  <script src="assets/js/catalog.js?v=35"></script>
-  <script src="assets/js/admin.js?v=35"></script>
+  <script src="assets/js/catalog.js?v=37"></script>
+  <script src="assets/js/admin.js?v=37"></script>
 </body>
 </html>

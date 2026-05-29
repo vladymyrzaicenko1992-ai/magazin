@@ -26,6 +26,7 @@ const googleWebAppUrlEl = document.getElementById("googleWebAppUrl");
 const saveGoogleUrlBtn = document.getElementById("saveGoogleUrlBtn");
 const syncGoogleBtn = document.getElementById("syncGoogleBtn");
 const loadGoogleBtn = document.getElementById("loadGoogleBtn");
+const repairGoogleBtn = document.getElementById("repairGoogleBtn");
 const googleMessageEl = document.getElementById("googleMessage");
 const productsCountEl = document.getElementById("productsCount");
 const newPhotoFrame = document.getElementById("newPhotoFrame");
@@ -140,6 +141,7 @@ async function persistToCloud(verifyProductId) {
   if (!url) {
     return { google: false, text: "Збережено (лише в браузері). Додайте googleWebAppUrl у config.json." };
   }
+  products = Catalog.dedupeProductsById(products);
   const result = await Catalog.saveToGoogle(url, products);
   const check = await Catalog.fetchFromGoogle(url);
   if (check.length < Math.min(products.length, 1)) {
@@ -511,6 +513,34 @@ if (saveGoogleUrlBtn) {
   });
 }
 
+if (repairGoogleBtn) {
+  repairGoogleBtn.addEventListener("click", async () => {
+    repairGoogleBtn.disabled = true;
+    const url = await Catalog.getGoogleWebAppUrl();
+    if (!url) {
+      setGoogleMessage("Немає URL у config.json");
+      repairGoogleBtn.disabled = false;
+      return;
+    }
+    try {
+      setGoogleMessage("Очищення дублів…");
+      const data = await Catalog.repairGoogleSheet(url);
+      products = await Catalog.fetchFromGoogle(url);
+      products = Catalog.saveToStorage(products);
+      renderProducts();
+      setGoogleMessage(
+        data.message ||
+          `Готово: ${data.rowsBefore} → ${data.rowsAfter} рядків (прибрано ${data.removedDuplicates} дублів)`
+      );
+      setMessage("Таблицю очищено. Тепер змініть одиниці і натисніть «Зберегти».");
+    } catch (err) {
+      setGoogleMessage("Помилка: " + err.message);
+    } finally {
+      repairGoogleBtn.disabled = false;
+    }
+  });
+}
+
 if (syncGoogleBtn) {
   syncGoogleBtn.addEventListener("click", async () => {
     syncGoogleBtn.disabled = true;
@@ -521,15 +551,17 @@ if (syncGoogleBtn) {
       return;
     }
     try {
+      products = Catalog.dedupeProductsById(products);
       saveProducts();
       setGoogleMessage("Запис у Google…");
       const data = await Catalog.saveToGoogle(url, products);
       const check = await Catalog.fetchFromGoogle(url);
-      const withUnits = check.filter((p) => p.saleType || p.unit).length;
+      const dupNote =
+        data.removedDuplicates > 0 ? `, прибрано дублів: ${data.removedDuplicates}` : "";
       setGoogleMessage(
-        `У Google: ${data.saved ?? products.length} товарів, одиниці в колонках sale_type / unit / unit_min (${withUnits} з одиницями)`
+        `У Google: ${data.saved ?? data.sent ?? products.length} унікальних товарів${dupNote}. Колонки: sale_type, unit, unit_min, unit_step`
       );
-      setMessage("Каталог синхронізовано з Google");
+      setMessage(`Синхронізовано (${check.length} у таблиці після запису)`);
     } catch (err) {
       setGoogleMessage("Помилка: " + err.message);
     } finally {

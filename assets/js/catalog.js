@@ -381,10 +381,38 @@ async function trackCartAdd(url, product, qty) {
   }
 }
 
+function dedupeProductsById(products) {
+  const map = new Map();
+  (products || []).forEach((p) => {
+    if (!p || !p.id) return;
+    map.set(p.id, p);
+  });
+  return Array.from(map.values());
+}
+
+async function repairGoogleSheet(url) {
+  const res = await fetch(url, {
+    method: "POST",
+    redirect: "follow",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action: "repairProducts" })
+  });
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (_) {
+    throw new Error("repair: не JSON — оновіть Apps Script і зробіть Нове розгортання");
+  }
+  if (!data.ok) throw new Error(data.error || data.message || "repair failed");
+  return data;
+}
+
 async function saveToGoogle(url, products) {
+  const unique = dedupeProductsById(products);
   const payload = JSON.stringify({
     action: "save",
-    products: toProductsJson(products)
+    products: toProductsJson(unique)
   });
   const res = await fetch(url, {
     method: "POST",
@@ -401,7 +429,7 @@ async function saveToGoogle(url, products) {
     throw new Error("Google не повернув JSON. Перевірте URL і доступ веб-додатку.");
   }
   if (!data.ok) throw new Error(data.error || "Помилка запису в Google");
-  return data;
+  return { ...data, sent: unique.length };
 }
 
 async function loadCatalog() {
@@ -538,5 +566,7 @@ window.MagazinCatalog = {
   fetchTrending,
   fetchDashboard,
   trackCartAdd,
+  dedupeProductsById,
+  repairGoogleSheet,
   saveToGoogle
 };

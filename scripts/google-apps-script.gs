@@ -92,6 +92,9 @@ function doGet(e) {
     if (action === "dashboard") {
       return jsonOut(getDashboard_());
     }
+    if (action === "repairProducts") {
+      return jsonOut(repairProductsSheet_());
+    }
     return jsonOut({ ok: false, error: "Unknown action" });
   } catch (err) {
     return jsonOut({ ok: false, error: String(err) });
@@ -105,8 +108,15 @@ function doPost(e) {
       body = JSON.parse(e.postData.contents);
     }
     if (body.action === "save" && body.products) {
-      writeProducts(body.products);
-      return jsonOut({ ok: true, saved: body.products.length });
+      var saved = writeProducts(body.products);
+      return jsonOut({
+        ok: true,
+        saved: saved.unique,
+        removedDuplicates: saved.removedDuplicates
+      });
+    }
+    if (body.action === "repairProducts") {
+      return jsonOut(repairProductsSheet_());
     }
     if (body.action === "order") {
       return jsonOut(placeOrder_(body));
@@ -526,7 +536,7 @@ function readProducts() {
     saleOptions: headers.indexOf("sale_options")
   };
 
-  var out = [];
+  var byId = {};
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
     var id = row[idx.id >= 0 ? idx.id : 0];
@@ -547,7 +557,7 @@ function readProducts() {
     var unitMinVal = idx.unitMin >= 0 ? row[idx.unitMin] : "";
     var unitStepVal = idx.unitStep >= 0 ? row[idx.unitStep] : "";
     var metrics = metricsForUnit_(unit, unitMinVal, unitStepVal);
-    out.push({
+    byId[String(id)] = {
       id: String(id),
       name: String(row[idx.name >= 0 ? idx.name : 1] || ""),
       category: String(row[idx.category >= 0 ? idx.category : 2] || ""),
@@ -557,14 +567,35 @@ function readProducts() {
       unit: unit,
       unit_min: metrics.min,
       unit_step: metrics.step
-    });
+    };
   }
-  return out;
+  return Object.keys(byId).map(function (k) {
+    return byId[k];
+  });
+}
+
+/** Один id = один рядок (останній у листі перемагає). */
+function dedupeProductsInput_(products) {
+  var map = {};
+  var dupes = 0;
+  (products || []).forEach(function (p) {
+    var id = String((p && p.id) || "").trim();
+    if (!id) return;
+    if (map[id]) dupes += 1;
+    map[id] = p;
+  });
+  var list = Object.keys(map).map(function (k) {
+    return map[k];
+  });
+  return { list: list, removedDuplicates: dupes };
 }
 
 function writeProducts(products) {
   ensureUnitMetricsSheet_();
+  var deduped = dedupeProductsInput_(products);
+  var list = deduped.list;
   var sheet = getSheet_();
+  var rowsBefore = Math.max(0, sheet.getLastRow() - 1);
   sheet.clear();
   sheet.appendRow([
     "id",
@@ -577,7 +608,7 @@ function writeProducts(products) {
     "unit_min",
     "unit_step"
   ]);
-  (products || []).forEach(function (p) {
+  list.forEach(function (p) {
     var saleType = String(p.sale_type || p.saleType || "").trim().toLowerCase();
     var unit = unitFromSaleType_(saleType || p.unit);
     if (!saleType) saleType = unit === "kg" ? "kg" : unit === "pack" ? "pack" : "pcs";
@@ -594,6 +625,31 @@ function writeProducts(products) {
       metrics.step
     ]);
   });
+  return {
+    unique: list.length,
+    removedDuplicates: Math.max(0, rowsBefore - list.length) + deduped.removedDuplicates,
+    rowsBefore: rowsBefore
+  };
+}
+
+/** Прибрати дублі id у листі products (залишається останній рядок для кожного id). */
+function repairProductsSheet_() {
+  var sheet = getSheet_();
+  var rowsBefore = Math.max(0, sheet.getLastRow() - 1);
+  var products = readProducts();
+  var saved = writeProducts(products);
+  return {
+    ok: true,
+    rowsBefore: rowsBefore,
+    rowsAfter: saved.unique,
+    removedDuplicates: Math.max(0, rowsBefore - saved.unique),
+    message:
+      "Лист products: було " +
+      rowsBefore +
+      " рядків, залишилось " +
+      saved.unique +
+      " унікальних товарів. Одиниці: колонки sale_type, unit, unit_min, unit_step."
+  };
 }
 
 // ----------------------------------------------------------------------------- Cart stats
