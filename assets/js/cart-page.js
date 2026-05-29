@@ -10,6 +10,7 @@
   const footEl = document.getElementById("cartFoot");
   const emptyEl = document.getElementById("cartEmpty");
   const wrapEl = document.getElementById("cartContent");
+  const loaderEl = document.getElementById("cartLoader");
   const form = document.getElementById("checkoutForm");
   const nameEl = document.getElementById("customerName");
   const phoneEl = document.getElementById("customerPhone");
@@ -22,6 +23,17 @@
 
   let items = [];
   let productsById = new Map();
+
+  function setLoading(on) {
+    if (loaderEl) {
+      loaderEl.hidden = !on;
+      loaderEl.setAttribute("aria-busy", on ? "true" : "false");
+    }
+    if (wrapEl) wrapEl.hidden = on;
+    if (emptyEl) emptyEl.hidden = true;
+    if (successEl) successEl.hidden = true;
+    if (footEl) footEl.hidden = on ? true : footEl.hidden;
+  }
 
   function escapeHtml(value) {
     return String(value)
@@ -234,6 +246,7 @@
   }
 
   async function init() {
+    setLoading(true);
     try {
       const catalog = await Catalog.loadCatalog();
       productsById = new Map(catalog.map((p) => [p.id, p]));
@@ -241,9 +254,12 @@
       syncFromCatalog();
       fillCustomerForm();
       render();
+      setLoading(false);
     } catch (err) {
       console.error(err);
-      if (listEl) listEl.innerHTML = '<p class="cart-err">Не вдалося завантажити каталог.</p>';
+      setLoading(false);
+      if (wrapEl) wrapEl.hidden = false;
+      if (listEl) listEl.innerHTML = '<p class="cart-err">Не вдалося завантажити каталог. Оновіть сторінку або спробуйте через хвилину.</p>';
     }
   }
 
