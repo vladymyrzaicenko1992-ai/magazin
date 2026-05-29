@@ -599,11 +599,23 @@
     socialTimer = setTimeout(tick, 5000);
   }
 
+  function applyFullCatalog(list) {
+    if (!list || !list.length) return;
+    products = list;
+    categoryMins = Meta.buildCategoryMins(products);
+    renderCategories();
+    renderTrending();
+    renderTodayPicks();
+    updateLiveStrip();
+    renderBundles();
+    render();
+    refreshAfterCartChange();
+  }
+
   async function init() {
     setCatalogLoading(true);
     try {
       await loadProducts();
-      await loadTrendingIds();
       bindQtyModalOnce();
       renderCategories();
       renderTrending();
@@ -613,6 +625,10 @@
       render();
       startSocialProof();
       setCatalogLoading(false);
+      loadTrendingIds().then(() => {
+        renderTrending();
+        renderBundles();
+      });
     } catch (err) {
       console.error(err);
       setCatalogLoading(false);
@@ -654,6 +670,10 @@
 
   window.addEventListener("magazin-cart-changed", () => {
     if (products.length) refreshAfterCartChange();
+  });
+
+  window.addEventListener("magazin-catalog-updated", (ev) => {
+    applyFullCatalog(ev.detail && ev.detail.products);
   });
 
   window.addEventListener("pageshow", () => {

@@ -245,6 +245,14 @@
     });
   }
 
+  function applyCatalog(list) {
+    if (!list || !list.length) return;
+    productsById = new Map(list.map((p) => [p.id, p]));
+    items = Cart.loadCart();
+    syncFromCatalog();
+    render();
+  }
+
   async function init() {
     setLoading(true);
     try {
@@ -262,6 +270,10 @@
       if (listEl) listEl.innerHTML = '<p class="cart-err">Не вдалося завантажити каталог. Оновіть сторінку або спробуйте через хвилину.</p>';
     }
   }
+
+  window.addEventListener("magazin-catalog-updated", (ev) => {
+    applyCatalog(ev.detail && ev.detail.products);
+  });
 
   init();
 })();
