@@ -25,6 +25,8 @@
 
   const catsEl = document.getElementById("cats");
   const grid = document.getElementById("pgrid");
+  const catalogLoader = document.getElementById("catalogLoader");
+  const catalogSticky = document.getElementById("catalogSticky");
   const trendingGrid = document.getElementById("trendingGrid");
   const trendingWrap = document.getElementById("trendingWrap");
   const search = document.getElementById("searchInput");
@@ -58,6 +60,16 @@
   let activeCat = "Усі";
   let q = "";
   let socialTimer = null;
+
+  function setCatalogLoading(on) {
+    if (catalogLoader) {
+      catalogLoader.hidden = !on;
+      catalogLoader.setAttribute("aria-busy", on ? "true" : "false");
+    }
+    if (grid) grid.hidden = on;
+    if (catalogSticky) catalogSticky.classList.toggle("is-catalog-loading", on);
+    if (search) search.disabled = on;
+  }
 
   async function loadProducts() {
     products = await loadCatalog();
@@ -588,6 +600,7 @@
   }
 
   async function init() {
+    setCatalogLoading(true);
     try {
       await loadProducts();
       await loadTrendingIds();
@@ -599,9 +612,15 @@
       renderBundles();
       render();
       startSocialProof();
+      setCatalogLoading(false);
     } catch (err) {
       console.error(err);
-      grid.innerHTML = '<div class="no-res">Не вдалося завантажити каталог. Оновіть сторінку.</div>';
+      setCatalogLoading(false);
+      if (grid) {
+        grid.hidden = false;
+        grid.innerHTML =
+          '<div class="no-res">Не вдалося завантажити каталог. Оновіть сторінку або спробуйте через хвилину.</div>';
+      }
     }
   }
 
