@@ -60,7 +60,7 @@ function doGet(e) {
   try {
     var action = (e && e.parameter && e.parameter.action) || "get";
     if (action === "get") {
-      return jsonOut({ ok: true, products: readProducts() });
+      return jsonOut({ ok: true, products: readProductsCached_() });
     }
     if (action === "ping") {
       var cfg = getTelegramConfig_();
@@ -114,6 +114,10 @@ function doPost(e) {
         saved: saved.unique,
         removedDuplicates: saved.removedDuplicates
       });
+    }
+    if (body.action === "invalidateProductsCache") {
+      clearProductsCache_();
+      return jsonOut({ ok: true });
     }
     if (body.action === "repairProducts") {
       return jsonOut(repairProductsSheet_());
@@ -514,6 +518,36 @@ function getSheet_() {
   return sheet;
 }
 
+var PRODUCTS_CACHE_KEY = "catalog_products_v2";
+
+function clearProductsCache_() {
+  try {
+    CacheService.getScriptCache().remove(PRODUCTS_CACHE_KEY);
+  } catch (err) {
+    Logger.log("clearProductsCache: " + err);
+  }
+}
+
+/** Кеш відповіді action=get на 10 хв — прискорює повторні відкриття сайту */
+function readProductsCached_() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get(PRODUCTS_CACHE_KEY);
+  if (hit) {
+    try {
+      return JSON.parse(hit);
+    } catch (err) {
+      Logger.log("readProductsCached parse: " + err);
+    }
+  }
+  var products = readProducts();
+  try {
+    cache.put(PRODUCTS_CACHE_KEY, JSON.stringify(products), 600);
+  } catch (err) {
+    Logger.log("readProductsCached put: " + err);
+  }
+  return products;
+}
+
 function readProducts() {
   ensureUnitMetricsSheet_();
   var sheet = getSheet_();
@@ -625,6 +659,7 @@ function writeProducts(products) {
       metrics.step
     ]);
   });
+  clearProductsCache_();
   return {
     unique: list.length,
     removedDuplicates: Math.max(0, rowsBefore - list.length) + deduped.removedDuplicates,

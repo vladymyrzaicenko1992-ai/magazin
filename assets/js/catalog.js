@@ -4,7 +4,7 @@ const DELETED_KEY = "magazin-deleted-v2";
 const GOOGLE_URL_KEY = "magazin-google-webapp-url";
 const CATALOG_CACHE_KEY = "magazin-catalog-cache-v1";
 /** Кеш каталогу з Google (хв) — без нього кожне відкриття чекає 30–90 с на Apps Script */
-const CATALOG_CACHE_TTL_MS = 20 * 60 * 1000;
+const CATALOG_CACHE_TTL_MS = 2 * 60 * 60 * 1000;
 const GOOGLE_FETCH_TIMEOUT_MS = 28000;
 
 let cachedSiteConfig = null;
@@ -292,7 +292,7 @@ function saveToStorage(products) {
 }
 
 async function fetchCatalogJson(url) {
-  const res = await fetch(`${url || "assets/data/products.json"}?v=39`);
+  const res = await fetch(`${url || "assets/data/products.json"}?v=40`);
   if (!res.ok) return [];
   return (await res.json()).map(normalizeProduct).filter(Boolean);
 }
@@ -300,8 +300,18 @@ async function fetchCatalogJson(url) {
 async function fetchSiteConfig() {
   if (cachedSiteConfig) return cachedSiteConfig;
   try {
-    const res = await fetch(`assets/data/config.json?v=${Date.now()}`);
+    const sess = sessionStorage.getItem("magazin-site-config");
+    if (sess) {
+      cachedSiteConfig = JSON.parse(sess);
+      return cachedSiteConfig;
+    }
+  } catch (_) {}
+  try {
+    const res = await fetch("assets/data/config.json?v=41");
     cachedSiteConfig = res.ok ? await res.json() : {};
+    try {
+      sessionStorage.setItem("magazin-site-config", JSON.stringify(cachedSiteConfig));
+    } catch (_) {}
   } catch (_) {
     cachedSiteConfig = {};
   }
@@ -442,7 +452,24 @@ async function fetchTrending(url, limit, days) {
   const d = days || 7;
   const endpoint =
     `${url}${url.includes("?") ? "&" : "?"}action=trending&days=${d}&limit=${lim}&ts=${Date.now()}`;
-  const res = await fetch(endpoint);
+  const opts = { redirect: "follow" };
+  if (typeof AbortController !== "undefined") {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
+    opts.signal = controller.signal;
+    try {
+      const res = await fetch(endpoint, opts);
+      clearTimeout(timer);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "Помилка читання топу");
+      return data.trending || [];
+    } catch (err) {
+      clearTimeout(timer);
+      if (err && err.name === "AbortError") return [];
+      throw err;
+    }
+  }
+  const res = await fetch(endpoint, opts);
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || "Помилка читання топу");
   return data.trending || [];
@@ -522,7 +549,21 @@ async function saveToGoogle(url, products) {
     throw new Error("Google не повернув JSON. Перевірте URL і доступ веб-додатку.");
   }
   if (!data.ok) throw new Error(data.error || "Помилка запису в Google");
+  writeCatalogCache(unique);
+  try {
+    clearProductsCacheOnServer_(url);
+  } catch (_) {}
   return { ...data, sent: unique.length };
+}
+
+function clearProductsCacheOnServer_(url) {
+  if (!url) return Promise.resolve();
+  return fetch(url, {
+    method: "POST",
+    redirect: "follow",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action: "invalidateProductsCache" })
+  }).catch(() => {});
 }
 
 async function loadCatalog() {
@@ -655,5 +696,6 @@ window.MagazinCatalog = {
   trackCartAdd,
   dedupeProductsById,
   repairGoogleSheet,
+  writeCatalogCache,
   saveToGoogle
 };

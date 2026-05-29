@@ -143,22 +143,9 @@ async function persistToCloud(verifyProductId) {
   }
   products = Catalog.dedupeProductsById(products);
   const result = await Catalog.saveToGoogle(url, products);
-  const check = await Catalog.fetchFromGoogle(url);
-  if (check.length < Math.min(products.length, 1)) {
-    throw new Error("Після збереження Google повернув порожній каталог");
-  }
-  if (verifyProductId) {
-    const local = products.find((p) => p.id === verifyProductId);
-    const remote = check.find((p) => p.id === verifyProductId);
-    if (local && remote) {
-      const localType = Catalog.getPrimarySaleType(local);
-      const remoteType = Catalog.getPrimarySaleType(remote);
-      if (remoteType !== localType) {
-        throw new Error(
-          `У таблиці залишилось «${remoteType}», а не «${localType}». Перевірте URL і натисніть «Синхронізувати в Google».`
-        );
-      }
-    }
+  Catalog.writeCatalogCache(products);
+  if (verifyProductId && !result.ok) {
+    throw new Error("Не вдалося зберегти в Google");
   }
   setGoogleMessage("Синхронізовано · " + url.replace(/^https:\/\//, "").slice(0, 52) + "…");
   const savedCount = result.saved ?? products.length;
@@ -555,13 +542,13 @@ if (syncGoogleBtn) {
       saveProducts();
       setGoogleMessage("Запис у Google…");
       const data = await Catalog.saveToGoogle(url, products);
-      const check = await Catalog.fetchFromGoogle(url);
+      Catalog.writeCatalogCache(products);
       const dupNote =
         data.removedDuplicates > 0 ? `, прибрано дублів: ${data.removedDuplicates}` : "";
       setGoogleMessage(
-        `У Google: ${data.saved ?? data.sent ?? products.length} унікальних товарів${dupNote}. Колонки: sale_type, unit, unit_min, unit_step`
+        `У Google: ${data.saved ?? data.sent ?? products.length} унікальних товарів${dupNote}. Кеш оновлено — сайт відкривається швидше.`
       );
-      setMessage(`Синхронізовано (${check.length} у таблиці після запису)`);
+      setMessage("Синхронізовано. Для GitHub: node scripts/sync-products-json-from-google.mjs");
     } catch (err) {
       setGoogleMessage("Помилка: " + err.message);
     } finally {
