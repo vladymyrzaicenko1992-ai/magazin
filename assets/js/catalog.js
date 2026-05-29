@@ -157,7 +157,7 @@ const BASE_PRODUCTS = [
   { id: "tvorog", n: "Домашній сир", c: "Молочка", img: "assets/img/products/molochka/Творог домашній .png", price: null },
   { id: "sirna-masa", n: "Сирна маса з родзинками", c: "Молочка", img: "assets/img/products/molochka/Сирна маса з родзинками .png", price: null },
   { id: "sir-feta", n: "Сир Фета", c: "Молочка", img: "", price: null },
-  { id: "maslo-vershk", n: "Масло вершкове", c: "Молочка", img: "", price: null },
+  { id: "maslo-vershk", n: "Масло вершкове", c: "Молочка", img: "assets/img/products/molochka/Масло вершкове.jpg", price: null },
   { id: "yaitsa", n: "Яйця фермерські", c: "Додатково", img: "assets/img/products/qw/яйця.jpg", price: null },
   { id: "voda-avalon", n: "Вода мінеральна «Avalon»", c: "Вода та напої", img: "", price: 26 },
   { id: "voda-karpatska", n: "Вода мінеральна «Карпатська Джерельна»", c: "Вода та напої", img: "", price: 18 },
