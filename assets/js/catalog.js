@@ -3,9 +3,12 @@ const LEGACY_STORAGE_KEY = "magazin-products-v1";
 const DELETED_KEY = "magazin-deleted-v2";
 const GOOGLE_URL_KEY = "magazin-google-webapp-url";
 const CATALOG_CACHE_KEY = "magazin-catalog-cache-v1";
+const VISITOR_KEY = "magazin-visitor-seen-catalog";
 /** Кеш каталогу з Google (хв) — без нього кожне відкриття чекає 30–90 с на Apps Script */
 const CATALOG_CACHE_TTL_MS = 2 * 60 * 60 * 1000;
 const GOOGLE_FETCH_TIMEOUT_MS = 28000;
+const GOOGLE_SAVE_TIMEOUT_MS = 120000;
+const GOOGLE_ADMIN_LOAD_TIMEOUT_MS = 90000;
 
 let cachedSiteConfig = null;
 let catalogRefreshPromise = null;
@@ -93,13 +96,12 @@ function normalizeSaleTypes(value, category, fallbackUnit) {
   return inferSaleTypes(category || "");
 }
 
-function getCategoryList(products) {
-  const set = new Set(CATEGORY_PRESETS);
-  (products || []).forEach((p) => {
-    const c = (p && (p.c || p.category)) || "";
-    if (c.trim()) set.add(c.trim());
-  });
-  return Array.from(set).sort((a, b) => {
+const CATEGORY_ORDER_KEY = "magazin-category-order-v1";
+let categoryOrderFromFile = null;
+let categoryOrderReady = null;
+
+function defaultCategorySort(names) {
+  return names.slice().sort((a, b) => {
     const ia = CATEGORY_PRESETS.indexOf(a);
     const ib = CATEGORY_PRESETS.indexOf(b);
     if (ia >= 0 && ib >= 0) return ia - ib;
@@ -107,6 +109,108 @@ function getCategoryList(products) {
     if (ib >= 0) return 1;
     return a.localeCompare(b, "uk");
   });
+}
+
+function sortNamesByOrder(names, order) {
+  const set = new Set(names);
+  const out = [];
+  const seen = new Set();
+  (order || []).forEach((name) => {
+    const c = String(name || "").trim();
+    if (!c || !set.has(c) || seen.has(c)) return;
+    seen.add(c);
+    out.push(c);
+  });
+  defaultCategorySort(names.filter((n) => !seen.has(n))).forEach((c) => out.push(c));
+  return out;
+}
+
+function getEffectiveCategoryOrder() {
+  try {
+    const raw = localStorage.getItem(CATEGORY_ORDER_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) return parsed.map((x) => String(x).trim()).filter(Boolean);
+    }
+  } catch (_) {}
+  if (Array.isArray(categoryOrderFromFile) && categoryOrderFromFile.length) {
+    return categoryOrderFromFile.map((x) => String(x).trim()).filter(Boolean);
+  }
+  return null;
+}
+
+function ensureCategoryOrderReady() {
+  if (!categoryOrderReady) {
+    categoryOrderReady = fetch("assets/data/category-order.json?v=41")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (Array.isArray(data)) categoryOrderFromFile = data;
+      })
+      .catch(() => {});
+  }
+  return categoryOrderReady;
+}
+
+function collectCategoryNames(products) {
+  const set = new Set(CATEGORY_PRESETS);
+  (products || []).forEach((p) => {
+    const c = (p && (p.c || p.category)) || "";
+    if (c.trim()) set.add(c.trim());
+  });
+  return Array.from(set);
+}
+
+function getCategoryList(products) {
+  const all = collectCategoryNames(products);
+  const order = getEffectiveCategoryOrder();
+  return order ? sortNamesByOrder(all, order) : defaultCategorySort(all);
+}
+
+/** Повний список для редагування в адмінці (включно з порожніми категоріями в порядку) */
+function getAdminCategoryOrder(products) {
+  const fromProducts = collectCategoryNames(products);
+  const saved = getEffectiveCategoryOrder();
+  const all = new Set(fromProducts);
+  if (saved) saved.forEach((c) => all.add(c));
+  const order = saved && saved.length ? saved : defaultCategorySort(Array.from(all));
+  return sortNamesByOrder(Array.from(all), order);
+}
+
+function getStoreCategoryOrder(products) {
+  return ["Усі", ...getCategoryList(products)];
+}
+
+function setCategoryOrder(order) {
+  const clean = (order || []).map((x) => String(x).trim()).filter(Boolean);
+  try {
+    localStorage.setItem(CATEGORY_ORDER_KEY, JSON.stringify(clean));
+  } catch (_) {}
+  return clean;
+}
+
+function resetCategoryOrder() {
+  try {
+    localStorage.removeItem(CATEGORY_ORDER_KEY);
+  } catch (_) {}
+}
+
+function downloadCategoryOrderJson(order, filename) {
+  const list = order || getEffectiveCategoryOrder() || CATEGORY_PRESETS.slice();
+  const blob = new Blob([JSON.stringify(list, null, 2) + "\n"], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename || "category-order.json";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function countProductsPerCategory(products) {
+  const counts = {};
+  (products || []).forEach((p) => {
+    const c = (p && p.c) || "Без категорії";
+    counts[c] = (counts[c] || 0) + 1;
+  });
+  return counts;
 }
 
 const BASE_PRODUCTS = [
@@ -307,7 +411,7 @@ async function fetchSiteConfig() {
     }
   } catch (_) {}
   try {
-    const res = await fetch("assets/data/config.json?v=41");
+    const res = await fetch("assets/data/config.json?v=44");
     cachedSiteConfig = res.ok ? await res.json() : {};
     try {
       sessionStorage.setItem("magazin-site-config", JSON.stringify(cachedSiteConfig));
@@ -367,6 +471,54 @@ function writeCatalogCache(products) {
 
 function isCatalogCacheFresh(ts) {
   return ts && Date.now() - ts < CATALOG_CACHE_TTL_MS;
+}
+
+function hasLocalCatalogSnapshot() {
+  const cache = readCatalogCache();
+  if (cache && cache.products.length && isCatalogCacheFresh(cache.ts)) return true;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) && arr.length > 0;
+  } catch (_) {
+    return false;
+  }
+}
+
+function isFirstCatalogVisit() {
+  try {
+    return localStorage.getItem(VISITOR_KEY) !== "1";
+  } catch (_) {
+    return true;
+  }
+}
+
+function markCatalogVisited() {
+  try {
+    localStorage.setItem(VISITOR_KEY, "1");
+  } catch (_) {}
+}
+
+/** Тексти екрана завантаження (variant: "store" | "cart") */
+function getCatalogLoadMessages(variant) {
+  const first = isFirstCatalogVisit() && !hasLocalCatalogSnapshot();
+  const slowSub =
+    "Перший захід на сайт може тривати до 1–2 хвилин — зараз підтягуємо каталог і ціни. Не закривайте сторінку. Наступні відкриття будуть набагато швидшими.";
+  if (variant === "cart") {
+    return {
+      firstVisit: first,
+      text: "Збираємо кошик…",
+      sub: first
+        ? slowSub
+        : "Підтягуємо ціни та одиниці — зазвичай кілька секунд"
+    };
+  }
+  return {
+    firstVisit: first,
+    text: "Завантажуємо товари…",
+    sub: first ? slowSub : "Підтягуємо ціни — зазвичай кілька секунд"
+  };
 }
 
 async function fetchFromGoogle(url, timeoutMs) {
@@ -528,32 +680,107 @@ async function repairGoogleSheet(url) {
   return data;
 }
 
-async function saveToGoogle(url, products) {
+async function saveToGoogle(url, products, options) {
+  const timeoutMs =
+    options && options.timeoutMs !== undefined ? options.timeoutMs : GOOGLE_SAVE_TIMEOUT_MS;
   const unique = dedupeProductsById(products);
   const payload = JSON.stringify({
     action: "save",
     products: toProductsJson(unique)
   });
-  const res = await fetch(url, {
+  const opts = {
     method: "POST",
     mode: "cors",
     redirect: "follow",
     body: payload,
     headers: { "Content-Type": "text/plain;charset=utf-8" }
-  });
+  };
+  if (timeoutMs > 0 && typeof AbortController !== "undefined") {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    opts.signal = controller.signal;
+    try {
+      const res = await fetch(url, opts);
+      clearTimeout(timer);
+      return parseSaveToGoogleResponse(res, url, unique);
+    } catch (err) {
+      clearTimeout(timer);
+      if (err && err.name === "AbortError") {
+        throw new Error(
+          "Запис у Google не встиг завершитись (таймаут). Спробуйте «Синхронізувати в Google» ще раз."
+        );
+      }
+      throw err;
+    }
+  }
+  const res = await fetch(url, opts);
+  return parseSaveToGoogleResponse(res, url, unique);
+}
+
+async function parseSaveToGoogleResponse(res, url, unique) {
   const text = await res.text();
   let data;
   try {
     data = JSON.parse(text);
   } catch (_) {
-    throw new Error("Google не повернув JSON. Перевірте URL і доступ веб-додатку.");
+    throw new Error(
+      "Google не повернув JSON після запису. Перевірте URL, розгортання Apps Script і доступ «Усі»."
+    );
   }
   if (!data.ok) throw new Error(data.error || "Помилка запису в Google");
   writeCatalogCache(unique);
   try {
-    clearProductsCacheOnServer_(url);
+    await clearProductsCacheOnServer_(url);
   } catch (_) {}
   return { ...data, sent: unique.length };
+}
+
+async function verifyProductOnGoogle(url, productId, expectedSnapshot) {
+  const list = await fetchFromGoogle(url, GOOGLE_ADMIN_LOAD_TIMEOUT_MS);
+  const remote = productSnapshot(list.find((p) => p.id === productId));
+  if (!remote) {
+    throw new Error(`Після збереження товар «${productId}» не знайдено в Google Таблиці.`);
+  }
+  if (!snapshotsMatch(expectedSnapshot, remote)) {
+    const unitLbl =
+      expectedSnapshot.saleType === "kg"
+        ? "кг"
+        : expectedSnapshot.saleType === "pack"
+          ? "уп"
+          : "шт";
+    throw new Error(
+      `У таблиці інші дані: «${remote.n}», ${remote.saleType} (${unitLbl}), ціна ${remote.price ?? "—"}. ` +
+        `Очікувалось: «${expectedSnapshot.n}», ${expectedSnapshot.saleType}, ціна ${expectedSnapshot.price ?? "—"}.`
+    );
+  }
+  return remote;
+}
+
+/** Адмінка: завжди читаємо Google (не застарілий localStorage). */
+async function loadCatalogForAdmin() {
+  await ensureCategoryOrderReady();
+  const url = await getGoogleWebAppUrl();
+  if (!url) {
+    return loadCatalog();
+  }
+  const fromGoogle = await fetchFromGoogle(url, GOOGLE_ADMIN_LOAD_TIMEOUT_MS);
+  if (!fromGoogle.length) {
+    throw new Error("Google повернув порожній каталог. Перевірте лист products і URL веб-додатку.");
+  }
+  writeCatalogCache(fromGoogle);
+  try {
+    saveToStorage(fromGoogle);
+  } catch (_) {}
+  return mergeCatalogLayers([fromGoogle]);
+}
+
+function applyGoogleCatalogLocally(catalog) {
+  writeCatalogCache(catalog);
+  try {
+    saveToStorage(catalog);
+  } catch (_) {}
+  dispatchCatalogUpdated(catalog);
+  return catalog;
 }
 
 function clearProductsCacheOnServer_(url) {
@@ -618,6 +845,36 @@ function formatPrice(price) {
   return `${value.toFixed(2)} грн`;
 }
 
+function imageForGoogleExport(img) {
+  const s = String(img || "").trim();
+  if (!s || s.startsWith("data:")) return "";
+  return s;
+}
+
+function productSnapshot(p) {
+  const n = normalizeProduct(p);
+  if (!n) return null;
+  return {
+    id: n.id,
+    n: n.n,
+    c: n.c,
+    saleType: n.saleType,
+    price: n.price
+  };
+}
+
+function snapshotsMatch(local, remote) {
+  if (!local || !remote) return false;
+  if (local.n !== remote.n) return false;
+  if (local.c !== remote.c) return false;
+  if (local.saleType !== remote.saleType) return false;
+  const lp = local.price;
+  const rp = remote.price;
+  if (lp === null && rp === null) return true;
+  if (lp === null || rp === null) return false;
+  return Math.abs(lp - rp) < 0.001;
+}
+
 function toProductsJson(products) {
   return products.map((p) => {
     const saleType = getPrimarySaleType(p);
@@ -635,7 +892,8 @@ function toProductsJson(products) {
         p.unitStep !== null && p.unitStep !== undefined ? p.unitStep : metrics.step
     };
     if (p.price !== null && p.price !== undefined) row.price = p.price;
-    if (p.img) row.image = p.img;
+    const img = imageForGoogleExport(p.img);
+    if (img) row.image = img;
     return row;
   });
 }
@@ -673,6 +931,13 @@ window.MagazinCatalog = {
   unitFromSaleType,
   getUnitMetrics,
   getCategoryList,
+  getAdminCategoryOrder,
+  getStoreCategoryOrder,
+  setCategoryOrder,
+  resetCategoryOrder,
+  downloadCategoryOrderJson,
+  ensureCategoryOrderReady,
+  countProductsPerCategory,
   parsePrice,
   normalizeProduct,
   mergeById,
@@ -697,5 +962,11 @@ window.MagazinCatalog = {
   dedupeProductsById,
   repairGoogleSheet,
   writeCatalogCache,
+  getCatalogLoadMessages,
+  markCatalogVisited,
+  productSnapshot,
+  loadCatalogForAdmin,
+  applyGoogleCatalogLocally,
+  verifyProductOnGoogle,
   saveToGoogle
 };

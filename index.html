@@ -1174,6 +1174,15 @@
       font-size: 13px;
       color: var(--txt2);
       margin-bottom: 18px;
+      max-width: 22rem;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.45;
+    }
+    .catalog-loader-sub.loader-sub--first,
+    .cart-loader-sub.loader-sub--first {
+      color: #fbbf24;
+      font-size: 12px;
     }
     .catalog-skeleton .sk-card {
       border-radius: calc(var(--r) + 2px);
@@ -1475,8 +1484,8 @@
       <span class="catalog-loader-ico" aria-hidden="true">🥟</span>
       <div class="catalog-loader-ring" aria-hidden="true"></div>
     </div>
-    <p class="catalog-loader-text">Завантажуємо товари…</p>
-    <p class="catalog-loader-sub">Підтягуємо ціни з каталогу — зазвичай кілька секунд</p>
+    <p class="catalog-loader-text" id="catalogLoaderText">Завантажуємо товари…</p>
+    <p class="catalog-loader-sub" id="catalogLoaderSub">Підтягуємо ціни — зазвичай кілька секунд</p>
     <div class="catalog-skeleton pgrid" aria-hidden="true">
       <div class="sk-card"><div class="sk-card-img"></div><div class="sk-card-body"><div class="sk-line"></div><div class="sk-line sk-line--short"></div></div></div>
       <div class="sk-card"><div class="sk-card-img"></div><div class="sk-card-body"><div class="sk-line"></div><div class="sk-line sk-line--short"></div></div></div>
@@ -1556,9 +1565,9 @@
   });
 })();
 </script>
-<script src="assets/js/catalog.js?v=40"></script>
-<script src="assets/js/cart.js?v=40"></script>
-<script src="assets/js/store-meta.js?v=40"></script>
-<script src="assets/js/store.js?v=40"></script>
+<script src="assets/js/catalog.js?v=41"></script>
+<script src="assets/js/cart.js?v=41"></script>
+<script src="assets/js/store-meta.js?v=41"></script>
+<script src="assets/js/store.js?v=41"></script>
 </body>
 </html>

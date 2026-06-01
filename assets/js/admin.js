@@ -35,6 +35,17 @@ const newPhotoPreview = document.getElementById("newPhotoPreview");
 let products = [];
 let adminBooted = false;
 let searchQuery = "";
+let cloudSaveChain = Promise.resolve();
+let adminCategoryFilter = "";
+let categoryDragName = null;
+
+const categoryOrderListEl = document.getElementById("categoryOrderList");
+const categoryOrderMessageEl = document.getElementById("categoryOrderMessage");
+const adminCatFilterEl = document.getElementById("adminCatFilter");
+const newCategoryNameEl = document.getElementById("newCategoryName");
+const addCategoryBtn = document.getElementById("addCategoryBtn");
+const resetCategoryOrderBtn = document.getElementById("resetCategoryOrderBtn");
+const publishCategoryOrderBtn = document.getElementById("publishCategoryOrderBtn");
 
 function unitLabel(saleType) {
   const id = Catalog.getPrimarySaleType({ sale_type: saleType, saleType });
@@ -52,6 +63,23 @@ function slugify(value) {
 
 function saveProducts() {
   products = Catalog.saveToStorage(products);
+}
+
+function runCloudSave(task) {
+  const run = cloudSaveChain.then(() => task());
+  cloudSaveChain = run.catch(() => {});
+  return run;
+}
+
+function commitProductFromRow(item, patch) {
+  const merged = Catalog.normalizeProduct({ ...item, ...patch });
+  if (!merged) return null;
+  const idx = products.findIndex((p) => p.id === merged.id);
+  if (idx >= 0) products[idx] = merged;
+  else products.push(merged);
+  Object.assign(item, merged);
+  products = Catalog.saveToStorage(products);
+  return merged;
 }
 
 function setMessage(text) {
@@ -136,20 +164,55 @@ function fillAddFormSelects() {
   }
 }
 
-async function persistToCloud(verifyProductId) {
+async function persistToCloud(verifyProductId, expectedSnapshot) {
   const url = await Catalog.getGoogleWebAppUrl();
   if (!url) {
     return { google: false, text: "Збережено (лише в браузері). Додайте googleWebAppUrl у config.json." };
   }
   products = Catalog.dedupeProductsById(products);
   const result = await Catalog.saveToGoogle(url, products);
-  Catalog.writeCatalogCache(products);
-  if (verifyProductId && !result.ok) {
+  if (!result.ok) {
     throw new Error("Не вдалося зберегти в Google");
   }
-  setGoogleMessage("Синхронізовано · " + url.replace(/^https:\/\//, "").slice(0, 52) + "…");
-  const savedCount = result.saved ?? products.length;
-  return { google: true, text: `Збережено в Google (${savedCount} товарів, одиниці в колонках sale_type / unit)` };
+
+  const fresh = await Catalog.fetchFromGoogle(url, 90000);
+  if (!fresh.length) {
+    throw new Error("Після запису Google не повернув каталог. Перевірте таблицю та розгортання.");
+  }
+
+  if (verifyProductId && expectedSnapshot) {
+    const remote = Catalog.productSnapshot(fresh.find((p) => p.id === verifyProductId));
+    if (!remote) {
+      throw new Error(`Товар «${verifyProductId}» не знайдено в таблиці після збереження.`);
+    }
+    const local = Catalog.productSnapshot(expectedSnapshot);
+    if (!snapshotsMatch(local, remote)) {
+      const unitLbl =
+        remote.saleType === "kg" ? "кг" : remote.saleType === "pack" ? "уп" : "шт";
+      throw new Error(
+        `У таблиці: «${remote.n}», ${unitLbl}, ціна ${remote.price ?? "—"}. ` +
+          `Очікувалось: «${local.n}», ${local.saleType}, ціна ${local.price ?? "—"}.`
+      );
+    }
+  }
+
+  products = fresh;
+  Catalog.applyGoogleCatalogLocally(products);
+  setGoogleMessage("Синхронізовано з Google · " + url.replace(/^https:\/\//, "").slice(0, 52) + "…");
+  const savedCount = result.saved ?? result.sent ?? products.length;
+  return {
+    google: true,
+    text: `Збережено в Google (${savedCount} товарів). Таблиця перевірена.`,
+    verified: Boolean(verifyProductId)
+  };
+}
+
+function snapshotsMatch(a, b) {
+  if (!a || !b) return false;
+  if (a.n !== b.n || a.c !== b.c || a.saleType !== b.saleType) return false;
+  if (a.price === null && b.price === null) return true;
+  if (a.price === null || b.price === null) return false;
+  return Math.abs(a.price - b.price) < 0.001;
 }
 
 function setCardStatus(card, kind, text) {
@@ -247,28 +310,41 @@ function bindRowInputs(row, item) {
 
   async function persistRow() {
     row.classList.add("is-saving");
-    setCardStatus(row, "pending", "Збереження…");
+    setCardStatus(row, "pending", "Запис у Google…");
     if (saveBtn) saveBtn.disabled = true;
 
-    item.n = nameInput.value.trim();
-    item.c = catInput.value.trim();
-    item.saleType = primarySaleType(saleTypesState.get());
-    item.saleTypes = [item.saleType];
-    item.unit = Catalog.unitFromSaleType(item.saleType);
-    const metrics = Catalog.getUnitMetrics(item.unit);
-    item.unitMin = metrics.min;
-    item.unitStep = metrics.step;
-    item.img = imgInput.value.trim();
-    item.price = Catalog.parsePrice(priceInput.value);
-    saveProducts();
-    if (priceView) priceView.textContent = formatSavedPrice(item.price);
-    updatePhotoPreview(photoFrame, imgPreview, item.img);
+    const saleType = primarySaleType(saleTypesState.get());
+    const unit = Catalog.unitFromSaleType(saleType);
+    const metrics = Catalog.getUnitMetrics(unit);
+    const imgVal = imgInput.value.trim();
+    const patch = {
+      n: nameInput.value.trim(),
+      c: catInput.value.trim(),
+      saleType,
+      saleTypes: [saleType],
+      unit,
+      unitMin: metrics.min,
+      unitStep: metrics.step,
+      img: imgVal,
+      price: Catalog.parsePrice(priceInput.value)
+    };
+
+    const committed = commitProductFromRow(item, patch);
+    if (priceView) priceView.textContent = formatSavedPrice(committed.price);
+    updatePhotoPreview(photoFrame, imgPreview, committed.img);
+
+    const snapshot = Catalog.productSnapshot(committed);
+    const dataUrlNote = imgVal.startsWith("data:")
+      ? " Фото data: у таблицю не пишемо — лише шлях assets/img/…"
+      : "";
 
     try {
-      const cloud = await persistToCloud(item.id);
-      setCardStatus(row, "ok", cloud.text || "Збережено");
+      const cloud = await runCloudSave(() => persistToCloud(item.id, snapshot));
+      setCardStatus(row, "ok", (cloud.text || "Збережено") + dataUrlNote);
+      renderProducts();
     } catch (err) {
-      setCardStatus(row, "err", "У браузері збережено. Google: " + err.message);
+      setCardStatus(row, "err", "Google: " + err.message);
+      setGoogleMessage("Помилка синхронізації: " + err.message);
     } finally {
       row.classList.remove("is-saving");
       if (saveBtn) saveBtn.disabled = false;
@@ -308,10 +384,122 @@ function bindRowInputs(row, item) {
   });
 }
 
+function setCategoryOrderMessage(text) {
+  if (categoryOrderMessageEl) categoryOrderMessageEl.textContent = text || "";
+}
+
+function applyCategoryOrder(order) {
+  Catalog.setCategoryOrder(order);
+  setCategoryOrderMessage("Порядок збережено — так само на головній у цьому браузері");
+  renderCategoryOrder();
+  renderCatFilter();
+  renderProducts();
+}
+
+function moveCategoryInOrder(name, delta) {
+  const order = Catalog.getAdminCategoryOrder(products);
+  const i = order.indexOf(name);
+  if (i < 0) return;
+  const j = i + delta;
+  if (j < 0 || j >= order.length) return;
+  const next = order.slice();
+  const [item] = next.splice(i, 1);
+  next.splice(j, 0, item);
+  applyCategoryOrder(next);
+}
+
+function renderCategoryOrder() {
+  if (!categoryOrderListEl) return;
+  const order = Catalog.getAdminCategoryOrder(products);
+  const counts = Catalog.countProductsPerCategory(products);
+  categoryOrderListEl.innerHTML = "";
+  order.forEach((cat, index) => {
+    const count = counts[cat] || 0;
+    const li = document.createElement("li");
+    li.className = "cat-order-item";
+    li.draggable = true;
+    li.dataset.cat = cat;
+    li.innerHTML = `
+      <span class="cat-order-grip" aria-hidden="true">⋮⋮</span>
+      <span class="cat-order-name">${escapeHtml(cat)}</span>
+      <span class="cat-order-count">${count} тов.</span>
+      <div class="cat-order-actions">
+        <button type="button" data-move="up" title="Вище" ${index === 0 ? "disabled" : ""}>↑</button>
+        <button type="button" data-move="down" title="Нижче" ${index === order.length - 1 ? "disabled" : ""}>↓</button>
+      </div>
+    `;
+    li.querySelector('[data-move="up"]')?.addEventListener("click", () => moveCategoryInOrder(cat, -1));
+    li.querySelector('[data-move="down"]')?.addEventListener("click", () => moveCategoryInOrder(cat, 1));
+    li.addEventListener("dragstart", (e) => {
+      categoryDragName = cat;
+      li.classList.add("is-dragging");
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", cat);
+      }
+    });
+    li.addEventListener("dragend", () => {
+      categoryDragName = null;
+      li.classList.remove("is-dragging");
+    });
+    li.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+    });
+    li.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const from = categoryDragName || (e.dataTransfer && e.dataTransfer.getData("text/plain"));
+      if (!from || from === cat) return;
+      const list = Catalog.getAdminCategoryOrder(products);
+      const iFrom = list.indexOf(from);
+      const iTo = list.indexOf(cat);
+      if (iFrom < 0 || iTo < 0) return;
+      const next = list.slice();
+      const [item] = next.splice(iFrom, 1);
+      next.splice(iTo, 0, item);
+      applyCategoryOrder(next);
+    });
+    categoryOrderListEl.appendChild(li);
+  });
+}
+
+function renderCatFilter() {
+  if (!adminCatFilterEl) return;
+  const cats = Catalog.getCategoryList(products);
+  adminCatFilterEl.innerHTML = "";
+  const allBtn = document.createElement("button");
+  allBtn.type = "button";
+  allBtn.className = "cat-filter-chip" + (!adminCategoryFilter ? " active" : "");
+  allBtn.textContent = "Усі категорії";
+  allBtn.addEventListener("click", () => {
+    adminCategoryFilter = "";
+    renderCatFilter();
+    renderProducts();
+  });
+  adminCatFilterEl.appendChild(allBtn);
+  cats.forEach((cat) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "cat-filter-chip" + (adminCategoryFilter === cat ? " active" : "");
+    const n = Catalog.countProductsPerCategory(products)[cat] || 0;
+    btn.textContent = `${cat} (${n})`;
+    btn.addEventListener("click", () => {
+      adminCategoryFilter = adminCategoryFilter === cat ? "" : cat;
+      renderCatFilter();
+      renderProducts();
+    });
+    adminCatFilterEl.appendChild(btn);
+  });
+}
+
 function filteredProducts() {
+  let list = products;
+  if (adminCategoryFilter) {
+    list = list.filter((p) => p.c === adminCategoryFilter);
+  }
   const q = searchQuery.trim().toLowerCase();
-  if (!q) return products;
-  return products.filter((p) => {
+  if (!q) return list;
+  return list.filter((p) => {
     const hay = `${p.n || ""} ${p.c || ""} ${p.id || ""}`.toLowerCase();
     return hay.includes(q);
   });
@@ -323,29 +511,12 @@ function setAdminLoading(on, text) {
   if (text) adminLoadingEl.textContent = text;
 }
 
-function renderProducts() {
-  if (!listEl) return;
-  const categories = Catalog.getCategoryList(products);
-  const visible = filteredProducts();
-  listEl.innerHTML = "";
-  if (productsCountEl) {
-    const suffix = searchQuery.trim()
-      ? ` — показано ${visible.length} з ${products.length}`
-      : "";
-    productsCountEl.textContent = products.length ? `(${products.length})${suffix}` : "";
-  }
-  if (!visible.length) {
-    listEl.innerHTML =
-      '<p class="msg" style="padding:12px;color:var(--muted)">Нічого не знайдено. Скиньте пошук або додайте товар.</p>';
-    fillAddFormSelects();
-    return;
-  }
-  visible.forEach((item) => {
-    const card = document.createElement("article");
-    card.className = "product-card";
-    const hasImg = Boolean(String(item.img || "").trim());
-    const sale = Catalog.getPrimarySaleType(item);
-    card.innerHTML = `
+function appendProductCard(item, categories) {
+  const card = document.createElement("article");
+  card.className = "product-card";
+  const hasImg = Boolean(String(item.img || "").trim());
+  const sale = Catalog.getPrimarySaleType(item);
+  card.innerHTML = `
       <div class="product-card-body">
         <div class="product-row product-row--name">
           <label class="field">
@@ -394,9 +565,63 @@ function renderProducts() {
         item.saleTypes || item.saleType || item.sale_type || item.unit
       );
     }
-    bindRowInputs(card, item);
-    listEl.appendChild(card);
+  bindRowInputs(card, item);
+  listEl.appendChild(card);
+}
+
+function renderProductsGrouped(visible, categoryOrder) {
+  const byCat = new Map();
+  visible.forEach((item) => {
+    const c = item.c || "Без категорії";
+    if (!byCat.has(c)) byCat.set(c, []);
+    byCat.get(c).push(item);
   });
+  const renderBlock = (cat, items) => {
+    const header = document.createElement("div");
+    header.className = "admin-cat-header";
+    header.innerHTML = `<h3>${escapeHtml(cat)} <span>(${items.length})</span></h3>`;
+    listEl.appendChild(header);
+    const categories = Catalog.getCategoryList(products);
+    items.forEach((item) => appendProductCard(item, categories));
+  };
+  categoryOrder.forEach((cat) => {
+    const items = byCat.get(cat);
+    if (items && items.length) {
+      renderBlock(cat, items);
+      byCat.delete(cat);
+    }
+  });
+  Array.from(byCat.keys())
+    .sort((a, b) => a.localeCompare(b, "uk"))
+    .forEach((cat) => renderBlock(cat, byCat.get(cat)));
+}
+
+function renderProducts() {
+  if (!listEl) return;
+  const categories = Catalog.getCategoryList(products);
+  const visible = filteredProducts();
+  const groupByCategory = !searchQuery.trim() && !adminCategoryFilter;
+  listEl.innerHTML = "";
+  if (productsCountEl) {
+    let suffix = "";
+    if (searchQuery.trim() || adminCategoryFilter) {
+      suffix = ` — показано ${visible.length} з ${products.length}`;
+    }
+    productsCountEl.textContent = products.length ? `(${products.length})${suffix}` : "";
+  }
+  renderCategoryOrder();
+  renderCatFilter();
+  if (!visible.length) {
+    listEl.innerHTML =
+      '<p class="msg" style="padding:12px;color:var(--muted)">Нічого не знайдено. Скиньте пошук або фільтр категорії.</p>';
+    fillAddFormSelects();
+    return;
+  }
+  if (groupByCategory) {
+    renderProductsGrouped(visible, Catalog.getAdminCategoryOrder(products));
+  } else {
+    visible.forEach((item) => appendProductCard(item, categories));
+  }
   fillAddFormSelects();
 }
 
@@ -443,11 +668,12 @@ if (addBtn) addBtn.addEventListener("click", async () => {
   });
   saveProducts();
   renderProducts();
-  try {
-    await persistToCloud();
-  } catch (err) {
-    setMessage("Товар додано локально. Google: " + err.message);
-  }
+    try {
+      await runCloudSave(() => persistToCloud(id, Catalog.productSnapshot(products.find((p) => p.id === id))));
+      renderProducts();
+    } catch (err) {
+      setMessage("Товар додано локально. Google: " + err.message);
+    }
 
   newNameEl.value = "";
   newImageEl.value = "";
@@ -473,6 +699,50 @@ if (restoreBtn) restoreBtn.addEventListener("click", async () => {
     renderProducts();
     setMessage("Усі товари відновлено");
   });
+
+if (addCategoryBtn && newCategoryNameEl) {
+  addCategoryBtn.addEventListener("click", () => {
+    const name = newCategoryNameEl.value.trim();
+    if (!name) {
+      setCategoryOrderMessage("Введіть назву категорії");
+      return;
+    }
+    const order = Catalog.getAdminCategoryOrder(products);
+    if (order.includes(name)) {
+      setCategoryOrderMessage("Така категорія вже є в списку");
+      return;
+    }
+    order.push(name);
+    applyCategoryOrder(order);
+    newCategoryNameEl.value = "";
+  });
+  newCategoryNameEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addCategoryBtn.click();
+    }
+  });
+}
+
+if (resetCategoryOrderBtn) {
+  resetCategoryOrderBtn.addEventListener("click", () => {
+    Catalog.resetCategoryOrder();
+    setCategoryOrderMessage("Порядок скинуто до стандарту");
+    renderCategoryOrder();
+    renderCatFilter();
+    renderProducts();
+  });
+}
+
+if (publishCategoryOrderBtn) {
+  publishCategoryOrderBtn.addEventListener("click", () => {
+    const order = Catalog.getAdminCategoryOrder(products);
+    Catalog.downloadCategoryOrderJson(order, "category-order.json");
+    setCategoryOrderMessage(
+      "Завантажено category-order.json — покладіть у assets/data/ і зробіть git push"
+    );
+  });
+}
 
 if (publishBtn) publishBtn.addEventListener("click", () => {
   saveProducts();
@@ -512,8 +782,7 @@ if (repairGoogleBtn) {
     try {
       setGoogleMessage("Очищення дублів…");
       const data = await Catalog.repairGoogleSheet(url);
-      products = await Catalog.fetchFromGoogle(url);
-      products = Catalog.saveToStorage(products);
+      products = await Catalog.loadCatalogForAdmin();
       renderProducts();
       setGoogleMessage(
         data.message ||
@@ -540,14 +809,13 @@ if (syncGoogleBtn) {
     try {
       products = Catalog.dedupeProductsById(products);
       saveProducts();
-      setGoogleMessage("Запис у Google…");
-      const data = await Catalog.saveToGoogle(url, products);
-      Catalog.writeCatalogCache(products);
-      const dupNote =
-        data.removedDuplicates > 0 ? `, прибрано дублів: ${data.removedDuplicates}` : "";
+      setGoogleMessage("Запис у Google… (до 2 хв)");
+      await runCloudSave(() => persistToCloud());
+      const dupNote = "";
       setGoogleMessage(
-        `У Google: ${data.saved ?? data.sent ?? products.length} унікальних товарів${dupNote}. Кеш оновлено — сайт відкривається швидше.`
+        `У Google: ${products.length} товарів. Дані з таблиці підтягнуто в адмінку.`
       );
+      renderProducts();
       setMessage("Синхронізовано. Для GitHub: node scripts/sync-products-json-from-google.mjs");
     } catch (err) {
       setGoogleMessage("Помилка: " + err.message);
@@ -565,13 +833,15 @@ if (loadGoogleBtn) {
       return;
     }
     try {
-      products = await Catalog.fetchFromGoogle(url);
-      products = Catalog.saveToStorage(products);
+      setAdminLoading(true, "Завантаження з Google…");
+      products = await Catalog.loadCatalogForAdmin();
       renderProducts();
-      setGoogleMessage("Завантажено з Google");
+      setGoogleMessage("Завантажено з Google (джерело правди — таблиця)");
       setMessage("Список оновлено з Google");
     } catch (err) {
       setGoogleMessage("Помилка: " + err.message);
+    } finally {
+      setAdminLoading(false);
     }
   });
 }
@@ -637,19 +907,24 @@ async function init() {
         renderProducts();
       });
     }
+    await Catalog.ensureCategoryOrderReady();
     const cfg = await Catalog.fetchSiteConfig();
     const cfgUrl = (cfg.googleWebAppUrl || "").trim();
     if (cfgUrl) Catalog.setGoogleWebAppUrl(cfgUrl);
-    products = await Catalog.loadCatalog();
-    fillAddFormSelects();
-    renderProducts();
-    const url = await Catalog.getGoogleWebAppUrl();
+    const url = cfgUrl || (await Catalog.getGoogleWebAppUrl());
     if (googleWebAppUrlEl && url) googleWebAppUrlEl.value = url;
     if (url) {
+      setAdminLoading(true, "Завантаження каталогу з Google…");
+      products = await Catalog.loadCatalogForAdmin();
       setGoogleMessage(
-        "Підключено до Google. Змініть кг/шт/уп → «Зберегти» на картці (запис у колонки sale_type, unit, unit_min, unit_step)."
+        "Джерело даних — Google Таблиця. Змініть назву, ціну, кг/шт/уп → «Зберегти» (перевірка запису в таблицю)."
       );
     } else {
+      products = await Catalog.loadCatalog();
+    }
+    fillAddFormSelects();
+    renderProducts();
+    if (!url) {
       setGoogleMessage(
         "Google не підключено. Відкрийте сайт через https (не file://) і додайте URL у assets/data/config.json."
       );

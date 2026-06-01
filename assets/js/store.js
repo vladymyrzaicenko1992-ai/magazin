@@ -8,20 +8,6 @@
 
   const Cart = window.MagazinCart;
   const { loadCatalog } = Catalog;
-  const CAT_ORDER = [
-    "Усі",
-    "Вареники",
-    "Млинці",
-    "Додатково",
-    "Котлети",
-    "Пельмені",
-    "Хінкалі",
-    "Молочка",
-    "Вода та напої",
-    "Бакалія",
-    "Чай та кава",
-    "Консервація та соуси"
-  ];
 
   const catsEl = document.getElementById("cats");
   const grid = document.getElementById("pgrid");
@@ -61,7 +47,19 @@
   let q = "";
   let socialTimer = null;
 
+  function applyCatalogLoaderMessages() {
+    const msg = Catalog.getCatalogLoadMessages("store");
+    const textEl = document.getElementById("catalogLoaderText");
+    const subEl = document.getElementById("catalogLoaderSub");
+    if (textEl) textEl.textContent = msg.text;
+    if (subEl) {
+      subEl.textContent = msg.sub;
+      subEl.classList.toggle("loader-sub--first", !!msg.firstVisit);
+    }
+  }
+
   function setCatalogLoading(on) {
+    if (on) applyCatalogLoaderMessages();
     if (catalogLoader) {
       catalogLoader.hidden = !on;
       catalogLoader.setAttribute("aria-busy", on ? "true" : "false");
@@ -116,7 +114,9 @@
 
   function renderCategories() {
     const presentCats = new Set(products.filter((p) => Meta.isListed(p, categoryMins)).map((x) => x.c));
-    const cats = CAT_ORDER.filter((c) => c === "Усі" || presentCats.has(c));
+    const cats = Catalog.getStoreCategoryOrder(products).filter(
+      (c) => c === "Усі" || presentCats.has(c)
+    );
     catsEl.innerHTML = "";
 
     cats.forEach((cat) => {
@@ -615,6 +615,7 @@
   async function init() {
     setCatalogLoading(true);
     try {
+      await Catalog.ensureCategoryOrderReady();
       await loadProducts();
       bindQtyModalOnce();
       renderCategories();
@@ -624,6 +625,7 @@
       renderBundles();
       render();
       startSocialProof();
+      Catalog.markCatalogVisited();
       setCatalogLoading(false);
       loadTrendingIds().then(() => {
         renderTrending();

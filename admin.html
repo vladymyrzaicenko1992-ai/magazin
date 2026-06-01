@@ -207,6 +207,103 @@
       color: var(--accent);
       font-size: 14px;
     }
+    .cat-order-list {
+      list-style: none;
+      margin: 0 0 12px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cat-order-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.2);
+      cursor: grab;
+    }
+    .cat-order-item:active { cursor: grabbing; }
+    .cat-order-item.is-dragging {
+      opacity: 0.55;
+      border-color: var(--accent);
+    }
+    .cat-order-grip {
+      color: var(--muted);
+      font-size: 16px;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .cat-order-name {
+      flex: 1;
+      font-weight: 700;
+      font-size: 14px;
+      min-width: 0;
+    }
+    .cat-order-count {
+      font-size: 12px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .cat-order-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .cat-order-actions button {
+      width: 36px;
+      padding: 6px 0;
+      font-size: 14px;
+      line-height: 1;
+    }
+    .cat-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .cat-filter-chip {
+      width: auto;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .cat-filter-chip.active {
+      border-color: rgba(0, 200, 240, 0.55);
+      background: rgba(0, 200, 240, 0.15);
+      color: var(--text);
+      font-weight: 700;
+    }
+    .admin-cat-header {
+      margin: 16px 0 8px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(0, 200, 240, 0.08);
+      border: 1px solid rgba(0, 200, 240, 0.25);
+    }
+    .admin-cat-header h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .admin-cat-header span {
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .cat-order-new {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .cat-order-new button { width: auto; white-space: nowrap; }
     .admin-search {
       margin-bottom: 12px;
     }
@@ -378,7 +475,8 @@
       <section class="card">
         <h2>Google Диск (таблиця)</h2>
         <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">
-          Без Google дані зберігаються лише в цьому браузері. Підключіть таблицю — тоді ціни з’являться на головній сторінці для всіх.
+          Без Google дані лише в браузері. Якщо URL у <code>config.json</code> підключено — <strong>джерело правди — таблиця</strong>:
+          після «Зберегти» на картці дані пишуться в лист <code>products</code> і перевіряються зчитуванням.
           <a href="docs/GOOGLE_DRIVE.md" target="_blank" rel="noopener">Інструкція</a>
         </p>
         <p class="units-columns-hint" style="font-size:12px;color:var(--accent);margin-bottom:10px;line-height:1.45;">
@@ -438,11 +536,32 @@
         <div id="formMessage" class="msg"></div>
       </section>
 
+      <section class="card" id="categoryOrderSection">
+        <h2>Порядок категорій на вітрині</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+          Перетягніть рядок або кнопками ↑↓. Порядок одразу застосовується в адмінці та на головній (у цьому браузері).
+          Для всіх відвідувачів — <strong>Опублікувати порядок</strong> і покладіть файл у <code>assets/data/category-order.json</code>.
+        </p>
+        <div class="cat-order-new">
+          <input id="newCategoryName" type="text" placeholder="Нова категорія (наприклад, Соуси)">
+          <button type="button" id="addCategoryBtn">+ Додати</button>
+        </div>
+        <ul id="categoryOrderList" class="cat-order-list" aria-label="Порядок категорій"></ul>
+        <div class="toolbar">
+          <button type="button" id="resetCategoryOrderBtn">Скинути до стандарту</button>
+          <button type="button" id="publishCategoryOrderBtn">Опублікувати порядок (JSON)</button>
+        </div>
+        <div id="categoryOrderMessage" class="msg"></div>
+      </section>
+
       <section class="card card--products">
         <h2>Товари <span id="productsCount" style="color:var(--muted);font-weight:400;font-size:14px;"></span></h2>
         <p style="font-size:13px;color:var(--muted);margin:0 0 10px;">
-          Одиниця зберігається в Google у колонках <code>sale_type</code>, <code>unit</code>, <code>unit_min</code>, <code>unit_step</code> (лист <strong>products</strong>).
+          Назва, ціна, категорія — колонки <code>name</code>, <code>price</code>, <code>category</code>.
+          Одиниця (кг/шт/уп) — <code>sale_type</code>, <code>unit</code>, <code>unit_min</code>, <code>unit_step</code>.
+          Обовʼязково натискайте <strong>«Зберегти»</strong> на картці; дочекайтесь «Збережено в Google».
         </p>
+        <div class="cat-filter-bar" id="adminCatFilter" aria-label="Фільтр за категорією"></div>
         <input id="adminSearch" class="admin-search" type="search" placeholder="Пошук товару за назвою, категорією або id…" autocomplete="off">
         <div id="adminLoading" class="admin-loading" hidden>Завантаження…</div>
         <div id="productsList" class="products-list"></div>
@@ -451,7 +570,7 @@
   </div>
 
   <script src="assets/js/admin-auth.js?v=35"></script>
-  <script src="assets/js/catalog.js?v=40"></script>
-  <script src="assets/js/admin.js?v=40"></script>
+  <script src="assets/js/catalog.js?v=43"></script>
+  <script src="assets/js/admin.js?v=43"></script>
 </body>
 </html>

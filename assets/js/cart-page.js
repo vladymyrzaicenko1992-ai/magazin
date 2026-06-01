@@ -24,7 +24,19 @@
   let items = [];
   let productsById = new Map();
 
+  function applyLoaderMessages() {
+    const msg = Catalog.getCatalogLoadMessages("cart");
+    const textEl = document.getElementById("cartLoaderText");
+    const subEl = document.getElementById("cartLoaderSub");
+    if (textEl) textEl.textContent = msg.text;
+    if (subEl) {
+      subEl.textContent = msg.sub;
+      subEl.classList.toggle("loader-sub--first", !!msg.firstVisit);
+    }
+  }
+
   function setLoading(on) {
+    if (on) applyLoaderMessages();
     if (loaderEl) {
       loaderEl.hidden = !on;
       loaderEl.setAttribute("aria-busy", on ? "true" : "false");
@@ -262,6 +274,7 @@
       syncFromCatalog();
       fillCustomerForm();
       render();
+      Catalog.markCatalogVisited();
       setLoading(false);
     } catch (err) {
       console.error(err);
