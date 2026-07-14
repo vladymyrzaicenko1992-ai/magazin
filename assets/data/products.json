@@ -664,5 +664,45 @@
     "unit": "pcs",
     "unit_min": 1,
     "unit_step": 1
+  },
+  {
+    "id": "var-kartoshka",
+    "name": "Вареники з картоплею",
+    "category": "Вареники",
+    "image": "assets/img/products/vareniki/Вареники з картоплею.png",
+    "sale_type": "pcs",
+    "unit": "pcs",
+    "unit_min": 1,
+    "unit_step": 1
+  },
+  {
+    "id": "var-myaso-chesnok",
+    "name": "Вареники з м'ясом та часником",
+    "category": "Вареники",
+    "image": "assets/img/products/vareniki/Вареники з м'ясом та часником.png",
+    "sale_type": "pcs",
+    "unit": "pcs",
+    "unit_min": 1,
+    "unit_step": 1
+  },
+  {
+    "id": "syrniki-zhar",
+    "name": "Сирники смажені",
+    "category": "Млинці",
+    "image": "assets/img/products/bliny/Сирники смажені.png",
+    "sale_type": "pcs",
+    "unit": "pcs",
+    "unit_min": 1,
+    "unit_step": 1
+  },
+  {
+    "id": "bend-myaso",
+    "name": "Бендерики з м'ясом",
+    "category": "Млинці",
+    "image": "assets/img/products/bliny/Бендерки (м'ясо, капуста свіжа та тушкована).png",
+    "sale_type": "pcs",
+    "unit": "pcs",
+    "unit_min": 1,
+    "unit_step": 1
   }
 ]

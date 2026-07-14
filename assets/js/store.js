@@ -577,26 +577,7 @@
   }
 
   function startSocialProof() {
-    if (!socialToast) return;
-    const pool = products.filter((p) => Meta.isListed(p, categoryMins) && Meta.parsePrice(p) !== null);
-    if (pool.length < 2) return;
-
-    function tick() {
-      const p = pool[Math.floor(Math.random() * pool.length)];
-      socialToast.hidden = false;
-      socialToast.innerHTML =
-        '<span class="social-ico">🔥</span><span><strong>Щойно обрали:</strong> ' +
-        escapeHtml(p.n) +
-        "</span>";
-      socialToast.classList.add("is-visible");
-      clearTimeout(socialToast._hide);
-      socialToast._hide = setTimeout(() => {
-        socialToast.classList.remove("is-visible");
-      }, 4500);
-      socialTimer = setTimeout(tick, 8000 + Math.random() * 4000);
-    }
-
-    socialTimer = setTimeout(tick, 5000);
+    return;
   }
 
   function applyFullCatalog(list) {

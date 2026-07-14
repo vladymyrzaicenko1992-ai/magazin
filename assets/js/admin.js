@@ -286,6 +286,83 @@ function bindAddPhotoPreview() {
       updatePhotoPreview(newPhotoFrame, newPhotoPreview, newImageEl.value);
     });
   }
+  const addCamBtn = document.getElementById("newPhotoCam");
+  if (addCamBtn) {
+    addCamBtn.addEventListener("click", () => {
+      openCamera({ imgInput: newImageEl, imgPreview: newPhotoPreview, photoFrame: newPhotoFrame });
+    });
+  }
+}
+
+// --- Camera ---
+const camOverlay = document.getElementById("cameraOverlay");
+const camVideo = document.getElementById("cameraVideo");
+const camCanvas = document.getElementById("cameraCanvas");
+const camCaptureBtn = document.getElementById("camCapture");
+const camCloseBtn = document.getElementById("camClose");
+let camStream = null;
+let camTarget = { imgInput: null, imgPreview: null, photoFrame: null };
+
+function stopCamera() {
+  if (camStream) {
+    camStream.getTracks().forEach((t) => t.stop());
+    camStream = null;
+  }
+  camVideo.srcObject = null;
+  if (camOverlay) camOverlay.classList.remove("active");
+}
+
+async function openCamera(target) {
+  camTarget = target;
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    camVideo.srcObject = camStream;
+    if (camOverlay) camOverlay.classList.add("active");
+  } catch (err) {
+    alert("Не вдалося відкрити камеру: " + err.message);
+  }
+}
+
+function capturePhoto() {
+  if (!camVideo || !camCanvas || !camStream) return;
+  const vw = camVideo.videoWidth || 640;
+  const vh = camVideo.videoHeight || 480;
+  camCanvas.width = vw;
+  camCanvas.height = vh;
+  const ctx = camCanvas.getContext("2d");
+  ctx.drawImage(camVideo, 0, 0, vw, vh);
+  const dataUrl = camCanvas.toDataURL("image/jpeg", 0.85);
+  if (camTarget.imgInput) {
+    camTarget.imgInput.value = dataUrl;
+    camTarget.imgInput.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  updatePhotoPreview(camTarget.photoFrame, camTarget.imgPreview, dataUrl);
+  stopCamera();
+}
+
+if (camCaptureBtn) camCaptureBtn.addEventListener("click", capturePhoto);
+if (camCloseBtn) camCloseBtn.addEventListener("click", stopCamera);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && camOverlay && camOverlay.classList.contains("active")) {
+    stopCamera();
+  }
+});
+
+function attachCamButton(container, imgInput, imgPreview, photoFrame) {
+  const existing = container.querySelector('[data-action="cam"]');
+  if (existing) return;
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "product-photo-cam";
+  btn.setAttribute("data-action", "cam");
+  btn.textContent = "📷 Сфоткати";
+  btn.addEventListener("click", () => {
+    openCamera({ imgInput, imgPreview, photoFrame });
+  });
+  container.appendChild(btn);
 }
 
 function bindRowInputs(row, item) {
@@ -372,6 +449,13 @@ function bindRowInputs(row, item) {
       imgInput.value = dataUrl;
       updatePhotoPreview(photoFrame, imgPreview, dataUrl);
       setCardStatus(row, "warn", "Фото завантажено — натисніть «Зберегти»");
+    });
+  }
+
+  const camBtn = row.querySelector('[data-action="cam"]');
+  if (camBtn) {
+    camBtn.addEventListener("click", () => {
+      openCamera({ imgInput, imgPreview, photoFrame });
     });
   }
 
@@ -557,6 +641,7 @@ function appendProductCard(item, categories) {
           <span class="product-photo-empty" aria-hidden="true">🍽️</span>
         </div>
         <input type="file" accept="image/*" data-field="img-file" class="product-photo-file">
+        <button type="button" class="product-photo-cam" data-action="cam">📷 Сфоткати</button>
       </div>
     `;
     const saleContainer = card.querySelector('[data-field="sale-types"]');

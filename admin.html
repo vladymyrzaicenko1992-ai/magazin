@@ -395,6 +395,16 @@
     .product-photo-file {
       font-size: 11px;
     }
+    .product-photo-cam {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      width: auto;
+      font-size: 11px;
+      padding: 6px 10px;
+      margin-top: 4px;
+      border-radius: 8px;
+    }
     .product-card--add {
       border-style: dashed;
       border-color: rgba(0, 200, 240, 0.35);
@@ -427,6 +437,48 @@
       .product-row--img {
         grid-template-columns: 1fr;
       }
+    }
+    /* Camera overlay */
+    .camera-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.95);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .camera-overlay.active { display: flex; }
+    .camera-video {
+      max-width: 100vw;
+      max-height: 70vh;
+      border-radius: 16px;
+      border: 2px solid var(--accent);
+      object-fit: cover;
+    }
+    .camera-canvas { display: none; }
+    .camera-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .camera-actions button {
+      width: auto;
+      min-width: 100px;
+      padding: 12px 20px;
+      font-size: 15px;
+      border-radius: 14px;
+    }
+    .cam-capture {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #07202a;
+      font-weight: 700;
+    }
+    .cam-close {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
     }
   </style>
 </head>
@@ -531,6 +583,7 @@
               <span class="product-photo-empty" aria-hidden="true">🍽️</span>
             </div>
             <input id="newImageFile" type="file" accept="image/*" class="product-photo-file">
+            <button type="button" class="product-photo-cam" id="newPhotoCam">📷 Сфоткати</button>
           </div>
         </article>
         <div id="formMessage" class="msg"></div>
@@ -571,6 +624,15 @@
 
   <script src="assets/js/admin-auth.js?v=35"></script>
   <script src="assets/js/catalog.js?v=43"></script>
-  <script src="assets/js/admin.js?v=43"></script>
+  <script src="assets/js/admin.js?v=44"></script>
+
+  <div class="camera-overlay" id="cameraOverlay">
+    <video class="camera-video" id="cameraVideo" autoplay playsinline></video>
+    <canvas class="camera-canvas" id="cameraCanvas"></canvas>
+    <div class="camera-actions">
+      <button type="button" class="cam-close" id="camClose">Скасувати</button>
+      <button type="button" class="cam-capture" id="camCapture">📸 Зняти</button>
+    </div>
+  </div>
 </body>
 </html>

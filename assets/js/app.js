@@ -6,7 +6,11 @@ const CATEGORY_IMAGES = {
   "Пельмені": "assets/img/products/dumplings/Богатирські (Яловичина + курка).png",
   "Хінкалі": "assets/img/products/dumplings/Хінкалі «Домашні» .png",
   "Молочка": "assets/img/products/molochka/Сметана фермерська.png",
-  "Додатково": "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png"
+  "Додатково": "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png",
+  "Бакалія": "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png",
+  "Вода та напої": "assets/img/products/molochka/Сметана фермерська.png",
+  "Чай та кава": "assets/img/products/molochka/Сметана фермерська.png",
+  "Консервація та соуси": "assets/img/products/bliny/Заморожені овочі, Картопля фрі.png"
 };
 const PRODUCT_IMAGES = {
   "var-kartoshka": "assets/img/products/vareniki/Вареники з картоплею.png",
@@ -130,7 +134,7 @@ function getImageForProduct(item) {
 }
 
 function groupByCategory(items) {
-  const order = ["Пельмені", "Хінкалі", "Вареники", "Млинці", "Котлети", "Молочка", "Додатково"];
+  const order = ["Пельмені", "Хінкалі", "Вареники", "Млинці", "Котлети", "Молочка", "Додатково", "Вода та напої", "Бакалія", "Чай та кава", "Консервація та соуси"];
   return order
     .filter((category) => items.some((item) => item.category === category))
     .map((category) => ({

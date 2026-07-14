@@ -15,7 +15,7 @@
   };
 
   /** Резерв, якщо Google ще не повернув топ за 7 днів */
-  const TRENDING_IDS = ["pel-dom", "var-kartoshka", "kot-babush", "hink-dom"];
+  const TRENDING_IDS = ["pel-dom", "var-kartoshka", "kot-babush", "hink-dom", "pel-babush"];
 
   /** Готові набори для блоку «Часто беруть разом» */
   const BUNDLE_PRESETS = [
@@ -86,9 +86,6 @@
     if (c === "Пельмені" || c === "Хінкалі") {
       badges.push({ text: "⚡ 7 хв", cls: "badge-fast" });
     }
-    if (c === "Вареники" || c === "Пельмені") {
-      badges.push({ text: "🥟 Ручна ліпка", cls: "badge-hand" });
-    }
     if (n.includes("домашн") || n.includes("бабус")) {
       badges.push({ text: "👨‍👩‍👧 Для сімʼї", cls: "badge-fam" });
     }
@@ -152,8 +149,8 @@
     const v = parsePrice(product);
     if (v !== null) return { text: `${Math.round(v)} грн`, canOrder: true };
     const min = categoryMins[product.c];
-    if (min != null) return { text: `від ${Math.round(min)} грн`, canOrder: false };
-    return null;
+    if (min != null) return { text: `від ${Math.round(min)} грн`, canOrder: true };
+    return { text: "Ціна за запитом", canOrder: true };
   }
 
   function isListed(product, categoryMins) {
