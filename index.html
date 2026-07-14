@@ -1454,7 +1454,8 @@
   <div class="nearby-card">
     <div class="nearby-item"><span>📍</span>Дарниця</div>
     <div class="nearby-item"><span>🚶</span>2 хв від вокзалу</div>
-     <div class="nearby-item"><span>🕐</span>Пн-Сб 10:00–19:00, Нд — вихідний</div>
+     <div class="nearby-item"><span>🕐</span>Магазин: Пн-Сб 10–19, Нд — вихідний</div>
+     <div class="nearby-item"><span>📱</span>Замовлення онлайн — цілодобово</div>
   </div>
 </section>
 
@@ -1533,7 +1534,7 @@
   <div class="fin">
     <div class="foot-lines">
       <span>📍 Київ • Дарницький вокзал</span>
-       <span>⏰ Пн-Сб 10:00–19:00, Нд — вихідний</span>
+       <span>⏰ Магазин: Пн-Сб 10–19, Нд — вихідний</span>
       <span>🥟 Домашні напівфабрикати</span>
     </div>
     <strong>Усе в морозильці</strong><br>
@@ -1588,24 +1589,26 @@
   var heroBadge = document.getElementById("heroOpenBadge");
   if (!headerBadge && !heroBadge) return;
 
-  function isOpen() {
+  function isStoreOpen() {
     var now = new Date();
-    var day = now.getDay(); // 0 = неділя, 1-6 = пн-сб
+    var day = now.getDay();
     var h = now.getHours();
-    if (day === 0) return false;        // неділя — вихідний
-    return h >= 10 && h < 19;           // пн-сб 10:00–19:00
+    if (day === 0) return false;
+    return h >= 10 && h < 19;
   }
 
   function update() {
-    var open = isOpen();
+    var open = isStoreOpen();
     if (headerBadge) {
-      headerBadge.textContent = open ? "Відкрито" : "Зачинено";
-      headerBadge.classList.toggle("is-closed", !open);
+      headerBadge.textContent = open ? "Відкрито" : "Замовлення онлайн";
+      headerBadge.classList.toggle("is-closed", false);
+      if (!open) headerBadge.style.background = "rgba(0,200,240,.12)";
+      else headerBadge.style.background = "";
     }
     if (heroBadge) {
-      heroBadge.textContent = open ? "🟢 Відкрито зараз" : "🔴 Зачинено";
+      heroBadge.textContent = open ? "🟢 Відкрито зараз" : "📱 Замовлення онлайн 24/7";
       heroBadge.classList.toggle("hero-badge--open", open);
-      heroBadge.classList.toggle("hero-badge--closed", !open);
+      heroBadge.classList.toggle("hero-badge--closed", false);
     }
   }
 
