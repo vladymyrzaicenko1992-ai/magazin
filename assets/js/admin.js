@@ -172,12 +172,12 @@ async function persistToCloud(verifyProductId, expectedSnapshot) {
   products = Catalog.dedupeProductsById(products);
   const result = await Catalog.saveToGoogle(url, products);
   if (!result.ok) {
-    throw new Error("Не вдалося зберегти в Google");
+    throw new Error(result.error || "Сервер не прийняв зміни");
   }
 
   const fresh = await Catalog.fetchFromGoogle(url, 90000);
   if (!fresh.length) {
-    throw new Error("Після запису Google не повернув каталог. Перевірте таблицю та розгортання.");
+    throw new Error("Після запису сервер не повернув каталог.");
   }
 
   if (verifyProductId && expectedSnapshot) {
@@ -198,11 +198,11 @@ async function persistToCloud(verifyProductId, expectedSnapshot) {
 
   products = fresh;
   Catalog.applyGoogleCatalogLocally(products);
-  setGoogleMessage("Синхронізовано з Google · " + url.replace(/^https:\/\//, "").slice(0, 52) + "…");
+  setGoogleMessage("Синхронізовано із сервером · " + url.replace(/^https:\/\//, "").slice(0, 52) + "…");
   const savedCount = result.saved ?? result.sent ?? products.length;
   return {
     google: true,
-    text: `Збережено в Google (${savedCount} товарів). Таблиця перевірена.`,
+    text: result.message || `Збережено (${savedCount} товарів). Сайт оновлено.`,
     verified: Boolean(verifyProductId)
   };
 }
@@ -465,6 +465,16 @@ function bindRowInputs(row, item) {
     saveProducts();
     renderProducts();
     setMessage("Товар приховано з вітрини");
+    // Раніше видалення діяло лише в цьому браузері: у покупців товар лишався.
+    // Тепер дублюємо зміну в загальний каталог (сервер) — звідти сайт і бере дані.
+    runCloudSave(async () => {
+      try {
+        const res = await persistToCloud();
+        setMessage("Товар видалено з вітрини · " + (res.text || ""));
+      } catch (err) {
+        setMessage("Приховано лише в цьому браузері: " + err.message);
+      }
+    });
   });
 }
 
