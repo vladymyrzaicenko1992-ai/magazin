@@ -662,12 +662,28 @@ function dedupeProductsById(products) {
   return Array.from(map.values());
 }
 
+/**
+ * Ключ запису каталогу = ADMIN_SECRET зі Script Properties (НЕ в коді).
+ * Питаємо один раз і тримаємо в localStorage цього браузера.
+ */
+function getWriteSecret() {
+  try {
+    let s = localStorage.getItem("magazin-admin-secret") || "";
+    if (s) return s;
+    s = (window.prompt("Ключ публікації каталогу (ADMIN_SECRET зі Script Properties):") || "").trim();
+    if (s) localStorage.setItem("magazin-admin-secret", s);
+    return s;
+  } catch (_) {
+    return "";
+  }
+}
+
 async function repairGoogleSheet(url) {
   const res = await fetch(url, {
     method: "POST",
     redirect: "follow",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ action: "repairProducts" })
+    body: JSON.stringify({ action: "repairProducts", secret: getWriteSecret() })
   });
   const text = await res.text();
   let data;
@@ -686,6 +702,7 @@ async function saveToGoogle(url, products, options) {
   const unique = dedupeProductsById(products);
   const payload = JSON.stringify({
     action: "save",
+    secret: getWriteSecret(),
     products: toProductsJson(unique)
   });
   const opts = {
@@ -789,7 +806,7 @@ function clearProductsCacheOnServer_(url) {
     method: "POST",
     redirect: "follow",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ action: "invalidateProductsCache" })
+    body: JSON.stringify({ action: "invalidateProductsCache", secret: getWriteSecret() })
   }).catch(() => {});
 }
 

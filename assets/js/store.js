@@ -240,12 +240,12 @@
   }
 
   function showQtyModal(p) {
-    if (!qtyModal || !Cart || !p) return;
+    if (!qtyModal || !Cart || !p) return false;
     const u = getUnitForProduct(p);
     qtyModalUnit = u;
     if (!Cart.isInCart(p.id)) {
       const r = Cart.addItem(p, u.min);
-      if (!r.ok) return;
+      if (!r.ok) return false;
     }
     const item = Cart.loadCart().find((x) => x.id === p.id);
     let qty = item ? item.qty : u.min;
@@ -263,14 +263,18 @@
       qtyModalInput.value = Cart.formatQty(qty, u.id);
     }
     qtyModal.hidden = false;
+    return true;
   }
 
   function applyQtyModalValue() {
     if (!qtyModalProduct || !Cart || !qtyModalInput) return;
-    Cart.setQty(qtyModalProduct.id, qtyModalInput.value);
+    // closeQtyModal() обнуляє qtyModalProduct — тримаємо посилання заздалегідь,
+    // інакше flashAddToast падає з TypeError і оновлення UI не виконується.
+    const product = qtyModalProduct;
+    Cart.setQty(product.id, qtyModalInput.value);
     closeQtyModal();
-    flashAddToast(qtyModalProduct.n);
-    showUpsell(qtyModalProduct);
+    flashAddToast(product.n);
+    showUpsell(product);
     refreshAfterCartChange();
   }
 
@@ -306,7 +310,12 @@
         const id = btn.getAttribute("data-id");
         const p = products.find((x) => x.id === id);
         if (!p || !Cart) return;
-        showQtyModal(p);
+        const opened = showQtyModal(p);
+        if (opened === false) {
+          // Товар без ціни: Cart.addItem повертає no_price. Кажемо про це прямо,
+          // щоб клік не виглядав «зламаною кнопкою».
+          flashAddToast("Ціну уточнюємо — запитайте в продавця: " + p.n);
+        }
       });
     });
   }
@@ -661,7 +670,9 @@
 
   window.addEventListener("pageshow", () => {
     if (products.length) {
-      updateHeroSocial();
+      // updateHeroSocial() ніде не оголошена: ReferenceError зривав renderBundles()
+      // і refreshAfterCartChange() при поверненні на сторінку (кнопка «назад»).
+      if (typeof updateHeroSocial === "function") updateHeroSocial();
       renderBundles();
       refreshAfterCartChange();
     }

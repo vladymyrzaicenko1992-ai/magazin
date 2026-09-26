@@ -42,12 +42,13 @@ var CART_ADDS_SHEET = "cart_adds";
 var STATS_7D_SHEET = "stats_7d";
 var UNIT_METRICS_SHEET = "unit_metrics";
 var TELEGRAM_SHEET = "telegram";
+var PAGEVIEWS_SHEET = "pageviews";
 
 /** Chat_id групи «Заказы» — за замовчуванням */
 var DEFAULT_CHAT_ID = "-1003933471474";
 
 /** Токен @Magazine1304_bot — після /revoke оновіть тут і зробіть Нове розгортання */
-var TELEGRAM_BOT_TOKEN = "8809482654:AAH6dFjlNa4ju6DIEM1D9KHwRO4HkDDPoI4";
+var TELEGRAM_BOT_TOKEN = ""; // НЕ вписуйте токен у код: лист «telegram» B1 або Script Properties
 
 var DEFAULT_UNIT_METRICS = {
   pcs: { label: "шт", step: 1, min: 1 },
@@ -92,6 +93,10 @@ function doGet(e) {
     if (action === "dashboard") {
       return jsonOut(getDashboard_());
     }
+    if (action === "analytics") {
+      var period = e.parameter.period || "today";
+      return jsonOut(getAnalytics_(period));
+    }
     if (action === "repairProducts") {
       return jsonOut(repairProductsSheet_());
     }
@@ -108,6 +113,8 @@ function doPost(e) {
       body = JSON.parse(e.postData.contents);
     }
     if (body.action === "save" && body.products) {
+      var denySave = requireWriteAccess_(body, "save");
+      if (denySave) return jsonOut({ ok: false, error: denySave });
       var saved = writeProducts(body.products);
       return jsonOut({
         ok: true,
@@ -116,10 +123,14 @@ function doPost(e) {
       });
     }
     if (body.action === "invalidateProductsCache") {
+      var denyCache = requireWriteAccess_(body, "invalidateProductsCache");
+      if (denyCache) return jsonOut({ ok: false, error: denyCache });
       clearProductsCache_();
       return jsonOut({ ok: true });
     }
     if (body.action === "repairProducts") {
+      var denyRepair = requireWriteAccess_(body, "repairProducts");
+      if (denyRepair) return jsonOut({ ok: false, error: denyRepair });
       return jsonOut(repairProductsSheet_());
     }
     if (body.action === "order") {
@@ -127,6 +138,9 @@ function doPost(e) {
     }
     if (body.action === "trackAdd") {
       return jsonOut(trackCartAdd_(body));
+    }
+    if (body.action === "trackPageview") {
+      return jsonOut(trackPageview_(body));
     }
     return jsonOut({ ok: false, error: "Unknown action" });
   } catch (err) {
@@ -138,6 +152,37 @@ function jsonOut(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(
     ContentService.MimeType.JSON
   );
+}
+
+// ----------------------------------------------------------------------------- Захист запису каталогу
+/**
+ * Веб-додаток відкритий для анонімних запитів (потрібно для замовлень),
+ * тому будь-який запис у таблицю вимагає ключа ADMIN_SECRET зі Script Properties.
+ * Без нього запис заборонено (fail-closed) — інакше будь-хто, хто знає URL,
+ * зміг би переписати ціни в каталозі.
+ */
+function requireWriteAccess_(body, action) {
+  var expected = "";
+  try {
+    expected = String(
+      PropertiesService.getScriptProperties().getProperty("ADMIN_SECRET") || ""
+    ).trim();
+  } catch (err) {
+    expected = "";
+  }
+  if (!expected) {
+    return (
+      "Запис каталогу заблоковано: у Project Settings → Script Properties " +
+      "не задано ADMIN_SECRET. Додайте ключ і введіть його в адмінці (" +
+      action +
+      ")."
+    );
+  }
+  var got = String((body && body.secret) || "").trim();
+  if (got !== expected) {
+    return "Немає доступу (" + action + "): невірний ADMIN_SECRET.";
+  }
+  return "";
 }
 
 // ----------------------------------------------------------------------------- Telegram
@@ -294,12 +339,50 @@ function placeOrder_(body) {
   if (!phone || phone.replace(/\D/g, "").length < 10) {
     return { ok: false, error: "Вкажіть коректний телефон" };
   }
-  if (!items.length) {
+  if (!items || typeof items.forEach !== "function" || !items.length) {
     return { ok: false, error: "Кошик порожній" };
   }
   if (!Number.isFinite(total) || total <= 0) {
     return { ok: false, error: "Некоректна сума" };
   }
+
+  // --- Ціни беремо з таблиці, а не з браузера: підміна price/total з фронтенду не пройде ---
+  var priceMap = {};
+  try {
+    readProductsCached_().forEach(function (p) {
+      if (p && p.id && p.price !== null && p.price !== "" && Number(p.price) >= 0) {
+        priceMap[String(p.id)] = Number(p.price);
+      }
+    });
+  } catch (err) {
+    Logger.log("placeOrder_ priceMap: " + err);
+  }
+
+  var unknownPriced = 0;
+  var serverTotal = 0;
+  items.forEach(function (it) {
+    var qty = Number(it.qty);
+    if (!Number.isFinite(qty) || qty <= 0) qty = 1;
+    if (qty > 999) qty = 999;
+    it.qty = qty;
+
+    var authoritative = priceMap[String(it.id)];
+    if (authoritative !== undefined) {
+      it.price = authoritative;
+      it.lineTotal = Math.round(authoritative * qty * 100) / 100;
+    } else if (!Number.isFinite(Number(it.lineTotal))) {
+      var cPrice = Number(it.price);
+      it.lineTotal = Number.isFinite(cPrice) && cPrice >= 0 ? Math.round(cPrice * qty * 100) / 100 : 0;
+      unknownPriced++;
+    }
+    if (!Number.isFinite(Number(it.lineTotal)) || Number(it.lineTotal) < 0) it.lineTotal = 0;
+    serverTotal += Number(it.lineTotal);
+  });
+  serverTotal = Math.round(serverTotal * 100) / 100;
+
+  var totalMismatch = false;
+  var finalTotal = serverTotal > 0 ? serverTotal : total;
+  if (serverTotal > 0 && Math.abs(serverTotal - total) > 0.5) totalMismatch = true;
 
   var cfg = getTelegramConfig_();
   if (!cfg.token || !cfg.chatId) {
@@ -311,7 +394,16 @@ function placeOrder_(body) {
     };
   }
 
-  var message = formatOrderMessage_(name, phone, address, comment, items, total);
+  var message = formatOrderMessage_(name, phone, address, comment, items, finalTotal);
+  if (totalMismatch) {
+    message +=
+      "\n⚠️ Сума з сайту: " +
+      Math.round(total * 100) / 100 +
+      " грн — перевірте перед підтвердженням.";
+  }
+  if (unknownPriced > 0) {
+    message += "\nℹ️ Позицій без ціни в таблиці: " + unknownPriced + " — уточніть ціну.";
+  }
   try {
     sendTelegramMessage_(cfg.token, cfg.chatId, message);
   } catch (err) {
@@ -325,7 +417,7 @@ function placeOrder_(body) {
     }
     throw err;
   }
-  logOrder_(name, phone, address, comment, items, total);
+  logOrder_(name, phone, address, comment, items, finalTotal);
   return { ok: true };
 }
 
@@ -789,4 +881,158 @@ function refreshStats7dSheet_() {
       now
     ]);
   });
+}
+
+// ----------------------------------------------------------------------------- Analytics
+function getPageviewsSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(PAGEVIEWS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(PAGEVIEWS_SHEET);
+    sheet.appendRow(["timestamp", "visitor_id", "session_id", "page", "referrer", "source", "returning", "ua", "screen"]);
+  }
+  return sheet;
+}
+
+function trackPageview_(body) {
+  try {
+    var visitorId = String(body.visitor_id || "").trim();
+    var sessionId = String(body.session_id || "").trim();
+    var page = String(body.page || "").trim();
+    var referrer = String(body.referrer || "").trim();
+    var source = String(body.source || "direct").trim();
+    var returning = !!body.returning;
+    var ua = String(body.ua || "").trim();
+    var screen = String(body.screen || "").trim();
+
+    if (!visitorId) return { ok: false, error: "visitor_id required" };
+
+    getPageviewsSheet_().appendRow([
+      new Date(),
+      visitorId,
+      sessionId,
+      page,
+      referrer,
+      source,
+      returning,
+      ua,
+      screen
+    ]);
+    return { ok: true };
+  } catch (err) {
+    Logger.log("trackPageview: " + err);
+    return { ok: false, error: String(err) };
+  }
+}
+
+function getAnalytics_(period) {
+  try {
+    var sheet = getPageviewsSheet_();
+    var data = sheet.getDataRange().getValues();
+    if (data.length < 2) {
+      return {
+        ok: true,
+        period: period,
+        totalVisits: 0,
+        uniqueVisitors: 0,
+        returningVisitors: 0,
+        newVisitors: 0,
+        pages: [],
+        sources: [],
+        hourly: [],
+        daily: []
+      };
+    }
+
+    var tz = Session.getScriptTimeZone() || "Europe/Kyiv";
+    var now = new Date();
+    var since = new Date();
+
+    if (period === "today") {
+      since = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    } else if (period === "7d") {
+      since.setDate(since.getDate() - 7);
+      since.setHours(0, 0, 0, 0);
+    } else if (period === "30d") {
+      since.setDate(since.getDate() - 30);
+      since.setHours(0, 0, 0, 0);
+    } else if (period === "all") {
+      since = new Date(0);
+    } else {
+      since = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    var visitors = {};
+    var returningCount = 0;
+    var newCount = 0;
+    var pageCounts = {};
+    var sourceCounts = {};
+    var hourlyCounts = {};
+    var dailyCounts = {};
+
+    for (var i = 1; i < data.length; i++) {
+      var ts = data[i][0];
+      if (!ts) continue;
+      var rowDate = ts instanceof Date ? ts : new Date(ts);
+      if (rowDate < since) continue;
+
+      var visitorId = String(data[i][1] || "").trim();
+      var page = String(data[i][3] || "").trim();
+      var source = String(data[i][5] || "direct").trim();
+      var returning = data[i][6];
+
+      if (visitorId) {
+        if (!visitors[visitorId]) {
+          visitors[visitorId] = { first: rowDate, returning: returning };
+        }
+        if (returning) returningCount++;
+        else newCount++;
+      }
+
+      pageCounts[page] = (pageCounts[page] || 0) + 1;
+      sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+
+      var hour = Utilities.formatDate(rowDate, tz, "HH:00");
+      hourlyCounts[hour] = (hourlyCounts[hour] || 0) + 1;
+
+      var day = Utilities.formatDate(rowDate, tz, "yyyy-MM-dd");
+      dailyCounts[day] = (dailyCounts[day] || 0) + 1;
+    }
+
+    var uniqueVisitors = Object.keys(visitors).length;
+
+    var pages = Object.keys(pageCounts).map(function (p) {
+      return { page: p, count: pageCounts[p] };
+    }).sort(function (a, b) { return b.count - a.count; }).slice(0, 10);
+
+    var sources = Object.keys(sourceCounts).map(function (s) {
+      return { source: s, count: sourceCounts[s] };
+    }).sort(function (a, b) { return b.count - a.count; });
+
+    var hourly = Object.keys(hourlyCounts).sort().map(function (h) {
+      return { hour: h, count: hourlyCounts[h] };
+    });
+
+    var daily = Object.keys(dailyCounts).sort().map(function (d) {
+      return { day: d, count: dailyCounts[d] };
+    });
+
+    var totalVisits = pages.reduce(function (sum, p) { return sum + p.count; }, 0);
+
+    return {
+      ok: true,
+      period: period,
+      totalVisits: totalVisits,
+      uniqueVisitors: uniqueVisitors,
+      returningVisitors: returningCount,
+      newVisitors: newCount,
+      pages: pages,
+      sources: sources,
+      hourly: hourly,
+      daily: daily
+    };
+  } catch (err) {
+    Logger.log("getAnalytics: " + err);
+    return { ok: false, error: String(err) };
+  }
 }

@@ -248,7 +248,14 @@
         items = [];
         showSuccess();
       } catch (err) {
-        if (formErr) formErr.textContent = err.message || "Помилка відправки";
+        // Покупцю не можна показувати «Failed to fetch» — це виглядає як зламаний сайт.
+        const raw = String((err && err.message) || "");
+        const offline = /failed to fetch|networkerror|load failed|err_|timed? ?out/i.test(raw);
+        if (formErr) {
+          formErr.textContent = offline
+            ? "Не вдалося надіслати замовлення — сервер не відповідає. Спробуйте, будь ласка, ще раз за хвилину."
+            : raw || "Помилка відправки";
+        }
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = "Оформити запит менеджеру";

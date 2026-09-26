@@ -147,10 +147,12 @@
 
   function getPriceDisplay(product, categoryMins) {
     const v = parsePrice(product);
+    // ВАЖНО: замовити можна лише товар із ціною. Інакше кнопка «Додати в кошик»
+    // є, але Cart.addItem повертає no_price і клік мовчки нічого не робить.
     if (v !== null) return { text: `${Math.round(v)} грн`, canOrder: true };
     const min = categoryMins[product.c];
-    if (min != null) return { text: `від ${Math.round(min)} грн`, canOrder: true };
-    return { text: "Ціна за запитом", canOrder: true };
+    if (min != null) return { text: `від ${Math.round(min)} грн`, canOrder: false };
+    return { text: "Ціна за запитом", canOrder: false };
   }
 
   function isListed(product, categoryMins) {
