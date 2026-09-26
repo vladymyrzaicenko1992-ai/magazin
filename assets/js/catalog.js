@@ -4,8 +4,12 @@ const DELETED_KEY = "magazin-deleted-v2";
 const GOOGLE_URL_KEY = "magazin-google-webapp-url";
 const CATALOG_CACHE_KEY = "magazin-catalog-cache-v1";
 const VISITOR_KEY = "magazin-visitor-seen-catalog";
-/** Кеш каталогу з Google (хв) — без нього кожне відкриття чекає 30–90 с на Apps Script */
-const CATALOG_CACHE_TTL_MS = 2 * 60 * 60 * 1000;
+/**
+ * Кеш каталогу (5 хв). Було 2 години — через це покупці з відкритою раніше
+ * сторінкою бачили старі ціни й фото до двох годин після оновлення.
+ * API відповідає за ~0,5 с, тож короткий кеш безпечний.
+ */
+const CATALOG_CACHE_TTL_MS = 5 * 60 * 1000;
 const GOOGLE_FETCH_TIMEOUT_MS = 28000;
 const GOOGLE_SAVE_TIMEOUT_MS = 120000;
 const GOOGLE_ADMIN_LOAD_TIMEOUT_MS = 90000;
