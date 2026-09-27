@@ -4,11 +4,7 @@ const DELETED_KEY = "magazin-deleted-v2";
 const GOOGLE_URL_KEY = "magazin-google-webapp-url";
 const CATALOG_CACHE_KEY = "magazin-catalog-cache-v1";
 const VISITOR_KEY = "magazin-visitor-seen-catalog";
-/**
- * Кеш каталогу (5 хв). Було 2 години — через це покупці з відкритою раніше
- * сторінкою бачили старі ціни й фото до двох годин після оновлення.
- * API відповідає за ~0,5 с, тож короткий кеш безпечний.
- */
+/** Кеш каталогу (5 хв): короткий, щоб ціни й фото доходили до покупців за хвилини */
 const CATALOG_CACHE_TTL_MS = 5 * 60 * 1000;
 const GOOGLE_FETCH_TIMEOUT_MS = 28000;
 const GOOGLE_SAVE_TIMEOUT_MS = 120000;
@@ -299,6 +295,16 @@ function parsePrice(value) {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
+/** Замінює .png / .jpg → .webp для локальних картинок у assets/img/products/ */
+function upgradeToWebp(src) {
+  const s = String(src || "").trim();
+  if (!s) return s;
+  if (s.startsWith("assets/img/products/") && /\.(png|jpe?g)$/i.test(s)) {
+    return s.replace(/\.(png|jpe?g)$/i, ".webp");
+  }
+  return s;
+}
+
 function normalizeProduct(item) {
   if (!item || !item.id) return null;
   const c = item.c || item.category || "";
@@ -311,7 +317,7 @@ function normalizeProduct(item) {
     id: item.id,
     n: item.n || item.name || "",
     c,
-    img: item.img || item.image || "",
+    img: upgradeToWebp(item.img || item.image || ""),
     price: parsePrice(item.price),
     unit,
     saleType,
@@ -600,6 +606,15 @@ async function fetchDashboard(url) {
   const res = await fetch(endpoint);
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || "Помилка dashboard");
+  return data;
+}
+
+async function fetchAnalytics(url, period) {
+  const p = period || "today";
+  const endpoint = `${url}${url.includes("?") ? "&" : "?"}action=analytics&period=${p}&ts=${Date.now()}`;
+  const res = await fetch(endpoint);
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "Помилка analytics");
   return data;
 }
 
@@ -979,6 +994,7 @@ window.MagazinCatalog = {
   fetchFromGoogle,
   fetchTrending,
   fetchDashboard,
+  fetchAnalytics,
   trackCartAdd,
   dedupeProductsById,
   repairGoogleSheet,
