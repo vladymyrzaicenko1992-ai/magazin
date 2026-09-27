@@ -465,8 +465,7 @@ function bindRowInputs(row, item) {
     saveProducts();
     renderProducts();
     setMessage("Товар приховано з вітрини");
-    // Раніше видалення діяло лише в цьому браузері: у покупців товар лишався.
-    // Тепер дублюємо зміну в загальний каталог (сервер) — звідти сайт і бере дані.
+    // Дублюємо зміну в загальний каталог (сервер), інакше товар лишається у покупців
     runCloudSave(async () => {
       try {
         const res = await persistToCloud();
@@ -990,6 +989,87 @@ if (dashRefreshBtn) {
   dashRefreshBtn.addEventListener("click", () => loadDashboard());
 }
 
+let analyticsPeriod = "today";
+
+async function loadAnalytics(period) {
+  analyticsPeriod = period || analyticsPeriod;
+  const visitsEl = document.getElementById("analyticsVisits");
+  const uniqueEl = document.getElementById("analyticsUnique");
+  const returnEl = document.getElementById("analyticsReturn");
+  const sourcesEl = document.getElementById("analyticsSources");
+  const pagesEl = document.getElementById("analyticsPages");
+  const dailyEl = document.getElementById("analyticsDaily");
+  const errEl = document.getElementById("analyticsErr");
+
+  document.querySelectorAll("[data-analytics-period]").forEach((btn) => {
+    btn.classList.toggle("active", btn.getAttribute("data-analytics-period") === analyticsPeriod);
+  });
+
+  if (!visitsEl) return;
+
+  const url = await Catalog.getGoogleWebAppUrl();
+  if (!url) {
+    if (errEl) errEl.textContent = "Підключіть Google URL для статистики відвідувань.";
+    return;
+  }
+
+  try {
+    const data = await Catalog.fetchAnalytics(url, analyticsPeriod);
+    if (visitsEl) visitsEl.textContent = String(data.totalVisits ?? 0);
+    if (uniqueEl) uniqueEl.textContent = String(data.uniqueVisitors ?? 0);
+    if (returnEl) returnEl.textContent = String(data.returningVisitors ?? 0);
+
+    if (sourcesEl) {
+      const src = data.sources || [];
+      sourcesEl.innerHTML = src.length
+        ? src.map((s) => `<li><strong>${escapeHtml(s.source)}</strong> — ${s.count}</li>`).join("")
+        : "<li>Поки немає даних</li>";
+    }
+
+    if (pagesEl) {
+      const pg = data.pages || [];
+      pagesEl.innerHTML = pg.length
+        ? pg.map((p) => {
+            const name = p.page === "/" || p.page === "/index.html" ? "🏠 Головна" : escapeHtml(p.page);
+            return `<li>${name} — ${p.count}</li>`;
+          }).join("")
+        : "<li>Поки немає даних</li>";
+    }
+
+    if (dailyEl) {
+      const days = data.daily || [];
+      dailyEl.innerHTML = "";
+      if (days.length) {
+        const max = Math.max(...days.map((d) => d.count), 1);
+        days.forEach((d) => {
+          const h = Math.max(4, Math.round((d.count / max) * 56));
+          const bar = document.createElement("div");
+          bar.style.cssText = `flex:1;min-width:4px;background:var(--accent);border-radius:3px 3px 0 0;height:${h}px;position:relative;`;
+          bar.title = `${d.day}: ${d.count}`;
+          dailyEl.appendChild(bar);
+        });
+      } else {
+        dailyEl.innerHTML = '<span style="color:var(--muted);font-size:12px;">Немає даних</span>';
+      }
+    }
+
+    if (errEl) errEl.textContent = "";
+  } catch (err) {
+    if (errEl) errEl.textContent = "Аналітика: " + err.message;
+  }
+}
+
+document.querySelectorAll("[data-analytics-period]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    loadAnalytics(btn.getAttribute("data-analytics-period"));
+  });
+});
+
+const analyticsRefreshBtn = document.getElementById("analyticsRefreshBtn");
+if (analyticsRefreshBtn) {
+  analyticsRefreshBtn.addEventListener("click", () => loadAnalytics());
+}
+
 async function init() {
   if (adminBooted) return;
   setAdminLoading(true, "Завантаження каталогу з Google…");
@@ -1025,6 +1105,7 @@ async function init() {
       );
     }
     await loadDashboard();
+    loadAnalytics("today");
     adminBooted = true;
   } catch (err) {
     console.error(err);

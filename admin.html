@@ -524,6 +524,40 @@
         </div>
       </section>
 
+      <section class="card" id="analyticsSection">
+        <h2>📈 Відвідуваність сайту</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Статистика відвідувачів, джерела трафіку та популярні сторінки.</p>
+        <div class="toolbar" style="margin-bottom:12px;">
+          <button type="button" class="cat-filter-chip active" data-analytics-period="today">Сьогодні</button>
+          <button type="button" class="cat-filter-chip" data-analytics-period="7d">7 днів</button>
+          <button type="button" class="cat-filter-chip" data-analytics-period="30d">30 днів</button>
+          <button type="button" class="cat-filter-chip" data-analytics-period="all">Увесь час</button>
+        </div>
+        <div id="analyticsGrid" class="dash-grid">
+          <div class="dash-stat"><span class="dash-val" id="analyticsVisits">—</span><span class="dash-lbl">Відвідувань</span></div>
+          <div class="dash-stat"><span class="dash-val" id="analyticsUnique">—</span><span class="dash-lbl">Унікальних</span></div>
+          <div class="dash-stat"><span class="dash-val" id="analyticsReturn">—</span><span class="dash-lbl">Повернень</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+          <div>
+            <p style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">📡 Джерела трафіку</p>
+            <ul id="analyticsSources" class="dash-trending"></ul>
+          </div>
+          <div>
+            <p style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">📄 Сторінки</p>
+            <ul id="analyticsPages" class="dash-trending"></ul>
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <p style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">📊 Відвідування по днях</p>
+          <div id="analyticsDaily" style="display:flex;gap:3px;align-items:flex-end;height:60px;"></div>
+        </div>
+        <p id="analyticsErr" class="msg" style="margin-top:8px"></p>
+        <div class="toolbar" style="margin-top:10px;">
+          <button type="button" id="analyticsRefreshBtn">Оновити статистику</button>
+        </div>
+      </section>
+
       <section class="card">
         <h2>Google Диск (таблиця)</h2>
         <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">
@@ -625,6 +659,7 @@
   <script src="assets/js/admin-auth.js?v=35"></script>
   <script src="assets/js/catalog.js?v=43"></script>
   <script src="assets/js/admin.js?v=44"></script>
+  <script src="assets/js/analytics.js?v=1"></script>
 
   <div class="camera-overlay" id="cameraOverlay">
     <video class="camera-video" id="cameraVideo" autoplay playsinline></video>
@@ -634,5 +669,6 @@
       <button type="button" class="cam-capture" id="camCapture">📸 Зняти</button>
     </div>
   </div>
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){})}</script>
 </body>
 </html>
