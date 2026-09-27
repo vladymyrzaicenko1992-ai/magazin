@@ -735,5 +735,16 @@
     "unit": "pcs",
     "unit_min": 1.0,
     "unit_step": 1.0
+  },
+  {
+    "id": "coca-cola-05",
+    "name": "Кока-Кола 0,5 л",
+    "category": "Вода та напої",
+    "price": 35,
+    "image": "assets/img/products/voda/coca-cola-05.webp",
+    "sale_type": "pcs",
+    "unit": "pcs",
+    "unit_min": 1,
+    "unit_step": 1
   }
 ]
