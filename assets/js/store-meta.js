@@ -1,8 +1,8 @@
 (function () {
   const CAT_META = {
     Усі: { emoji: "✨", label: "Усі" },
-    Вареники: { emoji: "🥟", label: "Вареники", tagline: "ручна ліпка" },
-    Млинці: { emoji: "🥞", label: "Млинці", tagline: "домашні" },
+    Вареники: { emoji: "🥟", label: "Вареники", tagline: "різні начинки" },
+    Млинці: { emoji: "🥞", label: "Млинці", tagline: "з м'ясом і сиром" },
     Додатково: { emoji: "🥗", label: "Додатково", tagline: "до столу" },
     Котлети: { emoji: "🍖", label: "Котлети", tagline: "соковиті" },
     Пельмені: { emoji: "🥟", label: "Пельмені", tagline: "7 хв до тарілки" },
@@ -50,14 +50,14 @@
   ]);
 
   function getCatMeta(category) {
-    return CAT_META[category] || { emoji: "🍽️", label: category || "", tagline: "домашнє" };
+    return CAT_META[category] || { emoji: "🍽️", label: category || "", tagline: "заморожене" };
   }
 
   function getDisplayTitle(product) {
     return String(product.n || "").trim();
   }
 
-  /** Підзаголовок: emoji+категорія або «Домашні • …», без повтору повної назви */
+  /** Підзаголовок: «Категорія • теглайн», без повтору повної назви товару */
   function getDisplaySubtitle(product) {
     const meta = getCatMeta(product.c);
     const title = getDisplayTitle(product).toLowerCase();
@@ -65,7 +65,7 @@
     if (title === cat || title.startsWith(cat + " ") || title.startsWith(cat + "«")) {
       return `${meta.emoji} ${meta.label}`;
     }
-    return `Домашні • ${meta.tagline}`;
+    return `${meta.label} • ${meta.tagline}`;
   }
 
   function getDisplayTagline(product) {
